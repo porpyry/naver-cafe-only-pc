@@ -1,0 +1,16 @@
+{
+    "name": "모바일컷",
+    "description": "네이버 카페 게시글에서 모바일 링크를 PC 링크로 바꿔줍니다. 모바일 페이지는 PC 페이지로 리다이렉트됩니다.",
+    "version": "1.0.0",
+    "manifest_version": 3,
+    "content_scripts": [
+        {
+            "matches": [
+                "https://cafe.naver.com/*",
+                "https://m.cafe.naver.com/*"
+            ],
+            "all_frames": true,
+            "js": [ "content-script.js" ]
+        }
+    ]
+}
