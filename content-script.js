@@ -1,7 +1,5 @@
 function findNext(parent, className, callback) {
-    if (callback) return run(callback);
-    return new Promise((resolve) => run(resolve));
-    function run(caller) {
+    const run = (caller) => {
         const findChild = () => {
             let foundChild;
             for (const child of parent.children) {
@@ -12,7 +10,7 @@ function findNext(parent, className, callback) {
             }
             if (foundChild) caller(foundChild);
             return foundChild;
-        }
+        };
         if (!findChild() || callback) {
             new MutationObserver((mutations, observer) => {
                 for (const mutation of mutations) {
@@ -28,6 +26,12 @@ function findNext(parent, className, callback) {
             }).observe(parent, { childList: true });
         }
     };
+    if (callback) return run(callback);
+    return new Promise((resolve) => run(resolve));
+}
+
+function removeM(text) {
+    return text.replace("m.cafe.naver.com", "cafe.naver.com");
 }
 
 function changeLinks(links) {
@@ -41,15 +45,11 @@ function changeOglinks(oglinks) {
     for (const oglink of oglinks) {
         const thumbnail = oglink.querySelector("a.se-oglink-thumbnail");
         const info = oglink.querySelector("a.se-oglink-info");
-        const infoUrl = info.querySelector("p.se-oglink-url");
-        thumbnail.href = removeM(thumbnail.href);
-        info.href = removeM(info.href);
-        infoUrl.textContent = removeM(infoUrl.textContent);
+        const infoUrl = info?.querySelector("p.se-oglink-url");
+        if (thumbnail) thumbnail.href = removeM(thumbnail.href);
+        if (info) info.href = removeM(info.href);
+        if (infoUrl) infoUrl.textContent = removeM(infoUrl.textContent);
     }
-}
-
-function removeM(text) {
-    return text.replace("m.cafe.naver.com", "cafe.naver.com");
 }
 
 if (location.hostname === "cafe.naver.com") {
@@ -61,7 +61,6 @@ if (location.hostname === "cafe.naver.com") {
             const oglinks = articleWrap.querySelectorAll(".se-module-oglink");
             changeLinks(links);
             changeOglinks(oglinks);
-            console.log(`Cut ${links.length + oglinks.length} mobile links`);
         });
     }
 }
@@ -70,5 +69,6 @@ if (location.hostname === "m.cafe.naver.com") {
     const regexp = /\/ca-fe\/web\/cafes\/(?<cafeName>\w+)\/articles\/(?<articleId>\d+)/;
     const matches = location.pathname.match(regexp);
     const { cafeName, articleId } = matches.groups;
-    location.replace(`https://cafe.naver.com/${cafeName}/${articleId}`);
+    if (cafeName && articleId)
+        location.replace(`https://cafe.naver.com/${cafeName}/${articleId}`);
 }
