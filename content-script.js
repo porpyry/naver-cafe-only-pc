@@ -1,3 +1,25 @@
+function init() {
+    if (location.hostname === "cafe.naver.com") {
+        replaceMFromLinks();
+    }
+    if (location.hostname === "m.cafe.naver.com") {
+        redirectToPC();
+    }
+}
+
+function replaceMFromLinks() {
+    const app = document.querySelector("#app");
+    if (app) {
+        findNext(app, "Article", async (article) => {
+            const articleWrap = await findNext(article, "article_wrap");
+            const links = articleWrap.querySelectorAll("a.se-link");
+            const oglinks = articleWrap.querySelectorAll(".se-module-oglink");
+            changeLinks(links);
+            changeOglinks(oglinks);
+        });
+    }
+}
+
 function findNext(parent, className, callback) {
     const run = (caller) => {
         const findChild = () => {
@@ -30,10 +52,6 @@ function findNext(parent, className, callback) {
     return new Promise((resolve) => run(resolve));
 }
 
-function removeM(text) {
-    return text.replace("m.cafe.naver.com", "cafe.naver.com");
-}
-
 function changeLinks(links) {
     for (const link of links) {
         link.href = removeM(link.href);
@@ -52,23 +70,51 @@ function changeOglinks(oglinks) {
     }
 }
 
-if (location.hostname === "cafe.naver.com") {
-    const app = document.querySelector("#app");
-    if (app) {
-        findNext(app, "Article", async (article) => {
-            const articleWrap = await findNext(article, "article_wrap");
-            const links = articleWrap.querySelectorAll("a.se-link");
-            const oglinks = articleWrap.querySelectorAll(".se-module-oglink");
-            changeLinks(links);
-            changeOglinks(oglinks);
-        });
+function removeM(text) {
+    return text.replace("m.cafe.naver.com", "cafe.naver.com");
+}
+
+function redirectToPC() {
+    // cafeName
+    {
+        const regexp = /^\/(ca-fe\/)?(?<cafeName>\w+)\/?$/;
+        const matches = location.pathname.match(regexp);
+        if (matches) {
+            const { cafeName } = matches.groups;
+            if (cafeName)
+                return location.replace(`https://cafe.naver.com/${cafeName}`);
+        }
+    }
+    // cafeId, menuId
+    {
+        const regexp = /^\/ca-fe\/web\/cafes\/(?<cafeId>\d+)\/menus\/(?<menuId>\d+)/;
+        const matches = location.pathname.match(regexp);
+        if (matches) {
+            const { cafeId, menuId } = matches.groups;
+            if (cafeId && menuId)
+                return location.replace(`https://cafe.naver.com/ArticleList.nhn?search.clubid=${cafeId}&search.menuid=${menuId}`);
+        }
+    }
+    // cafeId, articleId
+    {
+        const regexp = /^\/ca-fe\/web\/cafes\/(?<cafeId>\d+)\/articles\/(?<articleId>\d+)/;
+        const matches = location.pathname.match(regexp);
+        if (matches) {
+            const { cafeId, articleId } = matches.groups;
+            if (cafeId && articleId)
+                return location.replace(`https://cafe.naver.com/ArticleRead.nhn?clubid=${cafeId}&articleid=${articleId}`);
+        }
+    }
+    // cafeName, articleId
+    {
+        const regexp = /^\/ca-fe\/web\/cafes\/(?<cafeName>\w+)\/articles\/(?<articleId>\d+)/;
+        const matches = location.pathname.match(regexp);
+        if (matches) {
+            const { cafeName, articleId } = matches.groups;
+            if (cafeName && articleId)
+                return location.replace(`https://cafe.naver.com/${cafeName}/${articleId}`);
+        }
     }
 }
 
-if (location.hostname === "m.cafe.naver.com") {
-    const regexp = /\/ca-fe\/web\/cafes\/(?<cafeName>\w+)\/articles\/(?<articleId>\d+)/;
-    const matches = location.pathname.match(regexp);
-    const { cafeName, articleId } = matches.groups;
-    if (cafeName && articleId)
-        location.replace(`https://cafe.naver.com/${cafeName}/${articleId}`);
-}
+init();
