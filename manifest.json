@@ -1,7 +1,7 @@
 {
   "name": "네이버 카페 only PC",
-  "description": "네이버 카페를 PC 버전으로 이용할 때 불편함을 줄여줍니다.",
-  "version": "1.2.0",
+  "description": "새 탭에서 열기 속도 향상, 모바일 페이지 연결 방지",
+  "version": "1.2.1",
   "manifest_version": 3,
   "background": {
     "service_worker": "background.js"
