@@ -1,7 +1,7 @@
 "use strict";
 
 const options = {};
-const nameIdMap = {};
+const cafeInfo = new Map();
 
 async function init() {
     Object.assign(options, await chrome.storage.sync.get(null));
@@ -9,10 +9,9 @@ async function init() {
         return;
     }
 
-    findCafeInfo();
-
     if (location.hostname === "cafe.naver.com") {
         if (options.MTP_article || options.CTA_board || options.CTA_article) {
+            findCafeInfoInDocument();
             initCafe(document);
             observeMainDocument(initCafe);
         }
@@ -24,7 +23,7 @@ async function init() {
     }
 }
 
-function findCafeInfo() {
+function findCafeInfoInDocument() {
     const a_id = document.querySelector("#front-cafe a");
     if (!a_id) {
         return;
@@ -43,9 +42,7 @@ function findCafeInfo() {
     if (!cafeName) {
         return;
     }
-    const items = {};
-    items[cafeName] = cafeId;
-    chrome.storage.local.set(items);
+    cafeInfo.set(cafeName, cafeId);
 }
 
 function observeMainDocument(callback) {
@@ -176,7 +173,40 @@ async function initArticle(article) {
 
     // change cafe link to article link (cta)
     if (options.CTA_article) {
-        await cta_links_oglinks(links, oglinks);
+        await findCafeInfoInArticle(articleWrap);
+        cta_links_oglinks(links, oglinks);
+        await editCopyUrlButton(articleWrap);
+    }
+
+    async function findCafeInfoInArticle(articleWrap) {
+        if (cafeInfo.size > 0) {
+            return;
+        }
+        const btns = await findNext(articleWrap, "ArticleTopBtns");
+        const a = btns?.querySelector(".right_area a");
+        if (!a) {
+            return;
+        }
+        const url = new URL(a.href);
+        const cafeName = url.pathname.substring(1);
+        const iframeLink = url.searchParams.get("iframe_url");
+        if (!iframeLink) {
+            return;
+        }
+        const iframeUrl = new URL(url.origin + url.pathname + iframeLink);
+        const cafeId = iframeUrl.searchParams.get("search.clubid");
+        if (cafeName && cafeId) {
+            cafeInfo.set(cafeName, cafeId);
+        }
+    }
+
+    async function editCopyUrlButton(articleWrap) {
+        const articleContent = await findNext(articleWrap, "ArticleContentBox");
+        const buttonUrl = articleContent.querySelector("a.button_url")
+        if (buttonUrl) {
+            const loc = buttonUrl.ownerDocument.location;
+            buttonUrl.href = loc.origin + loc.pathname;
+        }
     }
 
     function remove_m_fromLinks(links) {
@@ -203,9 +233,9 @@ async function initArticle(article) {
         return text.replace("m.cafe.naver.com", "cafe.naver.com");
     }
 
-    async function cta_links_oglinks(links, oglinks) {
+    function cta_links_oglinks(links, oglinks) {
         for (const link of links) {
-            const href = await cta_getArticleHref(link.href);
+            const href = cta_getArticleHref(link.href);
             if (href) {
                 if (link.textContent === link.href) {
                     link.textContent = href;
@@ -217,13 +247,13 @@ async function initArticle(article) {
             const thumbnail = oglink.querySelector("a.se-oglink-thumbnail");
             const info = oglink.querySelector("a.se-oglink-info");
             if (thumbnail) {
-                const href = await cta_getArticleHref(thumbnail.href);
+                const href = cta_getArticleHref(thumbnail.href);
                 if (href) {
                     thumbnail.href = href;
                 }
             }
             if (info) {
-                const href = await cta_getArticleHref(info.href);
+                const href = cta_getArticleHref(info.href);
                 if (href) {
                     info.href = href;
                 }
@@ -231,69 +261,57 @@ async function initArticle(article) {
         }
     }
 
-    async function cta_getArticleHref(href) {
-        const [cafeId, articleId] = await getIdsFromURL(new URL(href));
+    function cta_getArticleHref(href) {
+        const [cafeId, articleId] = getIdsFromURL(new URL(href));
         if (cafeId && articleId) {
             return `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}`;
         }
     }
-}
 
-// return [cafeId, articleId]
-async function getIdsFromURL(url) {
-    {
-        const regexp = /^\/(?<cafeName>\w+)\/(?<articleId>\d+)/;
-        const matches = url.pathname.match(regexp);
-        if (matches) {
-            const { cafeName, articleId } = matches.groups;
-            if (cafeName && articleId) {
-                const cafeId = await getCafeId(cafeName);
-                if (cafeId) {
+    // return [cafeId, articleId]
+    function getIdsFromURL(url) {
+        {
+            const regexp = /^\/(?<cafeName>\w+)\/(?<articleId>\d+)/;
+            const matches = url.pathname.match(regexp);
+            if (matches) {
+                const { cafeName, articleId } = matches.groups;
+                if (cafeName && articleId) {
+                    const cafeId = cafeInfo.get(cafeName);
+                    if (cafeId) {
+                        return [cafeId, articleId];
+                    }
+                }
+            }
+        }
+        if (url.pathname === "/ArticleRead.nhn") {
+            const cafeId = url.searchParams.get("clubid");
+            const articleId = url.searchParams.get("articleid");
+            if (cafeId && articleId) {
+                return [cafeId, articleId];
+            }
+        }
+        {
+            const iframeLink = url.searchParams.get("iframe_url_utf8");
+            if (iframeLink) {
+                const iframeUrl = new URL(url.origin + url.pathname + decodeURIComponent(iframeLink));
+                const cafeId = iframeUrl.searchParams.get("clubid");
+                const articleId = iframeUrl.searchParams.get("articleid");
+                if (cafeId && articleId) {
                     return [cafeId, articleId];
                 }
             }
         }
-    }
-    if (url.pathname === "/ArticleRead.nhn") {
-        const cafeId = url.searchParams.get("clubid");
-        const articleId = url.searchParams.get("articleid");
-        if (cafeId && articleId) {
-            return [cafeId, articleId];
-        }
-    }
-    {
-        const iframeLink = url.searchParams.get("iframe_url_utf8");
-        if (iframeLink) {
-            const iframeUrl = new URL(url.origin + url.pathname + decodeURL(iframeLink));
-            const cafeId = iframeUrl.searchParams.get("clubid");
-            const articleId = iframeUrl.searchParams.get("articleid");
-            if (cafeId && articleId) {
-                return [cafeId, articleId];
+        {
+            const regexp = /^\/ca-fe\/cafes\/(?<cafeId>\w+)\/articles\/(?<articleId>\d+)/;
+            const matches = url.pathname.match(regexp);
+            if (matches) {
+                const { cafeId, articleId } = matches.groups;
+                if (cafeId && articleId) {
+                    return [cafeId, articleId];
+                }
             }
         }
-    }
-    {
-        const regexp = /^\/ca-fe\/cafes\/(?<cafeId>\w+)\/articles\/(?<articleId>\d+)/;
-        const matches = url.pathname.match(regexp);
-        if (matches) {
-            const { cafeId, articleId } = matches.groups;
-            if (cafeId && articleId) {
-                return [cafeId, articleId];
-            }
-        }
-    }
-    return [undefined, undefined];
-}
-
-async function getCafeId(cafeName) {
-    if (cafeName in nameIdMap) {
-        return nameIdMap[cafeName];
-    }
-    const items = await chrome.storage.local.get(cafeName);
-    const cafeId = items[cafeName];
-    if (cafeId) {
-        nameIdMap[cafeName] = cafeId;
-        return cafeId;
+        return [undefined, undefined];
     }
 }
 

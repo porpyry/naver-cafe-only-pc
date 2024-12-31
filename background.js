@@ -1,8 +1,5 @@
 "use strict";
 
-// sync : options
-// local : cafe name -> cafe id map
-
 const defaultOptions = {
     enableApp: true,
     // Mobile link To PC link
