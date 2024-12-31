@@ -1,19 +1,33 @@
 {
-    "name": "네이버 카페 only PC",
-    "description": "네이버 카페가 모바일 버전이 아닌 PC 버전으로 열리도록 합니다.",
-    "version": "1.0.5",
-    "manifest_version": 3,
-    "icons": {
-        "128": "icon.png"
-    },
-    "content_scripts": [
-        {
-            "matches": [
-                "https://cafe.naver.com/*",
-                "https://m.cafe.naver.com/*"
-            ],
-            "all_frames": true,
-            "js": [ "content-script.js" ]
-        }
-    ]
+  "name": "네이버 카페 only PC",
+  "description": "네이버 카페를 PC 버전으로 이용할 때 불편함을 줄여줍니다.",
+  "version": "1.2.0",
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "icon.png"
+    }
+  },
+  "icons": {
+    "128": "icon.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://cafe.naver.com/*",
+        "https://m.cafe.naver.com/*"
+      ],
+      "js": [
+        "content-script.js"
+      ]
+    }
+  ],
+  "options_page": "popup.html"
 }
