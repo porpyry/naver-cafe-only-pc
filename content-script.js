@@ -94,6 +94,9 @@ async function initMemberProfile(memberProfile) {
             ]) {
                 if (anchor) {
                     anchor.href = cta_link(anchor.href);
+                    anchor.target = "_self";
+                    // clear weird listeners
+                    anchor.parentNode.replaceChild(anchor.cloneNode(true), anchor);
                 }
             }
         }
@@ -101,6 +104,7 @@ async function initMemberProfile(memberProfile) {
 }
 
 function initArticleList(mainArea) {
+    // list type
     for (const item of mainArea.querySelectorAll(".article-board .inner_list")) {
         for (const anchor of [
             item.querySelector("a.article"), // title
@@ -111,6 +115,7 @@ function initArticleList(mainArea) {
             }
         }
     }
+    // album type
     for (const item of mainArea.querySelectorAll("ul.article-album-sub li")) {
         for (const anchor of [
             item.querySelector("a.album-img"), // image
@@ -122,22 +127,7 @@ function initArticleList(mainArea) {
             }
         }
     }
-    for (const item of mainArea.querySelectorAll("ul.album-box li")) {
-        let href = "";
-        for (const anchor of [
-            item.querySelector(".photo a"), // image
-            item.querySelector(".tit a.m-tcol-c") // title
-        ]) {
-            if (anchor) {
-                anchor.href = cta_link(anchor.href) + "&boardtype=I";
-                href = anchor.href;
-            }
-        }
-        const a_comment = item.querySelector(".tit a.m-tcol-p");
-        if (a_comment) {
-            a_comment.href = href + "&commentFocus=true";
-        }
-    }
+    // details type
     for (const item of mainArea.querySelectorAll("ul.article-movie-sub .card_area")) {
         for (const anchor of [
             item.querySelector("a.tit"), // title
@@ -148,6 +138,32 @@ function initArticleList(mainArea) {
                 anchor.href = cta_link(anchor.href);
             }
         }
+    }
+    // main page
+    for (const item of mainArea.querySelectorAll("ul.album-box li")) {
+        let href = "";
+        for (const anchor of [
+            item.querySelector(".photo a"), // image
+            item.querySelector(".tit a.m-tcol-c") // title
+        ]) {
+            if (anchor) {
+                anchor.href = cta_link(anchor.href) + "&boardtype=I";
+                href = anchor.href;
+                // clear weird listeners
+                anchor.removeAttribute("onclick");
+                anchor.parentNode.replaceChild(anchor.cloneNode(true), anchor);
+            }
+        }
+        const a_comment = item.querySelector(".tit a.m-tcol-p");
+        if (a_comment) {
+            a_comment.href = href + "&commentFocus=true";
+        }
+    }
+    // main page menu title
+    for (const anchor of mainArea.querySelectorAll(".list-tit a")) {
+        // clear weird listeners
+        anchor.removeAttribute("onclick");
+        anchor.parentNode.replaceChild(anchor.cloneNode(true), anchor);
     }
 }
 
@@ -194,7 +210,10 @@ async function initArticle(article) {
             return;
         }
         const iframeUrl = new URL(url.origin + url.pathname + iframeLink);
-        const cafeId = iframeUrl.searchParams.get("search.clubid");
+        let cafeId = iframeUrl.searchParams.get("search.clubid");
+        if (!cafeId) {
+            cafeId = iframeUrl.searchParams.get("clubid");
+        }
         if (cafeName && cafeId) {
             cafeInfo.set(cafeName, cafeId);
         }
