@@ -62,9 +62,7 @@ function initCafe(doc) {
     if (options.MTP_article || options.CTA_article || options.CTA_board) {
         const app = doc.querySelector("#app");
         if (app) {
-            if (options.MTP_article || options.CTA_article) {
-                findNext(app, "Article", initArticle);
-            }
+            findNext(app, "Article", initArticle);
             if (options.CTA_board) {
                 findNext(app, "MemberProfile", initMemberProfile);
             }
@@ -182,21 +180,31 @@ function cta_link(href) {
 
 async function initArticle(article) {
     const articleWrap = await findNext(article, "article_wrap");
-    const links = articleWrap.querySelectorAll("a.se-link");
-    const oglinks = articleWrap.querySelectorAll(".se-module-oglink");
-
-    // change mobile link to PC
-    if (options.MTP_article) {
-        remove_m_fromLinks(links);
-        remove_m_fromOglinks(oglinks);
-    }
-
-    // change cafe link to article link (cta)
     if (options.CTA_article) {
         await findCafeInfoInArticle(articleWrap);
-        cta_links_oglinks(links, oglinks);
-        editCopyUrlButton(articleWrap); // Copy URL button (wheel click)
-        editProfileCard(articleWrap); // Other Extension - Naver Cafe Addon
+    }
+
+    if (options.MTP_article || options.CTA_article) {
+        const links = articleWrap.querySelectorAll("a.se-link");
+        const oglinks = articleWrap.querySelectorAll(".se-module-oglink");
+
+        // change mobile link to PC
+        if (options.MTP_article) {
+            remove_m_fromLinks(links);
+            remove_m_fromOglinks(oglinks);
+        }
+
+        // change cafe link to article link (cta)
+        if (options.CTA_article) {
+            cta_links_oglinks(links, oglinks);
+            editCopyUrlButton(articleWrap); // Copy URL button (wheel click)
+            editProfileCard(articleWrap); // Other Extension - Naver Cafe Addon
+        }
+    }
+
+    if (options.CTA_board) {
+        cta_relatedArticles(articleWrap);
+        cta_popularArticles(articleWrap);
     }
 
     async function findCafeInfoInArticle(articleWrap) {
@@ -224,12 +232,25 @@ async function initArticle(article) {
         }
     }
 
-    async function editCopyUrlButton(articleWrap) {
-        const articleContent = await findNext(articleWrap, "ArticleContentBox");
-        const buttonUrl = articleContent.querySelector("a.button_url")
-        if (buttonUrl) {
-            const loc = buttonUrl.ownerDocument.location;
-            buttonUrl.href = loc.origin + loc.pathname;
+    async function cta_relatedArticles(articleWrap) {
+        const relatedArticles = await findChild(articleWrap, "RelatedArticles");
+        const relatedArticlesList = await findChild(relatedArticles, "RelatedArticlesList");
+        for (const anchor of relatedArticlesList.querySelectorAll(".tit_area a.tit")) {
+            anchor.href = cta_link(anchor.href);
+            whenElementChanged(anchor, (el) => {
+                el.href = cta_link(el.href);
+            });
+        }
+    }
+
+    async function cta_popularArticles(articleWrap) {
+        const popularArticles = await findChild(articleWrap, "PopularArticles");
+        for (const anchor of popularArticles.querySelectorAll("li.list_item a.link")) {
+            anchor.href = cta_link(anchor.href);
+            // todo: cannot remove weird listeners
+            whenElementChanged(anchor, (el) => {
+                el.href = cta_link(el.href);
+            });
         }
     }
 
@@ -338,6 +359,15 @@ async function initArticle(article) {
         return [undefined, undefined];
     }
 
+    async function editCopyUrlButton(articleWrap) {
+        const articleContent = await findNext(articleWrap, "ArticleContentBox");
+        const buttonUrl = articleContent.querySelector("a.button_url")
+        if (buttonUrl) {
+            const loc = buttonUrl.ownerDocument.location;
+            buttonUrl.href = loc.origin + loc.pathname;
+        }
+    }
+
     // 네이버 카페 애드온 (epcibdcgmbiimdleghmeldeopdjcaeic)
     async function editProfileCard(articleWrap) {
         const articleWriterProfile = articleWrap.querySelector(".article_writer .ArticleWriterProfile");
@@ -405,7 +435,7 @@ function redirectToPC() {
 }
 
 // Utils
-// from 'parent', find or observe 'className' child.
+// from 'parent', find or observe 'className' (direct) child.
 // when the child is found or already exists, call callback(child)
 // callback will not be disconnected after child is found.
 // if callback is undefined, return a Promise that observes once.
@@ -486,6 +516,35 @@ function findNextTag(parent, tagName, callback) {
             }).observe(parent, { childList: true });
         }
     };
+}
+
+function findChild(parent, className) {
+    return new Promise((resolve) => {
+        const foundChild = parent.querySelector(`.${className}`);
+        if (foundChild) {
+            resolve(foundChild);
+            return;
+        }
+        new MutationObserver((mutations, observer) => {
+            for (const mutation of mutations) {
+                for (const node of mutation.addedNodes) {
+                    if (node.classList?.contains(className)) {
+                        resolve(node);
+                        observer.disconnect();
+                        return;
+                    }
+                }
+            }
+        }).observe(parent, { childList: true, subtree: true });
+    });
+}
+
+function whenElementChanged(element, callback) {
+    new MutationObserver((mutations, _) => {
+        if (mutations.length > 0) {
+            callback(element);
+        }
+    }).observe(element, { characterData: true, subtree: true });
 }
 
 init();
