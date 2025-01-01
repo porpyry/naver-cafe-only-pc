@@ -93,7 +93,7 @@ async function initMemberProfile(memberProfile) {
                 item.querySelector("a.cmt") // comment
             ]) {
                 if (anchor) {
-                    anchor.href = cta_link(anchor.href);
+                    anchor.href = cta_relatedLink(anchor.href);
                     anchor.target = "_self";
                     // clear weird listeners
                     anchor.parentNode.replaceChild(anchor.cloneNode(true), anchor);
@@ -111,7 +111,7 @@ function initArticleList(mainArea) {
             item.querySelector("a.cmt") // comment
         ]) {
             if (anchor) {
-                anchor.href = cta_link(anchor.href);
+                anchor.href = cta_relatedLink(anchor.href);
             }
         }
     }
@@ -123,7 +123,7 @@ function initArticleList(mainArea) {
             item.querySelector("a.m-tcol-p") // comment
         ]) {
             if (anchor) {
-                anchor.href = cta_link(anchor.href);
+                anchor.href = cta_relatedLink(anchor.href);
             }
         }
     }
@@ -135,7 +135,7 @@ function initArticleList(mainArea) {
             item.querySelector(".movie-img a") // image
         ]) {
             if (anchor) {
-                anchor.href = cta_link(anchor.href);
+                anchor.href = cta_relatedLink(anchor.href);
             }
         }
     }
@@ -147,7 +147,7 @@ function initArticleList(mainArea) {
             item.querySelector(".tit a.m-tcol-c") // title
         ]) {
             if (anchor) {
-                anchor.href = cta_link(anchor.href) + "&boardtype=I";
+                anchor.href = cta_relatedLink(anchor.href) + "&boardtype=I";
                 href = anchor.href;
                 // clear weird listeners
                 anchor.removeAttribute("onclick");
@@ -167,8 +167,12 @@ function initArticleList(mainArea) {
     }
 }
 
+function cta_relatedLink(href) {
+    return cta_link("https://cafe.naver.com" + href)
+}
+
 function cta_link(href) {
-    const url = new URL("https://cafe.naver.com" + href);
+    const url = new URL(href);
     const cafeId = url.searchParams.get("clubid");
     const articleId = url.searchParams.get("articleid");
     if (cafeId && articleId) {
@@ -191,7 +195,8 @@ async function initArticle(article) {
     if (options.CTA_article) {
         await findCafeInfoInArticle(articleWrap);
         cta_links_oglinks(links, oglinks);
-        await editCopyUrlButton(articleWrap);
+        editCopyUrlButton(articleWrap); // Copy URL button (wheel click)
+        editProfileCard(articleWrap); // Other Extension - Naver Cafe Addon
     }
 
     async function findCafeInfoInArticle(articleWrap) {
@@ -331,6 +336,23 @@ async function initArticle(article) {
             }
         }
         return [undefined, undefined];
+    }
+
+    // 네이버 카페 애드온 (epcibdcgmbiimdleghmeldeopdjcaeic)
+    async function editProfileCard(articleWrap) {
+        const articleWriterProfile = articleWrap.querySelector(".article_writer .ArticleWriterProfile");
+        const profileArea = await findNext(articleWriterProfile, "profileArea");
+        for (const anchor of profileArea.querySelectorAll("li.recentArticleItem a")) {
+            anchor.href = cta_link(anchor.href);
+        }
+        {
+            const profileCardImage = profileArea.querySelector("img.profileCircle");
+            const profileCardImageAnchor = document.createElement("a");
+            const profileThumbAnchor = articleWrap.querySelector(".thumb_area a");
+            profileCardImageAnchor.href = profileThumbAnchor.href;
+            profileCardImage.parentNode.insertBefore(profileCardImageAnchor, profileCardImage);
+            profileCardImageAnchor.appendChild(profileCardImage);
+        }
     }
 }
 
