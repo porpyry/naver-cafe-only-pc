@@ -7,7 +7,8 @@ const defaultOptions = {
     MTP_article: true,
     // Cafe link To Article link
     CTA_board: true,
-    CTA_article: true
+    CTA_article: true,
+    CTA_advanced: true
 };
 
 chrome.runtime.onInstalled.addListener(async (details) => {
