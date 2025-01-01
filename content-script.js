@@ -62,7 +62,9 @@ function initCafe(doc) {
     if (options.MTP_article || options.CTA_article || options.CTA_board) {
         const app = doc.querySelector("#app");
         if (app) {
-            findNext(app, "Article", initArticle);
+            if (options.MTP_article || options.CTA_article) {
+                findNext(app, "Article", initArticle);
+            }
             if (options.CTA_board) {
                 findNext(app, "MemberProfile", initMemberProfile);
             }
@@ -180,29 +182,22 @@ function cta_link(href) {
 
 async function initArticle(article) {
     const articleWrap = await findNext(article, "article_wrap");
+    const links = articleWrap.querySelectorAll("a.se-link");
+    const oglinks = articleWrap.querySelectorAll(".se-module-oglink");
+
+    // change mobile link to PC
+    if (options.MTP_article) {
+        remove_m_fromLinks(links);
+        remove_m_fromOglinks(oglinks);
+    }
+
+    // change cafe link to article link (cta)
     if (options.CTA_article) {
         await findCafeInfoInArticle(articleWrap);
-    }
-
-    if (options.MTP_article || options.CTA_article) {
-        const links = articleWrap.querySelectorAll("a.se-link");
-        const oglinks = articleWrap.querySelectorAll(".se-module-oglink");
-
-        // change mobile link to PC
-        if (options.MTP_article) {
-            remove_m_fromLinks(links);
-            remove_m_fromOglinks(oglinks);
-        }
-
-        // change cafe link to article link (cta)
-        if (options.CTA_article) {
-            cta_links_oglinks(links, oglinks);
-            editCopyUrlButton(articleWrap); // Copy URL button (wheel click)
-            editProfileCard(articleWrap); // Other Extension - Naver Cafe Addon
-        }
-    }
-
-    if (options.CTA_board) {
+        editPrevNextButtons(articleWrap);
+        editCopyUrlButton(articleWrap); // Copy URL button (wheel click)
+        cta_links_oglinks(links, oglinks);
+        editProfileCard(articleWrap); // Other Extension - Naver Cafe Addon
         cta_relatedArticles(articleWrap);
         cta_popularArticles(articleWrap);
     }
@@ -247,7 +242,7 @@ async function initArticle(article) {
         const popularArticles = await findChild(articleWrap, "PopularArticles");
         for (const anchor of popularArticles.querySelectorAll("li.list_item a.link")) {
             anchor.href = cta_link(anchor.href);
-            // todo: cannot remove weird listeners
+            // bug: cannot remove weird listeners
             whenElementChanged(anchor, (el) => {
                 el.href = cta_link(el.href);
             });
@@ -359,6 +354,27 @@ async function initArticle(article) {
         return [undefined, undefined];
     }
 
+    function editPrevNextButtons(articleWrap) {
+        findChild(articleWrap, "btn_prev").then((prevBtn) => {
+            const url = new URL(prevBtn.href);
+            const iframeLink = url.searchParams.get("iframe_url");
+            if (iframeLink) {
+                prevBtn.href = cta_link(url.origin + url.pathname + iframeLink);
+                // clear weird listeners
+                prevBtn.parentNode.replaceChild(prevBtn.cloneNode(true), prevBtn);
+            }
+        });
+        findChild(articleWrap, "btn_next").then((nextBtn) => {
+            const url = new URL(nextBtn.href);
+            const iframeLink = url.searchParams.get("iframe_url");
+            if (iframeLink) {
+                nextBtn.href = cta_link(url.origin + url.pathname + iframeLink);
+                // clear weird listeners
+                nextBtn.parentNode.replaceChild(nextBtn.cloneNode(true), nextBtn);
+            }
+        });
+    }
+
     async function editCopyUrlButton(articleWrap) {
         const articleContent = await findNext(articleWrap, "ArticleContentBox");
         const buttonUrl = articleContent.querySelector("a.button_url")
@@ -431,7 +447,7 @@ function redirectToPC() {
             }
         }
     }
-    //todo /member/
+    // todo /member/
 }
 
 // Utils

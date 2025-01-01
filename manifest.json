@@ -1,7 +1,7 @@
 {
   "name": "네이버 카페 only PC",
   "description": "모바일 페이지를 PC 페이지로 엽니다. 새 탭에서 열 때 게시글 부분만 로딩하여 속도를 향상시킵니다.",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "manifest_version": 3,
   "background": {
     "service_worker": "background.js"
