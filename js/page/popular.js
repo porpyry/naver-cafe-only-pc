@@ -44,7 +44,7 @@ async function initPopularTable(tbody) {
                 if (aTitle) {
                     const textNode = aTitle.firstChild;
                     if (textNode?.nodeType === Node.TEXT_NODE) {
-                        makeClickShield(textNode);
+                        makeClickShield(textNode, true); // default: smooth
                     }
                 }
 
@@ -55,7 +55,7 @@ async function initPopularTable(tbody) {
                         const span = doc.createElement("span");
                         span.append(...aComment.childNodes);
                         aComment.appendChild(span);
-                        makeClickShield(span);
+                        makeClickShield(span, true); // default: smooth
                     }
                 }
             }

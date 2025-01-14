@@ -7,7 +7,8 @@ window.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    return init();
+    init();
+    return;
 
 
 
@@ -23,13 +24,15 @@ window.addEventListener("DOMContentLoaded", async () => {
             case "home": // .../cafeName
             case "article": // .../cafeName/articleId
             case "iframe": // .../cafeName?iframe_url=/...
-                return initFront();
+                initFront();
+                return;
             case "popular-top": // .../ca-fe/cafes/cafeId/popular
-                return initPopular(document);
             case "article-top": // .../ca-fe/cafes/cafeId/articles/articleId
-                return initArticle(document);
+                initApp(document);
+                return;
             case "member-top": // .../ca-fe/cafes/cafeId/members/memberCode
-                return initMember(document);
+                initMember(document);
+                return;
         }
     }
 
@@ -47,18 +50,22 @@ window.addEventListener("DOMContentLoaded", async () => {
 
                 switch (info.type) {
                     case "home-nhn":
-                        return initHomePage(doc);
+                        initHomePage(doc);
+                        return;
                     case "popular-top":
-                        return initPopular(doc);
-                    case "board-nhn":
-                        return initBoardPage(doc);
                     case "article-nhn":
                     case "article-top":
-                        return initArticle(doc);
+                        initApp(doc);
+                        return;
+                    case "board-nhn":
+                        initBoardPage(doc);
+                        return;
                     case "member-top":
-                        return initMember(doc);
+                        initMember(doc);
+                        return;
                     case "search-nhn":
-                        return initSearchPage(doc);
+                        initSearchPage(doc);
+                        return;
                     default:
                         DEF_cleanUpUrl(doc);
                         return;
@@ -85,7 +92,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    async function initPopular(doc) {
+    async function initApp(doc) {
         const app = await getApp(doc);
 
         // 게시글
@@ -95,10 +102,10 @@ window.addEventListener("DOMContentLoaded", async () => {
         });
 
         // 인기글 목록
-        watchingChild(app, "section.layout_content", initPopularInner);
+        watchingChild(app, "section.layout_content", initPopular);
     }
 
-    function initPopularInner(section) {
+    function initPopular(section) {
         const doc = section.ownerDocument;
 
         initPopularPage(doc);
@@ -126,13 +133,6 @@ window.addEventListener("DOMContentLoaded", async () => {
             pageChangeObserver.disconnect();
             pageChangeObserver.observe(tbody, { childList: true });
         });
-    }
-
-    async function initArticle(doc) {
-        const app = await getApp(doc);
-        const article = await watchSelector(app, ".Article");
-        const container = await watchSelector(article, ".ArticleContainerWrap");
-        initArticlePage(container);
     }
 
     async function initMember(doc) {

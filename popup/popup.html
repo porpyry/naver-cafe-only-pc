@@ -8,7 +8,7 @@
   <body>
     <div id="header">
       <span>Naver Cafe Only PC</span>
-      <span><br>v1.3.0</span> <!-- sync with manifest.json -->
+      <span><br>v2.0.0</span> <!-- sync with manifest.json -->
     </div>
     <div id="options">
       <div class="option-checkbox">
@@ -55,14 +55,12 @@
             <div class="option-checkbox" title="즐겨찾기된 게시판을 드래그해서 순서를 변경합니다.">
               <label><input type="checkbox" name="CON_favoriteorder">게시판 즐겨찾기 순서 변경</label>
             </div>
-            <div class="option-checkbox" title="즐겨찾는 게시판, 전체글보기 선택 범위를 넓힙니다.">
-              <label><input type="checkbox" name="CON_easytopmenu">즐찾·전체글 선택 쉽게</label>
-            </div>
-            <div class="option-checkbox" title="게시글 하단에 이전글, 다음글 버튼을 추가합니다.">
-              <label><input type="checkbox" name="CON_prevnextbtn">게시글 하단 이전글·다음글</label>
-            </div>
-            <div class="option-checkbox" title="게시글을 좌클릭했을 때 기본적으로 새 탭으로 엽니다.">
+            <div class="option-checkbox" title="게시글을 클릭했을 때 기본적으로 새 탭으로 엽니다.">
               <label><input type="checkbox" name="CON_defaultnewtab">기본 새 탭으로 열기</label>
+            </div>
+            <div class="option-checkbox" title="즐겨찾는 게시판, 전체글보기 선택 범위를 넓힙니다.
+게시글 하단에 이전글, 다음글 버튼을 추가합니다.">
+              <label><input type="checkbox" name="CON_accessibility">접근성 개선</label>
             </div>
           </div>
         </div>
@@ -72,6 +70,9 @@
           <div class="group-items">
             <div class="option-checkbox" title="컨트롤 클릭으로 새 탭이 열리지 않는 버그를 일부 해결합니다.">
               <label><input type="checkbox" name="EXP_ctrlclick">컨트롤 클릭 개선</label>
+            </div>
+            <div class="option-checkbox" title="이전글, 다음글을 눌렀을 때 내용 부분만 다시 로딩합니다.">
+              <label><input type="checkbox" name="EXP_smoothapp">이전글·다음글 부드럽게 전환</label>
             </div>
           </div>
         </div>

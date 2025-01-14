@@ -11,10 +11,10 @@ const defaultOptions = {
     CON_prevnextkey: true,
     CON_inputkey: true,
     CON_favoriteorder: true,
-    CON_easytopmenu: true,
-    CON_prevnextbtn: true,
     CON_defaultnewtab: true,
-    EXP_ctrlclick: true
+    CON_accessibility: true,
+    EXP_ctrlclick: false,
+    EXP_smoothapp: false
 };
 
 chrome.runtime.onInstalled.addListener((details) => {
