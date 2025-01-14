@@ -1,22 +1,29 @@
 "use strict";
 
+chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' });
+
 const defaultOptions = {
     enableApp: true,
-    // Mobile link To PC link
     MTP_redirect: true,
-    MTP_article: true,
-    // Cafe link To Article link
-    CTA_board: true,
-    CTA_article: true,
-    CTA_advanced: true
+    MTP_changelink: true,
+    PTA_redirect: true,
+    PTA_changelink: true,
+    CON_prevnextkey: true,
+    CON_inputkey: true,
+    CON_favoriteorder: true,
+    CON_easytopmenu: true,
+    CON_prevnextbtn: true,
+    CON_defaultnewtab: true,
+    EXP_ctrlclick: true
 };
 
-chrome.runtime.onInstalled.addListener(async (details) => {
+chrome.runtime.onInstalled.addListener((details) => {
     if (details.reason === "install") {
         chrome.storage.sync.set(defaultOptions);
     }
     if (details.reason === "update") {
         updateDefaultOptions();
+        versionUpdate(details.previousVersion);
     }
 });
 
@@ -38,4 +45,10 @@ async function updateDefaultOptions() {
         }
     }
     chrome.storage.sync.remove(removedKeys);
+}
+
+function versionUpdate(previousVersion) {
+    if (previousVersion <= '1.2.4') {
+        chrome.storage.local.clear();
+    }
 }
