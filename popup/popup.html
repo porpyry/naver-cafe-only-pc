@@ -12,75 +12,71 @@
     </div>
     <div id="options">
       <div class="option-checkbox">
-        <label class="switch"><input type="checkbox" name="enableApp" id="enableSwitch"><span class="slider round"></span></label>
+        <label class="switch"><input type="checkbox" name="enableApp" id="enable-switch"><span class="slider round"></span></label>
       </div>
-      <div id="optionContents">
+      <div id="option-contents" class="submenu" data-parent="enableApp">
+        <!-- 새 탭 -->
         <div class="option-group">
-          <!-- Mobile To PC -->
-          <span class="group-title">PC 페이지만 이용</span>
+          <span class="group-title">새 탭</span>
           <div class="group-items">
-            <div class="option-checkbox" title="모바일 페이지에 접속 시 PC 페이지로 리다이렉트합니다.">
-              <label><input type="checkbox" name="MTP_redirect">리다이렉트 방식</label>
+            <div class="option-checkbox" title="카페 게시글을 새 탭으로 열었을 때 게시글 부분만 로딩하는 링크로 리다이렉트합니다.">
+              <label><input type="checkbox" name="newTabRedirectArticle">새 탭에서 게시글만 로딩</label>
             </div>
-            <div class="option-checkbox" title="게시글 내 모바일 페이지 링크를 PC 페이지 링크로 변경합니다.">
-              <label><input type="checkbox" name="MTP_changelink">링크 변경 방식</label>
+            <div class="option-checkbox" title="모바일 전용 게시글 링크를 새 탭으로 열었을 때 PC 카페 페이지로 리다이렉트합니다.">
+              <label><input type="checkbox" name="newTabRedirectMobile">모바일 링크 → PC 링크</label>
+            </div>
+            <div class="option-checkbox" title="게시판에서 게시글을 클릭했을 때 새 탭에서 열립니다.">
+              <label><input type="checkbox" name="cafeDefaultNewTab">기본 새 탭으로 열기</label>
+            </div>
+            <div class="option-checkbox submenu" data-parent="cafeDefaultNewTab" title="게시판에서 게시글을 클릭했을 때 새 탭에서 백그라운드로 열립니다.">
+              <label><input type="checkbox" name="cafeDefaultBackground">기본 백그라운드로 열기</label>
             </div>
           </div>
         </div>
+        <!-- 단축키 -->
         <div class="option-group">
-          <!-- PC To Article-Only -->
-          <span class="group-title">새 탭에서 게시글만 로딩</span>
+          <span class="group-title">단축키</span>
           <div class="group-items">
-            <div class="option-checkbox" title="게시글 페이지에 접속 시 단독 게시글 페이지로 리다이렉트합니다.">
-              <label><input type="checkbox" name="PTA_redirect">리다이렉트 방식</label>
+            <div class="option-checkbox" title="좌우 방향키로 게시판에서 페이지 이동, 게시글에서 이전·다음글로 이동합니다.">
+              <label><input type="checkbox" name="pageArrowShortcut">좌우 방향키로 페이지 이동</label>
             </div>
-            <div class="option-checkbox" title="카페 내 게시글 페이지 링크를 단독 게시글 링크로 변경합니다.
-카페 내에서 탐색할 때 리다이렉트 방식보다 조금 더 빨리 로딩되며, 카페의 자잘한 버그들이 수정됩니다.">
-              <label><input type="checkbox" name="PTA_changelink">링크 변경 방식</label>
+            <div class="option-checkbox" title="백스페이스로 검색창을 포커스합니다. 백스페이스를 여러 번 누르면 검색 기준을 변경합니다.
+게시글에서 누를 시 댓글창을 포커스합니다.">
+              <label><input type="checkbox" name="inputShortcut">백스페이스로 검색·댓글 포커스</label>
             </div>
           </div>
         </div>
+        <!-- UI -->
         <div class="option-group">
-          <!-- Convenience -->
-          <span class="group-title">편의성</span>
+          <span class="group-title">UI</span>
           <div class="group-items">
-            <div class="option-checkbox" title="← : 이전 페이지, 이전 글
-→ : 다음 페이지, 다음 글">
-              <label><input type="checkbox" name="CON_prevnextkey">왼쪽·오른쪽 방향키로 탐색</label>
+            <div class="option-checkbox" title="즐겨찾는 게시판의 위치를 드래그로 변경합니다.">
+              <label><input type="checkbox" name="changeFavoriteOrder">드래그로 즐겨찾기 순서 변경</label>
             </div>
-            <div class="option-checkbox" title="백스페이스(뒤로) 키를 눌러 검색창 또는 댓글창을 포커스합니다.
-여러 번 누르면 검색 기준을 변경합니다.">
-              <label><input type="checkbox" name="CON_inputkey">백스페이스로 검색·댓글 포커스</label>
-            </div>
-            <div class="option-checkbox" title="즐겨찾기된 게시판을 드래그해서 순서를 변경합니다.">
-              <label><input type="checkbox" name="CON_favoriteorder">게시판 즐겨찾기 순서 변경</label>
-            </div>
-            <div class="option-checkbox" title="게시글을 클릭했을 때 기본적으로 새 탭으로 엽니다.">
-              <label><input type="checkbox" name="CON_defaultnewtab">기본 새 탭으로 열기</label>
-            </div>
-            <div class="option-checkbox" title="즐겨찾는 게시판, 전체글보기 선택 범위를 넓힙니다.
-게시글 하단에 이전글, 다음글 버튼을 추가합니다.">
-              <label><input type="checkbox" name="CON_accessibility">접근성 개선</label>
+            <div class="option-checkbox" title="전체글보기와 즐겨찾는 게시판의 클릭 영역을 더 크게 만듭니다.">
+              <label><input type="checkbox" name="accessibleUI">접근성 개선</label>
             </div>
           </div>
         </div>
+        <!-- 실험적 기능 -->
         <div class="option-group">
-          <!-- Experimental -->
           <span class="group-title">실험적 기능</span>
           <div class="group-items">
-            <div class="option-checkbox" title="컨트롤 클릭으로 새 탭이 열리지 않는 버그를 일부 해결합니다.">
-              <label><input type="checkbox" name="EXP_ctrlclick">컨트롤 클릭 개선</label>
-            </div>
-            <div class="option-checkbox" title="이전글, 다음글을 눌렀을 때 내용 부분만 다시 로딩합니다.">
-              <label><input type="checkbox" name="EXP_smoothapp">이전글·다음글 부드럽게 전환</label>
+            <div class="option-checkbox" title="컨트롤 클릭이 안 되는 버그를 수정합니다.
+게시판과 게시글의 링크들을 더 효율적인 링크들로 변경합니다.
+리뉴얼된 페이지로 이동하는 것을 방지합니다.
+이전글·다음글을 더 부드럽게 전환합니다.">
+              <label><input type="checkbox" name="optimizeCafe">카페 최적화</label>
             </div>
           </div>
         </div>
+        <!-- END -->
       </div>
     </div>
     <div id="description">
       <span>새로고침 후 반영됩니다.</span>
     </div>
+    <script src="../js/util/options.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

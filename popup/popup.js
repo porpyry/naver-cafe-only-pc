@@ -1,36 +1,48 @@
 "use strict";
 
-async function init() {
-    const options = await chrome.storage.sync.get(null); // get all items
+document.addEventListener("DOMContentLoaded", async () => {
+    const options = await Options.get();
 
-    // enable-app switch
-    {
-        const checkbox = document.querySelector('#enableSwitch');
-        const contents = document.querySelector('#optionContents');
-        if (!options[checkbox.name]) {
-            contents.style.display = 'none';
+    initCheckbox();
+    initSubmenu();
+
+    function initCheckbox() {
+        for (const wrapper of document.querySelectorAll(".option-checkbox")) {
+            const checkbox = wrapper.querySelector("input[type=checkbox]");
+            checkbox.checked = options[checkbox.name];
+            checkbox.addEventListener("change", onChange);
         }
-        checkbox.addEventListener('change', () => {
-            if (checkbox.checked) {
-                contents.style.display = 'block';
-            } else {
-                contents.style.display = 'none';
+
+        function onChange() {
+            saveOption(this.name, this.checked);
+        }
+
+        function saveOption(key, value) {
+            options[key] = value;
+            chrome.storage.sync.set({ options });
+        }
+    }
+
+    function initSubmenu() {
+        for (const wrapper of document.querySelectorAll(".submenu")) {
+            const parentName = wrapper.dataset.parent;
+            const parentCheckbox = document.querySelector(`input[type=checkbox][name=${parentName}]`);
+            hideByCheckbox(parentCheckbox, wrapper);
+        }
+
+        function hideByCheckbox(checkbox, target) {
+            if (!checkbox.checked) {
+                target.classList.add("hidden");
             }
-        });
+            checkbox.addEventListener("change", onChange);
+
+            function onChange() {
+                if (this.checked) {
+                    target.classList.remove("hidden");
+                } else {
+                    target.classList.add("hidden");
+                }
+            }
+        }
     }
-
-    // checkbox options
-    for (const wrapper of document.querySelectorAll('.option-checkbox')) {
-        const checkbox = wrapper.querySelector('input[type=checkbox]');
-        checkbox.checked = options[checkbox.name];
-        checkbox.addEventListener('change', () => {
-            saveOption(checkbox.name, checkbox.checked);
-        });
-    }
-}
-
-async function saveOption(key, value) {
-    await chrome.storage.sync.set({ [key]: value });
-}
-
-document.addEventListener('DOMContentLoaded', init);
+});

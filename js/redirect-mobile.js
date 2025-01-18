@@ -1,33 +1,40 @@
 "use strict";
 
 (async () => {
-    const options = await getOptions;
+    if (history.length > 1) {
+        return;
+    }
+
+    const options = await Options.get();
 
     if (!options.enableApp) {
         return;
     }
-    if (!options.MTP_redirect) {
+    if (!options.newTabRedirectMobile) {
         return;
     }
 
-    const mInfo = getMobileUrlInfo(location.href);
-    if (!mInfo) {
+    const info = MobileURLParser.getInfo(location.pathname, location.search);
+    if (!info) {
         return;
     }
 
-    const pUrl = getMTPUrl(mInfo);
-    if (!pUrl) {
-        return;
+    let url;
+    if (!options.newTabRedirectArticle) {
+        url = MobileURLParser.getArticleURL(info);
+    } else {
+        url = await MobileURLParser.getArticleOnlyURL(info)
     }
-
-    let url = pUrl;
-    if (options.PTA_redirect) {
-        const pInfo = getUrlInfo(pUrl);
-        const aUrl = await getPTAUrl(pInfo);
-        if (aUrl) {
-            url = aUrl;
-        }
+    if (!url) {
+        return;
     }
 
     location.replace(url);
 })();
+
+/* TEST
+https://m.cafe.naver.com/steamindiegame/13999369
+https://m.cafe.naver.com/ca-fe/steamindiegame/13999369
+https://m.cafe.naver.com/ca-fe/web/cafes/steamindiegame/articles/13999369?useCafeId=false
+https://m.cafe.naver.com/ca-fe/web/cafes/27842958/articles/13999369
+*/

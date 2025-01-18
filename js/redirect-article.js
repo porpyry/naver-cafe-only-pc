@@ -1,72 +1,44 @@
 "use strict";
 
 (async () => {
-    const options = await getOptions;
+    const options = await Options.get();
 
     if (!options.enableApp) {
         return;
     }
-    if (!(options.PTA_redirect || options.PTA_changelink)) {
+    if (!options.newTabRedirectArticle) {
         return;
     }
 
-    const pInfo = getUrlInfo(location.href);
-    if (!pInfo) {
+    const info = PCArticleURLParser.getInfo(location.pathname, location.search);
+    if (!info) {
         return;
     }
 
-    // { type: "article-top", cafeId, articleId, search }
-    if (isCompletePage(pInfo)) {
-        // 뒤로가기 했을 때 원래 페이지 나타나게 하기
-        const { cafeId, articleId } = pInfo;
-        checkPageStatus(cafeId, articleId).then((pageStatus) => {
-            processCompletePage(cafeId, articleId, pageStatus);
-        })
+    const url = await PCArticleURLParser.getArticleOnlyURL(info)
+    const isComplete = info.type === PCArticleURLParser.TYPE_ARTICLE_ONLY && !url;
+    if (isComplete) {
+        return addOriginalBackPage(info);
+    }
+    if (!url) {
         return;
     }
 
-    // 새 탭에서만 리다이렉트
     if (history.length > 1) {
         return;
     }
-    if (!options.PTA_redirect) {
-        return;
-    }
 
-    const aUrl = await getPTAUrl(pInfo);
-    if (!aUrl) {
-        return;
-    }
+    return location.replace(url);
 
-    location.replace(aUrl);
-    return;
+    async function addOriginalBackPage(info) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
-
-
-    function isCompletePage(info) {
-        if (info.type === "article-top") {
-            const hasOldPath = new URLSearchParams(info.search).has("oldPath");
-            if (!hasOldPath) {
-                return true;
-            }
+        const { cafeId, articleId } = info;
+        const pageStatus = await getPageStatus(cafeId, articleId);
+        if (!pageStatus) {
+            return;
         }
-        return false;
-    }
 
-    async function checkPageStatus(cafeId, articleId) {
-        return new Promise((resolve) => {
-            setTimeout(async () => {
-                if (document.querySelector(".ArticleContainerWrap")) {
-                    resolve();
-                    return;
-                }
-                const pageStatus = await getPageStatus(cafeId, articleId);
-                resolve(pageStatus);
-            }, 1000);
-        });
-    }
-
-    async function processCompletePage(cafeId, articleId, pageStatus) {
         switch (pageStatus) {
             case 401: // no-login
                 writeMessage("로그인이 필요합니다. 뒤로가기를 눌러주세요.");
@@ -76,16 +48,16 @@
                 break;
         }
 
-        if (history.length === 1) {
+        if (history.length <= 1) {
             const cafeName = await Session.getCafeName(cafeId);
             if (cafeName) {
                 switch (pageStatus) {
-                    default: // ok
+                    case 200: // ok
                     case 401: // no-login
-                        history.replaceState({ NCOP_PAGE: `https://cafe.naver.com/${cafeName}/${articleId}` }, "");
+                        history.replaceState({ NCOP_ORIG: `https://cafe.naver.com/${cafeName}/${articleId}` }, "");
                         break;
                     case 404: // no-article
-                        history.replaceState({ NCOP_PAGE: `https://cafe.naver.com/${cafeName}` }, "");
+                        history.replaceState({ NCOP_ORIG: `https://cafe.naver.com/${cafeName}` }, "");
                         break;
                 }
                 history.pushState(null, "");
@@ -93,7 +65,7 @@
         }
 
         window.addEventListener("popstate", (event) => {
-            const url = event?.state?.NCOP_PAGE;
+            const url = event.state?.NCOP_ORIG;
             if (url) {
                 location.replace(url);
             }
@@ -107,4 +79,27 @@
             }
         }
     }
+
+    // 200: ok
+    // 401: no-login
+    // 404: no-article
+    async function getPageStatus(cafeId, articleId) {
+        try {
+            const url = `https://apis.naver.com/cafe-web/cafe-articleapi/v3/cafes/${cafeId}/articles/${articleId}?query=&useCafeId=true&requestFrom=A`;
+            const res = await fetch(url, { method: "HEAD", credentials: "include" });
+            return res?.status;
+        } catch (e) { console.error(e); }
+    }
 })();
+
+/* TEST
+https://cafe.naver.com/steamindiegame/13999369
+https://cafe.naver.com/ArticleRead.nhn?clubid=27842958&page=1&menuid=1150&boardtype=L&articleid=13999369&referrerAllArticles=false
+https://cafe.naver.com/ca-fe/ArticleRead.nhn?clubid=27842958&page=1&menuid=1150&boardtype=L&articleid=13999369&referrerAllArticles=false
+https://cafe.naver.com/steamindiegame?iframe_url=%2FArticleRead.nhn%3Fclubid%3D27842958%26articleid%3D13999369%26referrerAllArticles%3Dfalse%26menuid%3D1150%26page%3D1%26boardtype%3DL
+https://cafe.naver.com/steamindiegame?iframe_url_utf8=%2FArticleRead.nhn%253Fclubid%3D27842958%2526page%3D1%2526menuid%3D1150%2526boardtype%3DL%2526articleid%3D13999369%2526referrerAllArticles%3Dfalse
+https://cafe.naver.com/ca-fe/cafes/27842958/articles/13999369?referrerAllArticles=false&menuid=1150&page=1&boardtype=L
+https://cafe.naver.com/ca-fe/cafes/27842958/articles/13999369?oldPath=%2FArticleRead.nhn%3FreferrerAllArticles%3Dfalse%26menuid%3D1150%26page%3D1%26boardtype%3DL%26clubid%3D27842958%26articleid%3D19012958
+https://cafe.naver.com/ca-fe/cafes/30660728/articles/48794 (no-login)
+https://cafe.naver.com/ca-fe/cafes/27842958/articles/28953115 (no-article)
+*/

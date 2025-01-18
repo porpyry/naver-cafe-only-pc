@@ -1,54 +1,41 @@
 "use strict";
 
-chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' });
+try {
+    importScripts("js/util/options.js");
 
-const defaultOptions = {
-    enableApp: true,
-    MTP_redirect: true,
-    MTP_changelink: true,
-    PTA_redirect: true,
-    PTA_changelink: true,
-    CON_prevnextkey: true,
-    CON_inputkey: true,
-    CON_favoriteorder: true,
-    CON_defaultnewtab: true,
-    CON_accessibility: true,
-    EXP_ctrlclick: false,
-    EXP_smoothapp: false
-};
+    chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' });
 
-chrome.runtime.onInstalled.addListener((details) => {
-    if (details.reason === "install") {
-        chrome.storage.sync.set(defaultOptions);
-    }
-    if (details.reason === "update") {
-        updateDefaultOptions();
-        versionUpdate(details.previousVersion);
-    }
-});
+    chrome.runtime.onInstalled.addListener(async (details) => {
+        switch (details.reason) {
+            case "install":
+                await chrome.storage.sync.set({ options: new Options() });
+                break;
+            case "update":
+                await updateVersion(details.previousVersion);
+                await updateDefaultOptions();
+                break;
+        }
+    });
+} catch (e) { console.error(e); }
 
 async function updateDefaultOptions() {
-    const allItems = await chrome.storage.sync.get(null);
-    const validKeys = Object.keys(defaultOptions);
-    const validItems = await chrome.storage.sync.get(validKeys);
-    const addedItems = {};
-    for (const key of validKeys) {
-        if (!(key in validItems)) {
-            addedItems[key] = defaultOptions[key];
+    const oldOptions = await Options.get();
+    const newOptions = new Options();
+
+    for (const option in newOptions) {
+        if (option in oldOptions) {
+            newOptions[option] = oldOptions[option];
         }
     }
-    chrome.storage.sync.set(addedItems);
-    const removedKeys = [];
-    for (const key in allItems) {
-        if (!(key in validItems)) {
-            removedKeys.push(key);
-        }
-    }
-    chrome.storage.sync.remove(removedKeys);
+
+    await chrome.storage.sync.set({ options: newOptions });
 }
 
-function versionUpdate(previousVersion) {
-    if (previousVersion <= '1.2.4') {
-        chrome.storage.local.clear();
+async function updateVersion(previousVersion) {
+    if (previousVersion < '2.0.0') {
+        const oldOptions = await chrome.storage.sync.get(null);
+        await chrome.storage.sync.clear();
+        await chrome.storage.sync.set({ options: oldOptions });
+        await chrome.storage.local.clear();
     }
 }

@@ -12,8 +12,11 @@
     color: blue;
 }
 
-.option-group {
+#option-contents {
     margin-top: 12px;
+}
+.option-group {
+    margin-top: 8px;
     user-select: none;
 }
 .option-group span.group-title {
@@ -28,12 +31,20 @@
 .option-checkbox {
     display: flex;
     align-items: center;
+    margin-bottom: 2px;
 }
 .option-checkbox label {
     display: inline-flex; /* align checkbox and label vertically */
 }
 .option-checkbox input[type="checkbox"] {
     flex-basis: content; /* prevent growing */
+}
+.option-checkbox.submenu {
+    margin-left: 10px;
+}
+
+.hidden {
+    display: none;
 }
 
 /* Toggle Switch */

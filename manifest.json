@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "네이버 카페 only PC",
-    "description": "모바일 페이지 연결을 방지합니다. 새 탭에서 게시글만 로딩합니다. 탐색 편의성을 개선합니다.",
+    "description": "새 탭에서 게시글 부분만 로딩합니다. / 모바일 페이지 접속을 방지합니다. / 편의 기능을 추가합니다. / 탐색 속도를 향상시킵니다.",
     "version": "2.0.0",
     "homepage_url": "https://github.com/porpyry/naver-cafe-only-pc",
     "author": "porpyry",
@@ -17,7 +17,9 @@
         {
             "matches": ["https://m.cafe.naver.com/*"],
             "js": [
-                "js/util-start.js",
+                "js/util/options.js",
+                "js/util/storage.js",
+                "js/util/url-parser-mobile.js",
                 "js/redirect-mobile.js"
             ],
             "run_at": "document_start"
@@ -25,24 +27,12 @@
         {
             "matches": ["https://cafe.naver.com/*"],
             "js": [
-                "js/util-start.js",
-                "js/redirect-article.js",
-                "js/util.js",
-                "js/page/front.js",
-                "js/page/home.js",
-                "js/page/popular.js",
-                "js/page/board.js",
-                "js/page/article.js",
-                "js/page/member.js",
-                "js/page/search.js",
-                "js/main.js"
+                "js/util/options.js",
+                "js/util/storage.js",
+                "js/util/url-parser-pc.js",
+                "js/redirect-article.js"
             ],
             "run_at": "document_start"
-        },
-        {
-            "matches": ["https://cafe.naver.com/*"],
-            "css": ["css/content-style.css"],
-            "all_frames": true
         }
     ]
 }
