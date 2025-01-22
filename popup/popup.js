@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             checkbox.addEventListener("change", onChange);
         }
 
-        function onChange() {
+        function onChange(/*event*/) {
             saveOption(this.name, this.checked);
         }
 
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
             checkbox.addEventListener("change", onChange);
 
-            function onChange() {
+            function onChange(/*event*/) {
                 if (this.checked) {
                     target.classList.remove("hidden");
                 } else {

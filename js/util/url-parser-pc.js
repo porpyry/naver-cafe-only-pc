@@ -1,5 +1,4 @@
 class PCArticleURLParser {
-
     static TYPE_DEFAULT = 0; // cafeName, articleId
     static TYPE_ARTICLE_ONLY = 1; // cafeId, articleId
     static TYPE_ARTICLE_NHN = 2; // cafeId, articleId
@@ -82,7 +81,7 @@ class PCArticleURLParser {
             case this.TYPE_DEFAULT:
                 {
                     const { cafeName, articleId } = info;
-                    const cafeId = await Session.getCafeId(cafeName);
+                    const cafeId = await SessionCafeInfo.getCafeId(cafeName);
                     if (!cafeId) {
                         return;
                     }

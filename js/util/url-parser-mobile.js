@@ -1,5 +1,4 @@
 class MobileURLParser {
-
     static TYPE_DEFAULT = 0; // cafeName, articleId
     static TYPE_CAFE_ID = 1; // cafeId, articleId
     static TYPE_CAFE_NAME = 2; // cafeName, articleId
@@ -62,7 +61,7 @@ class MobileURLParser {
             case this.TYPE_CAFE_NAME:
                 {
                     const { cafeName, articleId } = info;
-                    const cafeId = await Session.getCafeId(cafeName);
+                    const cafeId = await SessionCafeInfo.getCafeId(cafeName);
                     if (!cafeId) {
                         return;
                     }

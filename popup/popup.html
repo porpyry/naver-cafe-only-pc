@@ -40,9 +40,8 @@
             <div class="option-checkbox" title="좌우 방향키로 게시판에서 페이지 이동, 게시글에서 이전·다음글로 이동합니다.">
               <label><input type="checkbox" name="pageArrowShortcut">좌우 방향키로 페이지 이동</label>
             </div>
-            <div class="option-checkbox" title="백스페이스로 검색창을 포커스합니다. 백스페이스를 여러 번 누르면 검색 기준을 변경합니다.
-게시글에서 누를 시 댓글창을 포커스합니다.">
-              <label><input type="checkbox" name="inputShortcut">백스페이스로 검색·댓글 포커스</label>
+            <div class="option-checkbox" title="백스페이스로 검색창을 포커스합니다. 게시글에서는 댓글창을 포커스합니다.">
+              <label><input type="checkbox" name="searchCommentShortcut">백스페이스로 빠른 검색·댓글</label>
             </div>
           </div>
         </div>
@@ -52,9 +51,6 @@
           <div class="group-items">
             <div class="option-checkbox" title="즐겨찾는 게시판의 위치를 드래그로 변경합니다.">
               <label><input type="checkbox" name="changeFavoriteOrder">드래그로 즐겨찾기 순서 변경</label>
-            </div>
-            <div class="option-checkbox" title="전체글보기와 즐겨찾는 게시판의 클릭 영역을 더 크게 만듭니다.">
-              <label><input type="checkbox" name="accessibleUI">접근성 개선</label>
             </div>
           </div>
         </div>
@@ -68,6 +64,9 @@
 이전글·다음글을 더 부드럽게 전환합니다.">
               <label><input type="checkbox" name="optimizeCafe">카페 최적화</label>
             </div>
+            <div class="option-checkbox" title="">
+              <label><input type="checkbox" name="preventRenewalPage">리뉴얼 페이지 접속 방지</label>
+            </div>
           </div>
         </div>
         <!-- END -->
@@ -76,7 +75,7 @@
     <div id="description">
       <span>새로고침 후 반영됩니다.</span>
     </div>
-    <script src="../js/util/options.js"></script>
+    <script src="../js/util/storage.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

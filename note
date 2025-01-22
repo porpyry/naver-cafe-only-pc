@@ -1,0 +1,61 @@
+• 새 탭에서 게시글만 로딩
+카페 최적화에서 게시글 내 링크 바꾸기
+
+
+• 모바일 링크 -> PC 링크
+카페 최적화에서 게시글 내 링크 바꾸기
+
+
+• 기본 새 탭으로 열기
+: cafeIntro에서 적용
+: articleList에서 적용
+: articleSearchList에서 적용
+
+article related에서 적용
+article popular에서 적용
+
+
+• 기본 백그라운드로 열기
+: cafeIntro에서 적용
+: articleList에서 적용
+: articleSearchList에서 적용
+
+: popular에서 적용
+: member에서 적용
+: article 내용에서 적용
+
+article related에서 적용
+article popular에서 적용
+
+
+
+• 좌우 방향키로 페이지 이동
+: articleList에서 적용
+: articleSearchList에서 적용
+
+: popular에서 적용
+: member에서 적용
+: article 에서 적용
+article에서 최적화했을 때 popstate 이용
+
+
+
+
+• 백스페이스로 검색·댓글 포커스
+
+
+
+
+• 드래그로 즐겨찾기 순서 변경
+
+
+
+
+
+• 카페 최적화
+
+
+
+
+
+• 리뉴얼 페이지 접속 방지

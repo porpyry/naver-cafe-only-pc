@@ -1,38 +1,44 @@
-{
-    "manifest_version": 3,
-    "name": "네이버 카페 only PC",
-    "description": "새 탭에서 게시글 부분만 로딩합니다. / 모바일 페이지 접속을 방지합니다. / 편의 기능을 추가합니다. / 탐색 속도를 향상시킵니다.",
-    "version": "2.0.0",
-    "homepage_url": "https://github.com/porpyry/naver-cafe-only-pc",
-    "author": "porpyry",
-    "permissions": ["storage"],
-    "icons": { "128": "img/icon.png" },
-    "background": { "service_worker": "background.js" },
-    "options_page": "popup/popup.html",
-    "action": {
-        "default_popup": "popup/popup.html",
-        "default_icon": { "128": "img/icon.png" }
-    },
-    "content_scripts": [
-        {
-            "matches": ["https://m.cafe.naver.com/*"],
-            "js": [
-                "js/util/options.js",
-                "js/util/storage.js",
-                "js/util/url-parser-mobile.js",
-                "js/redirect-mobile.js"
-            ],
-            "run_at": "document_start"
-        },
-        {
-            "matches": ["https://cafe.naver.com/*"],
-            "js": [
-                "js/util/options.js",
-                "js/util/storage.js",
-                "js/util/url-parser-pc.js",
-                "js/redirect-article.js"
-            ],
-            "run_at": "document_start"
-        }
-    ]
+{ "manifest_version": 3
+, "name"            : "네이버 카페 only PC"
+, "version"         : "2.0.0"
+, "description"     : "새 탭에서 게시글 부분만 로딩합니다. / 모바일 페이지 접속을 방지합니다. / 편의 기능을 추가합니다."
+, "permissions"     : [ "storage" ]
+, "icons"           : { "128": "img/icon.png" }
+, "options_page"    : "popup/popup.html"
+, "action"          : { "default_popup": "popup/popup.html"
+                      , "default_icon" : { "128": "img/icon.png" }
+                      }
+, "background"      : { "service_worker": "background.js" }
+, "content_scripts" : [ { "matches"   : [ "https://m.cafe.naver.com/*" ]
+                        , "js"        : [ "js/util/storage.js"
+                                        , "js/util/url-parser-mobile.js"
+                                        , "js/redirect-mobile.js"
+                                        ]
+                        , "run_at"    : "document_start"
+                        }
+                      , { "matches"   : [ "https://cafe.naver.com/*" ]
+                        , "js"        : [ "js/util/storage.js"
+                                        , "js/util/url-parser-pc.js"
+                                        , "js/redirect-article.js"
+                                        , "js/util/util.js"
+                                        , "js/node/article.js"
+                                        , "js/node/article-list.js"
+                                        , "js/node/article-search-list.js"
+                                        , "js/node/cafe.js"
+                                        , "js/node/cafe-intro.js"
+                                        , "js/node/document.js"
+                                        , "js/node/member.js"
+                                        , "js/node/popular.js"
+                                        , "js/monitor.js"
+                                        , "js/main.js"
+                                        ]
+                        , "run_at"    : "document_start"
+                        }
+                      , { "matches"   : [ "https://cafe.naver.com/*" ]
+                        , "css"       : [ "css/content-style.css" ]
+                        , "all_frames": true
+                        }
+                      ]
+, "homepage_url"    : "https://github.com/porpyry/naver-cafe-only-pc"
+, "author"          : "porpyry"
 }

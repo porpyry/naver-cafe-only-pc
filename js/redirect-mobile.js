@@ -6,7 +6,6 @@
     }
 
     const options = await Options.get();
-
     if (!options.enableApp) {
         return;
     }

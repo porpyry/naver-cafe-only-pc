@@ -2,7 +2,6 @@
 
 (async () => {
     const options = await Options.get();
-
     if (!options.enableApp) {
         return;
     }
@@ -31,8 +30,24 @@
     return location.replace(url);
 
     async function addOriginalBackPage(info) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        if (history.length <= 1) {
+            // 마우스 뒤로가기 버튼으로 닫기
+            document.addEventListener("mouseup", (event) => {
+                if (event.button === 3) {
+                    chrome.runtime.sendMessage(null, { type: "closeNewTabWithMouse3" });
+                }
+            });
+        }
 
+        window.addEventListener("popstate", (event) => {
+            const url = event.state?.NCOP_ORIG;
+            if (url) {
+                location.replace(url);
+            }
+        });
+
+        // 1초 기다린 후 로딩 여부 확인
+        await new Promise(resolve => setTimeout(resolve, 1000));
         const { cafeId, articleId } = info;
         const pageStatus = await getPageStatus(cafeId, articleId);
         if (!pageStatus) {
@@ -49,7 +64,7 @@
         }
 
         if (history.length <= 1) {
-            const cafeName = await Session.getCafeName(cafeId);
+            const cafeName = await SessionCafeInfo.getCafeName(cafeId);
             if (cafeName) {
                 switch (pageStatus) {
                     case 200: // ok
@@ -64,13 +79,6 @@
             }
         }
 
-        window.addEventListener("popstate", (event) => {
-            const url = event.state?.NCOP_ORIG;
-            if (url) {
-                location.replace(url);
-            }
-        });
-
         function writeMessage(msg) {
             const app = document.querySelector("#app");
             if (app) {
@@ -80,14 +88,14 @@
         }
     }
 
-    // 200: ok
-    // 401: no-login
-    // 404: no-article
     async function getPageStatus(cafeId, articleId) {
         try {
             const url = `https://apis.naver.com/cafe-web/cafe-articleapi/v3/cafes/${cafeId}/articles/${articleId}?query=&useCafeId=true&requestFrom=A`;
             const res = await fetch(url, { method: "HEAD", credentials: "include" });
             return res?.status;
+            // 200: ok
+            // 401: no-login
+            // 404: no-article
         } catch (e) { console.error(e); }
     }
 })();

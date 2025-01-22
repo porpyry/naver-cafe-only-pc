@@ -1,4 +1,33 @@
-class Session {
+class Options {
+    enableApp = true;
+    newTabRedirectArticle = true;
+    newTabRedirectMobile = true;
+    cafeDefaultNewTab = false;
+    cafeDefaultBackground = false;
+    pageArrowShortcut = false;
+    searchCommentShortcut = false;
+    changeFavoriteOrder = false;
+    optimizeCafe = false;
+    preventRenewalPage = false;
+
+    constructor(options) {
+        Object.assign(this, options);
+    }
+
+    /** @type {Promise<Options>} */
+    static _options = null;
+
+    static async get() {
+        if (!this._options) {
+            this._options = chrome.storage.sync.get("options").then(items => new this(items.options));
+        }
+        return this._options;
+    }
+}
+
+class SessionCafeInfo {
+
+    /** @type {{ cafeId: number, cafeName: string, cafeTitle: string }[]} */
     cafeInfo = [];
 
     constructor(items) {
@@ -45,7 +74,7 @@ class Session {
         }
     }
 
-    /** @type {Promise<Session>} */
+    /** @type {Promise<SessionCafeInfo>} */
     static _session = null;
 
     /** @type {Promise<any>} */
@@ -53,7 +82,7 @@ class Session {
 
     static async get() {
         if (!this._session) {
-            this._session = chrome.storage.session.get(null).then(items => new this(items));
+            this._session = chrome.storage.session.get("cafeInfo").then(items => new this(items));
         }
         return this._session;
     }

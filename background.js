@@ -1,7 +1,7 @@
 "use strict";
 
 try {
-    importScripts("js/util/options.js");
+    importScripts("js/util/storage.js");
 
     chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' });
 
@@ -13,6 +13,17 @@ try {
             case "update":
                 await updateVersion(details.previousVersion);
                 await updateDefaultOptions();
+                break;
+        }
+    });
+
+    chrome.runtime.onMessage.addListener((message, sender) => {
+        switch (message.type) {
+            case "cafeDefaultBackground":
+                chrome.tabs.create({ active: false, url: message.url });
+                break;
+            case "closeNewTabWithMouse3":
+                chrome.tabs.remove(sender.tab.id);
                 break;
         }
     });
