@@ -7,8 +7,8 @@ class OnFoundArticleSearchList {
         const aComment = this.querySelector("a.cmt");
         const aContent = this.querySelector("a.link_contents");
 
+        // 기본 새 탭에서 열기
         if (options.cafeDefaultNewTab) {
-            // 기본 새 탭에서 열기
             if (aTitle) {
                 aTitle.target = "_blank";
             }

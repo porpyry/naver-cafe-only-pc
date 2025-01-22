@@ -2,10 +2,10 @@ class OnFoundCafeIntro {
 
     /** @this {HTMLElement}
       * @param {Options} options */
-    static boardHeadElement(options) {
-        const aTitle = this.querySelector("h3 > a");
-        const aMore = this.querySelector("span > a");
-    }
+    // static boardHeadElement(options) {
+    // const aTitle = this.querySelector("h3 > a");
+    // const aMore = this.querySelector("span > a");
+    // }
 
     /** @this {HTMLElement}
       * @param {Options} options */
@@ -13,7 +13,9 @@ class OnFoundCafeIntro {
         const aTitle = this.querySelector("a.article"); // not null
         const aComment = this.querySelector("a.cmt");
 
+        // 기본 새 탭에서 열기
         if (options.cafeDefaultNewTab) {
+
             // aComment의 [, em, ] 묶기
             groupChildrenWithSpan(aComment);
 
@@ -21,7 +23,6 @@ class OnFoundCafeIntro {
             const spanTitle = createClickShieldSpan(aTitle?.querySelector("span.inner"));
             const spanComment = createClickShieldSpan(aComment?.querySelector("span.NCOP_GroupSpan"));
 
-            // 기본 새 탭에서 열기
             if (aTitle) {
                 aTitle.target = "_blank";
             }
@@ -44,7 +45,9 @@ class OnFoundCafeIntro {
         const aTitle = this.querySelector("dd.tit > a:has(> span.inner)"); // not null
         const aComment = this.querySelector("dd.tit > a:has(> span.num)"); // href 없음
 
+        // 기본 새 탭에서 열기
         if (options.cafeDefaultNewTab) {
+
             // aComment.href 수정
             if (aComment && aTitle) {
                 aComment.href = commentFocusURL(aTitle.href);
@@ -54,7 +57,6 @@ class OnFoundCafeIntro {
             const spanImage = createClickShieldBox(aImage);
             const spanTitle = createClickShieldSpan(aTitle?.querySelector("span.inner"));
 
-            // 기본 새 탭에서 열기
             if (aImage) {
                 aImage.target = "_blank";
             }
@@ -81,8 +83,8 @@ class OnFoundCafeIntro {
         const aContent = this.querySelector("a.txt");
         const aImage = this.querySelector(".movie-img > a");
 
+        // 기본 새 탭에서 열기
         if (options.cafeDefaultNewTab) {
-            // 기본 새 탭에서 열기
             if (aTitle) {
                 aTitle.target = "_blank";
             }

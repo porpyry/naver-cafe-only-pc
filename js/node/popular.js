@@ -6,7 +6,9 @@ class OnFoundPopular {
         const aTitle = this.querySelector("a.article"); // not null
         const aComment = this.querySelector("a.cmt");
 
+        // 기본 새 탭에서 열기
         if (options.cafeDefaultNewTab) {
+
             // aComment의 [, em, ] 묶기
             groupChildrenWithSpan(aComment);
 
@@ -14,7 +16,6 @@ class OnFoundPopular {
             const spanTitle = createClickShieldSpan(aTitle?.firstChild);
             const spanComment = createClickShieldSpan(aComment?.querySelector("span.NCOP_GroupSpan"));
 
-            // 기본 새 탭에서 열기
             if (aTitle) {
                 aTitle.target = "_blank";
             }

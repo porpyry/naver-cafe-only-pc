@@ -142,14 +142,14 @@ class Monitor {
                 this.clear("only.document", true);
                 const divApp = await getDivApp(doc);
                 watchingChild(divApp, ".Article", async (divArticle) => {
-                    const containerElement = await watchSelector(divArticle, ".ArticleContainerWrap");
-                    this.call("app.article.container-element", containerElement);
+                    const container = await watchSelector(divArticle, ".ArticleContainerWrap");
+                    this.call("app.article.container", container);
                 });
-                watchingChild(divApp, "section", (containerElement) => {
-                    this.call("app.popular.container-element", containerElement);
+                watchingChild(divApp, "section", (container) => {
+                    this.call("app.popular.container", container);
                 });
-                watchingChild(divApp, ".MemberProfile", (containerElement) => {
-                    this.call("app.member.container-element", containerElement);
+                watchingChild(divApp, ".MemberProfile", (container) => {
+                    this.call("app.member.container", container);
                 });
             }
         },
@@ -179,27 +179,37 @@ class Monitor {
             parentKeys: ["cafe.side-panel"]
         },
         // --- --- --- --- --- --- --- --- App.Article --- --- --- --- --- --- --- ---
-        "app.article.container-element": {
+        "app.article.container": {
             parentKeys: ["app.document"],
-            onActivate: (containerElement) => {
-                for (const linkElement of containerElement.querySelectorAll("a.se-link")) {
+            onActivate: (container) => {
+                for (const linkElement of container.querySelectorAll("a.se-link")) {
                     this.call("app.article.content-link-element", linkElement);
                 }
-                for (const oglinkElement of containerElement.querySelectorAll(".se-module-oglink")) {
+                for (const oglinkElement of container.querySelectorAll(".se-module-oglink")) {
                     this.call("app.article.content-oglink-element", oglinkElement);
                 }
+                const topleftBoardLink = container.querySelector(".ArticleTitle a.link_board");
+                this.call("app.article.topleft-board-link", topleftBoardLink);
+                const bottomrightBoardLink = container.querySelector(".RelatedArticles .paginate_area a.more");
+                this.call("app.article.bottomright-board-link", bottomrightBoardLink);
             }
         },
         "app.article.content-link-element": {
-            parentKeys: ["app.article.container-element"]
+            parentKeys: ["app.article.container"]
         },
         "app.article.content-oglink-element": {
-            parentKeys: ["app.article.container-element"]
+            parentKeys: ["app.article.container"]
+        },
+        "app.article.topleft-board-link": {
+            parentKeys: ["app.article.container"]
+        },
+        "app.article.bottomright-board-link": {
+            parentKeys: ["app.article.container"]
         },
         // --- --- --- --- --- --- --- --- App.Popular --- --- --- --- --- --- --- ---
-        "app.popular.container-element": {
+        "app.popular.container": {
             parentKeys: ["app.document"],
-            onActivate: (containerElement) => {
+            onActivate: (container) => {
                 // 페이지 변경 감지
                 const pageChangeObserver = new MutationObserver((mutationList) => {
                     for (const mutation of mutationList) {
@@ -212,7 +222,7 @@ class Monitor {
                     }
                 });
                 // 탭 변경 감지
-                watchingChild(containerElement, "div:has(> .ArticleBoard)", async (div) => {
+                watchingChild(container, "div:has(> .ArticleBoard)", async (div) => {
                     const table = div.querySelector(".article-board > table");
                     if (!table) {
                         return;
@@ -226,7 +236,7 @@ class Monitor {
             }
         },
         "app.popular.tbody-page": {
-            parentKeys: ["app.popular.container-element"],
+            parentKeys: ["app.popular.container"],
             onActivate: (tbodyPage) => {
                 for (const listTypeElement of tbodyPage.querySelectorAll(".inner_list")) {
                     this.call("app.popular.list-type-element", listTypeElement);
@@ -237,10 +247,10 @@ class Monitor {
             parentKeys: ["app.popular.tbody-page"]
         },
         // --- --- --- --- --- --- --- --- App.Member --- --- --- --- --- --- --- ---
-        "app.member.container-element": {
+        "app.member.container": {
             parentKeys: ["app.document"],
-            onActivate: (containerElement) => {
-                const divArticleBoard = containerElement.querySelector(".article-board");
+            onActivate: (container) => {
+                const divArticleBoard = container.querySelector(".article-board");
                 if (divArticleBoard) {
                     // 페이지 변경 감지
                     const pageChangeObserver = new MutationObserver((mutationList) => {
@@ -265,7 +275,7 @@ class Monitor {
             }
         },
         "app.member.tbody-page": {
-            parentKeys: ["app.member.container-element"],
+            parentKeys: ["app.member.container"],
             onActivate: (tbodyPage) => {
                 for (const listTypeElement of tbodyPage.querySelectorAll("div.board-list .inner_list")) {
                     this.call("app.member.list-type-element", listTypeElement);

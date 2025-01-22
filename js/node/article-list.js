@@ -6,8 +6,8 @@ class OnFoundArticleList {
         const aTitle = this.querySelector("a.article"); // not null
         const aComment = this.querySelector("a.cmt");
 
+        // 기본 새 탭에서 열기
         if (options.cafeDefaultNewTab) {
-            // 기본 새 탭에서 열기
             if (aTitle) {
                 aTitle.target = "_blank";
             }
@@ -30,8 +30,8 @@ class OnFoundArticleList {
         const aTitle = this.querySelector("a.tit"); // not null
         const aComment = this.querySelector("a:has(> span.num)");
 
+        // 기본 새 탭에서 열기
         if (options.cafeDefaultNewTab) {
-            // 기본 새 탭에서 열기
             if (aImage) {
                 aImage.target = "_blank";
             }
@@ -58,8 +58,8 @@ class OnFoundArticleList {
         const aContent = this.querySelector("a.txt");
         const aImage = this.querySelector(".movie-img > a");
 
+        // 기본 새 탭에서 열기
         if (options.cafeDefaultNewTab) {
-            // 기본 새 탭에서 열기
             if (aTitle) {
                 aTitle.target = "_blank";
             }
