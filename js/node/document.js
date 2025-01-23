@@ -20,7 +20,8 @@ class OnFoundDocument {
     static cafeDocument(options) {
         // (1) 단축키: 페이지 넘기기
         // (2) 단축키: 검색창·댓글창 포커스
-        // (3) 카페 최적화: 상단 새글 링크 수정 및 컨트롤 클릭 버그 수정
+        // (3-1) 카페 최적화 (상단 새글 링크 수정 및 컨트롤 클릭 버그 수정)
+        // (3-2) 카페 최적화 (네이버 카페 애드온v1.5.1의 URL 버그 수정)
 
         // (1)
         if (options.pageArrowShortcut) {
@@ -46,13 +47,22 @@ class OnFoundDocument {
             this.addEventListener("inputsafebackspacekeyup", onInputSafeBackspaceKeyUpInCafe);
         }
 
-        // (3)
         if (options.optimizeCafe) {
+            // (3-1)
             const a = document.querySelector("#button_mynews_alarm a.link_chatting");
             if (a?.href === location.href + "#") {
                 a.href = "https://section.cafe.naver.com/ca-fe/home/feed";
             }
             createClickShieldSpan(a?.firstChild, true);
+
+            // (3-2)
+            const iframe = document.querySelector("iframe#cafe_main");
+            if (iframe) {
+                iframeURLChange(iframe, (href) => {
+                    const url = new URL(href);
+                    cleanUpUrlForRefresh(url.pathname, url.search);
+                });
+            }
         }
     }
 
@@ -77,7 +87,9 @@ class OnFoundDocument {
 
         // (3)
         if (options.optimizeCafe) {
-            cleanUpUrlForRefresh(this.location.pathname, this.location.search);
+            setTimeout(() => {
+                cleanUpUrlForRefresh(this.location.pathname, this.location.search);
+            }, 1); // 타 확장과 충돌 방지
         }
     }
 
@@ -425,4 +437,28 @@ function onInputSafeBackspaceKeyUpFocusSearch(/*event*/) {
         input.setSelectionRange(input.value.length, input.value.length)
     }
     // 상단 검색창은 #content-area #main-area .search_result .search_input form .input_search_area .input_component input#queryTop
+}
+
+// https://gist.github.com/hdodov/a87c097216718655ead6cf2969b0dcfa
+function iframeURLChange(iframe, callback) {
+    var lastDispatched = null;
+    var dispatchChange = function () {
+        var newHref = iframe.contentWindow.location.href;
+        if (newHref !== lastDispatched) {
+            callback(newHref);
+            lastDispatched = newHref;
+        }
+    };
+    var unloadHandler = function () {
+        setTimeout(dispatchChange, 10);
+    };
+    function attachUnload() {
+        iframe.contentWindow.removeEventListener("unload", unloadHandler);
+        iframe.contentWindow.addEventListener("unload", unloadHandler);
+    }
+    iframe.addEventListener("load", function () {
+        attachUnload();
+        dispatchChange();
+    });
+    attachUnload();
 }

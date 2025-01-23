@@ -432,7 +432,6 @@ async function watchSelector(parent, selectors, subtree = false, condition) {
                 return resolve(found);
             }
         }
-
         new MutationObserver((mutationList, observer) => {
             for (const mutation of mutationList) {
                 for (const node of mutation.addedNodes) {
@@ -462,7 +461,6 @@ function watchingChild(parent, selectors, callback) {
             }
         }
     }).observe(parent, { childList: true });
-
     const found = parent.querySelector(":scope > " + selectors);
     if (found) {
         callback(found);
