@@ -1,3 +1,5 @@
+"use strict";
+
 class PCArticleURLParser {
     static TYPE_DEFAULT = 0; // cafeName, articleId
     static TYPE_ARTICLE_ONLY = 1; // cafeId, articleId
@@ -47,7 +49,7 @@ class PCArticleURLParser {
             const matches = pathname.match(this.RE_IFRAME);
             if (matches) {
                 const { cafeName } = matches.groups;
-                const url1 = this.getIframeURL(searchParams);
+                const url1 = getIframeURLFromSearchParams(searchParams);
                 if (url1) {
                     const [pathname1, search1] = url1.split("?", 2);
                     const matches1 = pathname1?.match(this.RE_ARTICLE_NHN); // TYPE_ARTICLE_NHN
@@ -61,18 +63,6 @@ class PCArticleURLParser {
                     }
                 }
             }
-        }
-    }
-
-    static getIframeURL(searchParams) {
-        let url = searchParams.get("iframe_url");
-        if (url) {
-            return url;
-        }
-
-        url = searchParams.get("iframe_url_utf8");
-        if (url) {
-            return decodeURIComponent(url);
         }
     }
 
@@ -106,5 +96,17 @@ class PCArticleURLParser {
                     return `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}${newSearch}`;
                 }
         }
+    }
+}
+
+function getIframeURLFromSearchParams(searchParams) {
+    let url = searchParams.get("iframe_url");
+    if (url) {
+        return url;
+    }
+
+    url = searchParams.get("iframe_url_utf8");
+    if (url) {
+        return decodeURIComponent(url);
     }
 }

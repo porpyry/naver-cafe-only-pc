@@ -41,6 +41,9 @@
 
         // 1초 기다린 후 로딩 여부 확인
         await new Promise(resolve => setTimeout(resolve, 1000));
+        if (document.querySelector(".ArticleContainerWrap")) {
+            return;
+        }
         const { cafeId, articleId } = info;
         const pageStatus = await getPageStatus(cafeId, articleId);
         if (!pageStatus || pageStatus === 200) {

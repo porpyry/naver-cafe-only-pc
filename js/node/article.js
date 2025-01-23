@@ -99,33 +99,98 @@ class OnFoundArticle {
     }
     // 기본적으로 새 탭에서 열린다.
 
-    /** @this {HTMLAnchorElement}
+    /** @this {HTMLElement}
       * @param {Options} options */
-    static bottomrightBoardLink(options) {
-        // (1) 카페 최적화 (우하단 전체보기 버튼 target 수정)
+    static container(options) {
+        // (1-1) 카페 최적화 (URL에서 oldPath 제거)
+        // (1-2) 카페 최적화 (URL 복사에서 컨트롤 클릭 버그 수정)
+        // (1-3) 카페 최적화 (우하단 전체보기 버튼 target 수정)
+        // (2) 리뉴얼 페이지 접속 방지 (좌상단 게시판 버튼 href·target 수정)
 
-        // (1)
         if (options.optimizeCafe) {
-            if (this.pathname === "/ArticleList.nhn") {
-                if (this.target === "_parent" || this.target === "_top") {
-                    this.target = "_self";
+            // (1-1)
+            const url = new URL(this.baseURI);
+            if (url.searchParams.has("oldPath")) {
+                url.searchParams.delete("oldPath");
+                this.ownerDocument.defaultView.history.replaceState(null, "", url);
+            }
+
+            // (1-2)
+            const aCopy = this.querySelector(".ArticleTool a.button_url")
+            if (aCopy) {
+                createClickShieldSpan(aCopy.firstChild, true);
+            }
+
+            // (1-3)
+            const brBoardLink = this.querySelector(".RelatedArticles .paginate_area a.more"); // BottomRight
+            if (brBoardLink.pathname === "/ArticleList.nhn") {
+                if (brBoardLink.target === "_parent" || brBoardLink.target === "_top") {
+                    brBoardLink.target = "_self";
                 }
+            }
+        }
+
+        // (2)
+        if (options.preventRenewalPage) {
+            const tlBoardLink = this.querySelector(".ArticleTitle a.link_board"); // TopLeft
+            if (tlBoardLink.pathname === "/f-e/ArticleList.nhn") {
+                tlBoardLink.pathname = "/ArticleList.nhn";
+            }
+            if (tlBoardLink.target === "_parent" || tlBoardLink.target === "_top") {
+                tlBoardLink.target = "_self";
             }
         }
     }
 
     /** @this {HTMLAnchorElement}
       * @param {Options} options */
-    static topleftBoardLink(options) {
-        // (1) 리뉴얼 페이지 접속 방지 (좌상단 게시판 버튼 href·target 수정)
+    static prevButton(options) {
+        // (1) 카페 최적화 (컨트롤 클릭 버그 수정, 게시글 단독 링크로 변경)
 
         // (1)
-        if (options.preventRenewalPage) {
-            if (this.pathname === "/f-e/ArticleList.nhn") {
-                this.pathname = "/ArticleList.nhn";
+        // 기본 클릭 동작인 링크로 이동을 비활성화
+        const url = totalLinkToIframeLink(this);
+        if (url) {
+            if (options.newTabRedirectArticle) {
+                articleLinkToArticleOnlyLink(this);
             }
-            if (this.target === "_parent" || this.target === "_top") {
-                this.target = "_self";
+            createClickShieldBox(this);
+        } else {
+            createClickShieldBox(this, true); // 실패시 컨트롤 클릭 버그라도 수정
+        }
+    }
+
+    /** @this {HTMLAnchorElement}
+      * @param {Options} options */
+    static nextButton(options) {
+        // (1) 카페 최적화 (컨트롤 클릭 버그 수정, 게시글 단독 링크로 변경)
+
+        // (1)
+        // 기본 클릭 동작인 링크로 이동을 비활성화
+        const url = totalLinkToIframeLink(this);
+        if (url) {
+            if (options.newTabRedirectArticle) {
+                articleLinkToArticleOnlyLink(this);
+            }
+            createClickShieldBox(this);
+        } else {
+            createClickShieldBox(this, true); // 실패시 컨트롤 클릭 버그라도 수정
+        }
+    }
+
+    /** @this {HTMLAnchorElement}
+      * @param {Options} options */
+    static listButton(/*options*/) {
+        // (1) 카페 최적화 (컨트롤 클릭·전체 로드 버그 수정)
+
+        // (1)
+        // 기본 클릭 동작인 링크로 이동을 비활성화
+        if (this.ownerDocument === document) {
+            createClickShieldBox(this); // 게시글 단독 페이지에서는 전체 링크로 가는 게 더 효율적이다.
+        } else {
+            const url = totalLinkToIframeLink(this);
+            if (url) {
+                createClickShieldBox(this);
             }
         }
     }
@@ -186,6 +251,19 @@ async function articleLinkToArticleOnlyLink(a) {
         return;
     }
     url = url.split("?", 2)[0]; // remove search
+    a.href = url;
+    return url;
+}
+
+function totalLinkToIframeLink(a) {
+    if (!a) {
+        return;
+    }
+    const searchParams = new URLSearchParams(a.search);
+    const url = getIframeURLFromSearchParams(searchParams);
+    if (!url) {
+        return;
+    }
     a.href = url;
     return url;
 }

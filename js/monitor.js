@@ -188,10 +188,25 @@ class Monitor {
                 for (const oglinkElement of container.querySelectorAll(".se-module-oglink")) {
                     this.call("app.article.content-oglink-element", oglinkElement);
                 }
-                const topleftBoardLink = container.querySelector(".ArticleTitle a.link_board");
-                this.call("app.article.topleft-board-link", topleftBoardLink);
-                const bottomrightBoardLink = container.querySelector(".RelatedArticles .paginate_area a.more");
-                this.call("app.article.bottomright-board-link", bottomrightBoardLink);
+                const divRightArea = container.querySelector(".ArticleTopBtns > .right_area");
+                watchSelector(divRightArea, "a.btn_prev").then((prevButton) => {
+                    this.call("app.article.prev-button", prevButton);
+                });
+                watchSelector(divRightArea, "a.btn_next").then((nextButton) => {
+                    this.call("app.article.next-button", nextButton);
+                });
+                for (const listButton of divRightArea.querySelectorAll("a")) {
+                    if (listButton.textContent.trim() === "목록") {
+                        this.call("app.article.list-button", listButton);
+                        break;
+                    }
+                }
+                for (const listButton of container.querySelectorAll(".ArticleBottomBtns > .right_area > a")) {
+                    if (listButton.textContent.trim() === "목록") {
+                        this.call("app.article.list-button", listButton);
+                        break;
+                    }
+                }
             }
         },
         "app.article.content-link-element": {
@@ -200,10 +215,13 @@ class Monitor {
         "app.article.content-oglink-element": {
             parentKeys: ["app.article.container"]
         },
-        "app.article.topleft-board-link": {
+        "app.article.prev-button": {
             parentKeys: ["app.article.container"]
         },
-        "app.article.bottomright-board-link": {
+        "app.article.next-button": {
+            parentKeys: ["app.article.container"]
+        },
+        "app.article.list-button": {
             parentKeys: ["app.article.container"]
         },
         // --- --- --- --- --- --- --- --- App.Popular --- --- --- --- --- --- --- ---
@@ -502,7 +520,7 @@ body -> #app -> .Article -> (내용)
 (상단 버튼)
   .ArticleTopBtns > .right_area -> a.btn_prev (이전글)
   .ArticleTopBtns > .right_area -> a.btn_next (다음글)
-  .ArticleTopBtns > .right_area > a (다음글) > span > "목록"
+  .ArticleTopBtns > .right_area > a > span > "목록"
 (하단 프로필)
   .ArticleWriterProfile > a.more_area
   .ArticleWriterProfile -> (네이버 카페 애드온)

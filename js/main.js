@@ -15,10 +15,12 @@
         monitor.on("app.article.content-oglink-element", OnFoundArticle.contentOglinkElement);
     }
     if (options.optimizeCafe) {
-        monitor.on("app.article.bottomright-board-link", OnFoundArticle.bottomrightBoardLink);
+        monitor.on("app.article.prev-button", OnFoundArticle.prevButton);
+        monitor.on("app.article.next-button", OnFoundArticle.nextButton);
+        monitor.on("app.article.list-button", OnFoundArticle.listButton);
     }
-    if (options.preventRenewalPage) {
-        monitor.on("app.article.topleft-board-link", OnFoundArticle.topleftBoardLink);
+    if (options.optimizeCafe || options.preventRenewalPage) {
+        monitor.on("app.article.container", OnFoundArticle.container);
     }
 
     // article-list
