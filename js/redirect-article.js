@@ -15,7 +15,7 @@
     }
 
     const url = await PCArticleURLParser.getArticleOnlyURL(info)
-    const isComplete = info.type === PCArticleURLParser.TYPE_ARTICLE_ONLY && !url;
+    const isComplete = url === location.href; // oldPath가 존재하지 않음
     if (isComplete) {
         return addOriginalBackPage(info);
     }
@@ -30,8 +30,8 @@
     return location.replace(url);
 
     async function addOriginalBackPage(info) {
+        // 마우스 뒤로가기 버튼으로 닫기
         if (history.length <= 1) {
-            // 마우스 뒤로가기 버튼으로 닫기
             document.addEventListener("mouseup", (event) => {
                 if (event.button === 3) {
                     chrome.runtime.sendMessage(null, { type: "closeNewTabWithMouse3" });
@@ -39,52 +39,34 @@
             });
         }
 
-        window.addEventListener("popstate", (event) => {
-            const url = event.state?.NCOP_ORIG;
-            if (url) {
-                location.replace(url);
-            }
-        });
-
         // 1초 기다린 후 로딩 여부 확인
         await new Promise(resolve => setTimeout(resolve, 1000));
         const { cafeId, articleId } = info;
         const pageStatus = await getPageStatus(cafeId, articleId);
-        if (!pageStatus) {
+        if (!pageStatus || pageStatus === 200) {
             return;
         }
 
+        let cafeName;
         switch (pageStatus) {
             case 401: // no-login
-                writeMessage("로그인이 필요합니다. 뒤로가기를 눌러주세요.");
+                cafeName = await SessionCafeInfo.getCafeName(cafeId);
+                writeMessage("로그인이 필요합니다.", `https://cafe.naver.com/${cafeName}/${articleId}`);
                 break;
             case 404: // no-article
-                writeMessage("없는 게시글입니다. 뒤로가기를 눌러주세요.");
+                cafeName = await SessionCafeInfo.getCafeName(cafeId);
+                writeMessage("없는 게시글입니다.", `https://cafe.naver.com/${cafeName}`);
                 break;
         }
 
-        if (history.length <= 1) {
-            const cafeName = await SessionCafeInfo.getCafeName(cafeId);
-            if (cafeName) {
-                switch (pageStatus) {
-                    case 200: // ok
-                    case 401: // no-login
-                        history.replaceState({ NCOP_ORIG: `https://cafe.naver.com/${cafeName}/${articleId}` }, "");
-                        break;
-                    case 404: // no-article
-                        history.replaceState({ NCOP_ORIG: `https://cafe.naver.com/${cafeName}` }, "");
-                        break;
-                }
-                history.pushState(null, "");
-            }
-        }
-
-        function writeMessage(msg) {
+        function writeMessage(msg, url) {
             const app = document.querySelector("#app");
-            if (app) {
-                const textNode = document.createTextNode(msg);
-                app.insertBefore(textNode, app.firstChild);
+            if (!app) {
+                return;
             }
+            const div = document.createElement("div");
+            div.innerHTML = `<p>${msg}</p><br><a href="${url}" style="all: revert;">홈으로 가기</a>`;
+            app.insertBefore(div, app.firstChild);
         }
     }
 
@@ -92,10 +74,7 @@
         try {
             const url = `https://apis.naver.com/cafe-web/cafe-articleapi/v3/cafes/${cafeId}/articles/${articleId}?query=&useCafeId=true&requestFrom=A`;
             const res = await fetch(url, { method: "HEAD", credentials: "include" });
-            return res?.status;
-            // 200: ok
-            // 401: no-login
-            // 404: no-article
+            return res?.status; // 200: ok, 401: no-login, 404: no-article
         } catch (e) { console.error(e); }
     }
 })();

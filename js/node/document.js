@@ -5,8 +5,10 @@ class OnFoundDocument {
     /** @this {Document}
       * @param {Options} options */
     static cafeDocument(options) {
+        // (1) 단축키: 페이지 넘기기
+        // (2) 단축키: 검색창·댓글창 포커스
 
-        // 단축키: 페이지 넘기기
+        // (1)
         if (options.pageArrowShortcut) {
             this.addEventListener("keyup", (event) => {
                 const iframe = document.querySelector("iframe#cafe_main");
@@ -17,7 +19,7 @@ class OnFoundDocument {
             });
         }
 
-        // 단축키: 검색창·댓글창 포커스
+        // (2)
         if (options.searchCommentShortcut) {
             this.addEventListener("keyup", dispatchInputSafeBackspaceKeyUpEvent); // iframe이 로드되기 전까지 사용할 리스너
             this.addEventListener("keyup", (event) => {
@@ -34,13 +36,15 @@ class OnFoundDocument {
     /** @this {Document}
       * @param {Options} options */
     static iframeDocument(options) {
+        // (1) 단축키: 페이지 넘기기
+        // (2) 단축키: 검색창·댓글창 포커스
 
-        // 단축키: 페이지 넘기기
+        // (1)
         if (options.pageArrowShortcut) {
             this.addEventListener("keyup", dispatchInputSafeArrowKeyUpEvent);
         }
 
-        // 단축키: 검색창·댓글창 포커스
+        // (2)
         if (options.searchCommentShortcut) {
             document.removeEventListener("keyup", dispatchInputSafeBackspaceKeyUpEvent);
             this.addEventListener("keyup", dispatchInputSafeBackspaceKeyUpEvent);
@@ -51,13 +55,15 @@ class OnFoundDocument {
     /** @this {Document}
       * @param {Options} options */
     static onlyDocument(options) {
+        // (1) 단축키: 페이지 넘기기
+        // (2) 단축키: 검색창·댓글창 포커스
 
-        // 단축키: 페이지 넘기기
+        // (1)
         if (options.pageArrowShortcut) {
             this.addEventListener("keyup", dispatchInputSafeArrowKeyUpEvent);
         }
 
-        // 단축키: 검색창·댓글창 포커스
+        // (2)
         if (options.searchCommentShortcut) {
             this.addEventListener("keyup", dispatchInputSafeBackspaceKeyUpEvent);
         }
@@ -66,13 +72,15 @@ class OnFoundDocument {
     /** @this {Document}
       * @param {Options} options */
     static appDocument(options) {
+        // (1) 단축키: 페이지 넘기기
+        // (2) 단축키: 검색창·댓글창 포커스
 
-        // 단축키: 페이지 넘기기
+        // (1)
         if (options.pageArrowShortcut) {
             this.addEventListener("inputsafearrowkeyup", onInputSafeArrowKeyUpInApp);
         }
 
-        // 단축키: 검색창·댓글창 포커스
+        // (2)
         if (options.searchCommentShortcut) {
             this.removeEventListener("inputsafebackspacekeyup", onInputSafeBackspaceKeyUpInIframe);
             this.addEventListener("inputsafebackspacekeyup", onInputSafeBackspaceKeyUpInApp);
@@ -82,13 +90,15 @@ class OnFoundDocument {
     /** @this {Document}
       * @param {Options} options */
     static articleListDocument(options) {
+        // (1) 단축키: 페이지 넘기기
+        // (2) 단축키: 검색창·댓글창 포커스
 
-        // 단축키: 페이지 넘기기
+        // (1)
         if (options.pageArrowShortcut) {
             this.addEventListener("inputsafearrowkeyup", onInputSafeArrowKeyUpMovePage);
         }
 
-        // 단축키: 검색창·댓글창 포커스
+        // (2)
         if (options.searchCommentShortcut) {
             this.removeEventListener("inputsafebackspacekeyup", onInputSafeBackspaceKeyUpInIframe);
             this.addEventListener("inputsafebackspacekeyup", onInputSafeBackspaceKeyUpFocusSearch);
@@ -98,13 +108,15 @@ class OnFoundDocument {
     /** @this {Document}
       * @param {Options} options */
     static articleSearchListDocument(options) {
+        // (1) 단축키: 페이지 넘기기
+        // (2) 단축키: 검색창·댓글창 포커스
 
-        // 단축키: 페이지 넘기기
+        // (1)
         if (options.pageArrowShortcut) {
             this.addEventListener("inputsafearrowkeyup", onInputSafeArrowKeyUpMovePage);
         }
 
-        // 단축키: 검색창·댓글창 포커스
+        // (2)
         if (options.searchCommentShortcut) {
             this.removeEventListener("inputsafebackspacekeyup", onInputSafeBackspaceKeyUpInIframe);
             this.addEventListener("inputsafebackspacekeyup", onInputSafeBackspaceKeyUpFocusSearch);
@@ -357,17 +369,13 @@ function onInputSafeBackspaceKeyUpInIframe(/*event*/) {
 
 function onInputSafeBackspaceKeyUpInApp(/*event*/) {
     const appPageState = getAppPageState(this);
-    switch (appPageState) {
-        case "article":
-            // #app .Article .ArticleContainerWrap .ArticleContentBox .article_container .CommentBox .CommentWriter .comment_inbox textarea
-            const input = this.querySelector(".CommentWriter textarea");
-            input?.focus();
-            break;
+    if (appPageState === "article") {
+        // #app .Article .ArticleContainerWrap .ArticleContentBox .article_container .CommentBox .CommentWriter .comment_inbox textarea
+        const input = this.querySelector(".CommentWriter textarea");
+        input?.focus();
+    } else {
         // article이 아니라면 cafe.document로 이벤트를 돌려보냄
-        case "popular":
-        case "member":
-            document.dispatchEvent(new Event("inputsafebackspacekeyup"));
-            break;;
+        document.dispatchEvent(new Event("inputsafebackspacekeyup"));
     }
 }
 

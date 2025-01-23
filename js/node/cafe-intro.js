@@ -2,27 +2,24 @@ class OnFoundCafeIntro {
 
     /** @this {HTMLElement}
       * @param {Options} options */
-    // static boardHeadElement(options) {
-    // const aTitle = this.querySelector("h3 > a");
-    // const aMore = this.querySelector("span > a");
-    // }
-
-    /** @this {HTMLElement}
-      * @param {Options} options */
     static listTypeElement(options) {
+        // (1) 기본 새 탭에서 열기
+        // (2) 기본 백그라운드에서 열기 ..(1)
+        // (3-1) 카페 최적화 (컨트롤 클릭 버그 수정)
+        // (3-2) 카페 최적화 (게시글 단독 링크로 변경) ..(게시글 부분만 로딩시)
         const aTitle = this.querySelector("a.article"); // not null
         const aComment = this.querySelector("a.cmt");
 
-        // 기본 새 탭에서 열기
+        // aComment의 [, em, ] 묶기
+        const spanComment = groupChildrenWithSpan(aComment);
+
+        // (1), (3-1)
+        // 기본 클릭 동작인 링크로 이동을 비활성화
+        const spanTitle = createClickShieldSpan(aTitle?.querySelector("span.inner"));
+        createClickShieldSpan(spanComment);
+
+        // (1)
         if (options.cafeDefaultNewTab) {
-
-            // aComment의 [, em, ] 묶기
-            groupChildrenWithSpan(aComment);
-
-            // 기본 클릭 동작인 링크로 이동을 비활성화
-            const spanTitle = createClickShieldSpan(aTitle?.querySelector("span.inner"));
-            const spanComment = createClickShieldSpan(aComment?.querySelector("span.NCOP_GroupSpan"));
-
             if (aTitle) {
                 aTitle.target = "_blank";
             }
@@ -30,33 +27,39 @@ class OnFoundCafeIntro {
                 aComment.target = "_blank";
             }
 
-            // 기본 백그라운드에서 열기
+            // (2)
             if (options.cafeDefaultBackground) {
                 spanTitle?.addEventListener("click", openInBackgroundListener);
                 spanComment?.addEventListener("click", openInBackgroundListener);
             }
+        }
+
+        // (3-2)
+        if (options.newTabRedirectArticle && options.optimizeCafe) {
+            replaceHrefToArticleOnly(aTitle);
+            replaceHrefToArticleOnly(aComment);
         }
     }
 
     /** @this {HTMLElement}
       * @param {Options} options */
     static imageTypeElement(options) {
+        // (1) 기본 새 탭에서 열기
+        // (2) 기본 백그라운드에서 열기 ..(1)
+        // (3-1) 카페 최적화 (컨트롤 클릭 버그 수정)
+        // (3-2) 카페 최적화 (댓글수 링크 수정)
+        // (3-3) 카페 최적화 (게시글 단독 링크로 변경) ..(게시글 부분만 로딩시)
         const aImage = this.querySelector("dt.photo a");
         const aTitle = this.querySelector("dd.tit > a:has(> span.inner)"); // not null
         const aComment = this.querySelector("dd.tit > a:has(> span.num)"); // href 없음
 
-        // 기본 새 탭에서 열기
+        // (1), (3-1)
+        // 기본 클릭 동작인 링크로 이동을 비활성화
+        const spanImage = createClickShieldBox(aImage);
+        const spanTitle = createClickShieldSpan(aTitle?.querySelector("span.inner"));
+
+        // (1)
         if (options.cafeDefaultNewTab) {
-
-            // aComment.href 수정
-            if (aComment && aTitle) {
-                aComment.href = commentFocusURL(aTitle.href);
-            }
-
-            // 기본 클릭 동작인 링크로 이동을 비활성화
-            const spanImage = createClickShieldBox(aImage);
-            const spanTitle = createClickShieldSpan(aTitle?.querySelector("span.inner"));
-
             if (aImage) {
                 aImage.target = "_blank";
             }
@@ -67,11 +70,25 @@ class OnFoundCafeIntro {
                 aComment.target = "_blank";
             }
 
-            // 기본 백그라운드에서 열기
+            // (2)
             if (options.cafeDefaultBackground) {
                 spanImage?.addEventListener("click", openInBackgroundListener);
                 spanTitle?.addEventListener("click", openInBackgroundListener);
                 aComment?.addEventListener("click", openInBackgroundListener);
+            }
+        }
+
+        // (3-2)
+        if (options.optimizeCafe) {
+            if (aComment && aTitle) {
+                aComment.href = setCommentFocused(aTitle.href);
+            }
+
+            // (3-3)
+            if (options.newTabRedirectArticle) {
+                replaceHrefToArticleOnly(aImage);
+                replaceHrefToArticleOnly(aTitle);
+                replaceHrefToArticleOnly(aComment);
             }
         }
     }
@@ -79,11 +96,14 @@ class OnFoundCafeIntro {
     /** @this {HTMLElement}
       * @param {Options} options */
     static cardTypeElement(options) {
+        // (1) 기본 새 탭에서 열기
+        // (2) 기본 백그라운드에서 열기 ..(1)
+        // (3) 카페 최적화 (게시글 단독 링크로 변경) ..(게시글 부분만 로딩시)
         const aTitle = this.querySelector("a.tit"); // not null
         const aContent = this.querySelector("a.txt");
         const aImage = this.querySelector(".movie-img > a");
 
-        // 기본 새 탭에서 열기
+        // (1)
         if (options.cafeDefaultNewTab) {
             if (aTitle) {
                 aTitle.target = "_blank";
@@ -95,12 +115,32 @@ class OnFoundCafeIntro {
                 aImage.target = "_blank";
             }
 
-            // 기본 백그라운드에서 열기
+            // (2)
             if (options.cafeDefaultBackground) {
                 aTitle?.addEventListener("click", openInBackgroundListener);
                 aContent?.addEventListener("click", openInBackgroundListener);
                 aImage?.addEventListener("click", openInBackgroundListener);
             }
         }
+
+        // (3)
+        if (options.newTabRedirectArticle && options.optimizeCafe) {
+            replaceHrefToArticleOnly(aTitle);
+            replaceHrefToArticleOnly(aContent);
+            replaceHrefToArticleOnly(aImage);
+        }
+    }
+
+    /** @this {HTMLElement}
+      * @param {Options} options */
+    static boardHeadElement(/*options*/) {
+        // (1) 카페 최적화 (컨트롤 클릭 버그 수정)
+        const aTitle = this.querySelector("h3 > a");
+        const aMore = this.querySelector("span > a");
+
+        // (1)
+        // 기본 클릭 동작인 링크로 이동을 비활성화
+        createClickShieldSpan(aTitle.firstChild);
+        createClickShieldBox(aMore);
     }
 }

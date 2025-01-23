@@ -20,6 +20,7 @@
                         , "js"        : [ "js/util/storage.js"
                                         , "js/util/url-parser-pc.js"
                                         , "js/redirect-article.js"
+                                        , "js/util/url-parser-mobile.js"
                                         , "js/util/util.js"
                                         , "js/node/article.js"
                                         , "js/node/article-list.js"

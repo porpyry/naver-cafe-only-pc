@@ -39,7 +39,7 @@ class MobileURLParser {
         }
     }
 
-    static getArticleURL(info) {
+    static async getArticleURL(info) {
         switch (info?.type) {
             case this.TYPE_DEFAULT:
             case this.TYPE_CAFE_NAME:
@@ -50,7 +50,8 @@ class MobileURLParser {
             case this.TYPE_CAFE_ID:
                 {
                     const { cafeId, articleId } = info;
-                    return `https://cafe.naver.com/ArticleRead.nhn?clubid=${cafeId}&articleid=${articleId}`;
+                    const cafeName = await SessionCafeInfo.getCafeName(cafeId);
+                    return `https://cafe.naver.com/${cafeName}/${articleId}`;
                 }
         }
     }

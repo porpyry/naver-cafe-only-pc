@@ -381,6 +381,54 @@ class Monitor {
     }
 }
 
+// 트리에서 해당하는 요소가 있으면 리졸브하고, 없으면 기다렸다가 리졸브한다.
+// subtree 가 true 면 자손 중에서, false 면 자식 중에서 검색한다.
+// condition: (el) => boolean 이 주어지면, true 가 나올 때까지 계속 탐색한다.
+async function watchSelector(parent, selectors, subtree = false, condition) {
+    return new Promise((resolve) => {
+        const found = parent.querySelector((subtree ? "" : ":scope > ") + selectors);
+        if (found) {
+            if (!condition || condition(found)) {
+                return resolve(found);
+            }
+        }
+
+        new MutationObserver((mutationList, observer) => {
+            for (const mutation of mutationList) {
+                for (const node of mutation.addedNodes) {
+                    if (node.nodeType === Node.ELEMENT_NODE && node.matches(selectors)) {
+                        if (!condition || condition(node)) {
+                            resolve(node);
+                            observer.disconnect();
+                            return;
+                        }
+                    }
+                }
+            }
+        }).observe(parent, { childList: true, subtree });
+    });
+}
+
+// 자식 중에서 해당하는 요소가 나타날 때마다 콜백을 호출한다.
+// 해당하는 요소가 이미 존재한다면 바로 한 번 호출한다.
+// callback: (foundElement) => any
+function watchingChild(parent, selectors, callback) {
+    new MutationObserver((mutationList) => {
+        for (const mutation of mutationList) {
+            for (const node of mutation.addedNodes) {
+                if (node.nodeType === Node.ELEMENT_NODE && node.matches(selectors)) {
+                    callback(node);
+                }
+            }
+        }
+    }).observe(parent, { childList: true });
+
+    const found = parent.querySelector(":scope > " + selectors);
+    if (found) {
+        callback(found);
+    }
+}
+
 // 로딩 속도가 느리면 비어있는 임시 app 이 먼저 찾아질 수 있다.
 async function getDivApp(doc) {
     return watchSelector(doc.body, "#app", false, el => el.firstChild !== null);

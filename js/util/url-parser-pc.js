@@ -91,11 +91,8 @@ class PCArticleURLParser {
                 {
                     const { cafeId, articleId, search } = info;
                     const searchParams = new URLSearchParams(search);
-                    if (!searchParams.has("oldPath")) {
-                        return;
-                    }
                     searchParams.delete("oldPath");
-                    const newSearch = searchParams.size > 0 ? searchParams.toString() : "";
+                    const newSearch = searchParams.size > 0 ? "?" + searchParams.toString() : "";
                     return `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}${newSearch}`;
                 }
             case this.TYPE_ARTICLE_NHN:

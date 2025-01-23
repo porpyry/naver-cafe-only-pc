@@ -3,8 +3,9 @@ class OnFoundCafe {
     /** @this {HTMLULElement}
       * @param {Options} options */
     static async favoriteMenu(options) {
+        // (1) 즐겨찾기 순서 변경
 
-        // 즐겨찾기 순서 변경
+        // (1)
         if (options.changeFavoriteOrder) {
             const favoriteOrder = (await chrome.storage.sync.get("favoriteOrder")).favoriteOrder;
             if (favoriteOrder instanceof Array) {

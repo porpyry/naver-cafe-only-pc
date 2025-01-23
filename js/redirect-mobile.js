@@ -19,10 +19,10 @@
     }
 
     let url;
-    if (!options.newTabRedirectArticle) {
-        url = MobileURLParser.getArticleURL(info);
-    } else {
+    if (options.newTabRedirectArticle) {
         url = await MobileURLParser.getArticleOnlyURL(info)
+    } else {
+        url = await MobileURLParser.getArticleURL(info);
     }
     if (!url) {
         return;
