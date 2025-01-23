@@ -33,7 +33,7 @@
         // 마우스 뒤로가기 버튼으로 닫기
         if (history.length <= 1) {
             document.addEventListener("mouseup", (event) => {
-                if (event.button === 3) {
+                if (event.button === 3 && history.length <= 1) {
                     chrome.runtime.sendMessage(null, { type: "closeNewTabWithMouse3" });
                 }
             });

@@ -8,8 +8,8 @@ class OnFoundArticle {
         const optionsOptimizeCafeWhenRedirect = (options.newTabRedirectMobile || options.newTabRedirectArticle) && options.optimizeCafe;
         return [
             ["app.article.container", this.container, options.optimizeCafe],
-            ["app.article.prev-button", this.prevButton, options.optimizeCafe],
-            ["app.article.next-button", this.nextButton, options.optimizeCafe],
+            ["app.article.prev-button", this.prevButton, options.optimizeCafe], // async
+            ["app.article.next-button", this.nextButton, options.optimizeCafe], // async
             ["app.article.list-button", this.listButton, options.optimizeCafe],
             ["app.article.content-link-element", this.contentLinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect],
             ["app.article.content-oglink-element", this.contentOglinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect]
@@ -66,15 +66,17 @@ class OnFoundArticle {
 
     /** @this {HTMLAnchorElement}
       * @param {Options} options */
-    static prevButton(options) {
+    static async prevButton(options) {
         // (1) 카페 최적화 (컨트롤 클릭 버그 수정, 게시글 단독 링크로 변경)
+
+        // popstate 이용할 것이므로 다시 짜야 함
 
         // (1)
         // 기본 클릭 동작인 링크로 이동을 비활성화
         const url = totalLinkToIframeLink(this);
         if (url) {
             if (options.newTabRedirectArticle) {
-                articleLinkToArticleOnlyLink(this);
+                await articleLinkToArticleOnlyLink(this);
             }
             createClickShieldBox(this);
         } else {
@@ -84,7 +86,7 @@ class OnFoundArticle {
 
     /** @this {HTMLAnchorElement}
       * @param {Options} options */
-    static nextButton(options) {
+    static async nextButton(options) {
         // (1) 카페 최적화 (컨트롤 클릭 버그 수정, 게시글 단독 링크로 변경)
 
         // (1)
@@ -92,7 +94,7 @@ class OnFoundArticle {
         const url = totalLinkToIframeLink(this);
         if (url) {
             if (options.newTabRedirectArticle) {
-                articleLinkToArticleOnlyLink(this);
+                await articleLinkToArticleOnlyLink(this);
             }
             createClickShieldBox(this);
         } else {
@@ -244,7 +246,9 @@ async function mobileLinkToArticleLink(a) {
     if (!url) {
         return;
     }
-    a.href = url;
+    if (a.href !== url) {
+        a.href = url;
+    }
     return url;
 }
 
@@ -260,7 +264,9 @@ async function mobileLinkToArticleOnlyLink(a) {
     if (!url) {
         return;
     }
-    a.href = url;
+    if (a.href !== url) {
+        a.href = url;
+    }
     return url;
 }
 
@@ -277,7 +283,9 @@ async function articleLinkToArticleOnlyLink(a) {
         return;
     }
     url = url.split("?", 2)[0]; // remove search
-    a.href = url;
+    if (a.href !== url) {
+        a.href = url;
+    }
     return url;
 }
 
@@ -290,6 +298,8 @@ function totalLinkToIframeLink(a) {
     if (!url) {
         return;
     }
-    a.href = url;
+    if (a.href !== url) {
+        a.href = url;
+    }
     return url;
 }

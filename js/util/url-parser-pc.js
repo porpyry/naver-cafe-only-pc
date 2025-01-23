@@ -106,7 +106,6 @@ function getIframeUrlFromSearchParams(searchParams) {
     if (url) {
         return url;
     }
-
     url = searchParams.get("iframe_url_utf8");
     if (url) {
         return decodeURIComponent(url);

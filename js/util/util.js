@@ -2,6 +2,9 @@
 
 /** @this {HTMLElement} */
 function openInBackgroundListener(event) {
+    if (event.altKey || event.ctrlKey || event.shiftKey || event.metaKey) {
+        return;
+    }
     let url;
     switch (this.tagName) {
         case "A":
@@ -31,7 +34,7 @@ function createClickShieldBox(a, passDefault) {
     const span = a.ownerDocument.createElement("span");
     span.classList.add("NCOP_CSA"); // Click Shield Absolute
     span.addEventListener("click", (event) => {
-        if (passDefault && !(event.ctrlKey || event.shiftKey)) {
+        if (passDefault && !(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)) {
             return;
         }
         event.stopPropagation();
@@ -59,7 +62,7 @@ function createClickShieldSpan(spanOrText, passDefault) {
     }
     span.classList.add("NCOP_CSS");
     span.addEventListener("click", (event) => {
-        if (passDefault && !(event.ctrlKey || event.shiftKey)) {
+        if (passDefault && !(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)) {
             return;
         }
         event.stopPropagation();

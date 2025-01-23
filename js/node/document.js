@@ -170,7 +170,9 @@ class OnFoundDocument {
         // (1) 카페 최적화 (새로고침 가능하도록 URL 변경)
 
         // (1)
-        cleanUpUrlForRefresh(this.location.pathname, this.location.search);
+        if (this !== document) {
+            cleanUpUrlForRefresh(this.location.pathname, this.location.search);
+        }
     }
 }
 
@@ -196,7 +198,7 @@ function isInputSafeKeyEvent(event) {
 }
 
 function dispatchInputSafeArrowKeyUpEvent(event) {
-    if (event.altKey || event.ctrlKey || event.shiftKey) {
+    if (event.altKey || event.ctrlKey || event.shiftKey || event.metaKey) {
         return;
     }
     let direction;
@@ -394,7 +396,7 @@ function onInputSafeArrowKeyUpInMember(doc, direction) {
 }
 
 function dispatchInputSafeBackspaceKeyUpEvent(event) {
-    if (event.altKey || event.ctrlKey || event.shiftKey) {
+    if (event.altKey || event.ctrlKey || event.shiftKey || event.metaKey) {
         return;
     }
     if (event.code !== "Backspace") {
@@ -450,7 +452,7 @@ function iframeURLChange(iframe, callback) {
         }
     };
     var unloadHandler = function () {
-        setTimeout(dispatchChange, 10);
+        setTimeout(dispatchChange, 1); // 타 확장과 충돌 방지 (원래 0ms)
     };
     function attachUnload() {
         iframe.contentWindow.removeEventListener("unload", unloadHandler);

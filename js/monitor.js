@@ -4,7 +4,7 @@
  * @property {string[]} parentKeys
  * @property {string[]} childKeys
  * @property {OnFound} [onFound]
- * @property {OnActivate} [onActivate]
+ * @property {OnFoundEnd} [onFoundEnd]
  */
 
 /**
@@ -13,7 +13,7 @@
  * */
 
 /**
- * @callback OnActivate
+ * @callback OnFoundEnd
  * @param {Node} node
  */
 
@@ -39,8 +39,8 @@ class Monitor {
         if (!baseItem) {
             throw new Error("NaverCafeOnlyPC: Invalid key.");
         }
-        const { parentKeys, onActivate } = baseItem;
-        this.map.set(key, { isActive: false, parentKeys, childKeys: [], onFound, onActivate });
+        const { parentKeys, onFoundEnd } = baseItem;
+        this.map.set(key, { isActive: false, parentKeys, childKeys: [], onFound, onFoundEnd });
         for (const parentKey of parentKeys) {
             this.on(parentKey, null);
         }
@@ -60,7 +60,24 @@ class Monitor {
         } catch (e) {
             console.error(e);
         }
-        item.onActivate?.(node);
+        item.onFoundEnd?.(node);
+    }
+
+    async calling(key, node) {
+        if (!node) {
+            return;
+        }
+        const item = this.map.get(key);
+        if (!item) {
+            return;
+        }
+        item.isActive = true;
+        try {
+            await item.onFound?.call(node, this.options);
+        } catch (e) {
+            console.error(e);
+        }
+        item.onFoundEnd?.(node);
     }
 
     clear(key, force = false) {
@@ -89,7 +106,7 @@ class Monitor {
     baseDAG = {
         "document": {
             parentKeys: [],
-            onActivate: (doc) => {
+            onFoundEnd: (doc) => {
                 const iframe = doc.querySelector("iframe#cafe_main");
                 if (iframe) {
                     this.call("cafe.document", doc);
@@ -100,14 +117,14 @@ class Monitor {
         },
         "only.document": {
             parentKeys: ["document"],
-            onActivate: (doc) => {
+            onFoundEnd: (doc) => {
                 this.clear("document", true);
                 this.call("app.document", doc);
             }
         },
         "cafe.document": {
             parentKeys: ["document"],
-            onActivate: (doc) => {
+            onFoundEnd: (doc) => {
                 this.clear("document", true);
                 const iframe = doc.querySelector("iframe#cafe_main");
                 if (iframe) {
@@ -126,7 +143,7 @@ class Monitor {
         },
         "iframe.document": {
             parentKeys: ["cafe.document"],
-            onActivate: (doc) => {
+            onFoundEnd: (doc) => {
                 this.clear("cafe.document", true);
                 const info = PCURLParser.getIframeUrlInfo(doc.location.pathname, doc.location.search);
                 switch (info?.type) {
@@ -148,25 +165,26 @@ class Monitor {
         },
         "app.document": {
             parentKeys: ["only.document", "iframe.document"],
-            onActivate: async (doc) => {
+            onFoundEnd: (doc) => {
                 this.clear("only.document", true);
-                const divApp = await getDivApp(doc);
-                watchingChild(divApp, ".Article", async (divArticle) => {
-                    const container = await watchSelector(divArticle, ".ArticleContainerWrap");
-                    this.call("app.article.container", container);
-                });
-                watchingChild(divApp, "section", (container) => {
-                    this.call("app.popular.container", container);
-                });
-                watchingChild(divApp, ".MemberProfile", (container) => {
-                    this.call("app.member.container", container);
+                getDivApp(doc).then((divApp) => {
+                    watchingChild(divApp, ".Article", async (divArticle) => {
+                        const container = await watchSelector(divArticle, ".ArticleContainerWrap");
+                        this.call("app.article.container", container);
+                    });
+                    watchingChild(divApp, "section", (container) => {
+                        this.call("app.popular.container", container);
+                    });
+                    watchingChild(divApp, ".MemberProfile", (container) => {
+                        this.call("app.member.container", container);
+                    });
                 });
             }
         },
         // --- --- --- --- --- --- --- --- Cafe --- --- --- --- --- --- --- ---
         "cafe.side-panel": {
             parentKeys: ["cafe.document"],
-            onActivate: (divSidePanel) => {
+            onFoundEnd: (divSidePanel) => {
                 const ulFavoriteMenu = divSidePanel.querySelector("ul#favoriteMenuGroup");
                 if (ulFavoriteMenu) {
                     if (ulFavoriteMenu.style.display !== "none") {
@@ -191,32 +209,40 @@ class Monitor {
         // --- --- --- --- --- --- --- --- App.Article --- --- --- --- --- --- --- ---
         "app.article.container": {
             parentKeys: ["app.document"],
-            onActivate: (container) => {
-                const divRightArea = container.querySelector(".ArticleTopBtns > .right_area");
-                watchSelector(divRightArea, "a.btn_prev").then((prevButton) => {
-                    this.call("app.article.prev-button", prevButton);
+            onFoundEnd: (container) => {
+                watchingChild(container, ".ArticleContentBox", (divContentBox) => {
+                    this.call("app.article.content-box", divContentBox);
                 });
-                watchSelector(divRightArea, "a.btn_next").then((nextButton) => {
-                    this.call("app.article.next-button", nextButton);
-                });
-                for (const listButton of divRightArea.querySelectorAll("a")) {
+                const observing = async (key, node) => {
+                    const observeOptions = { attributeFilter: ["href"] };
+                    const observer = new MutationObserver(async () => {
+                        observer.disconnect();
+                        await this.calling(key, node);
+                        observer.observe(node, observeOptions);
+                    });
+                    await this.calling(key, node);
+                    observer.observe(node, observeOptions);
+                }
+                const divTopRightArea = container.querySelector(".ArticleTopBtns > .right_area");
+                for (const listButton of divTopRightArea.querySelectorAll("a")) {
                     if (listButton.textContent.trim() === "목록") {
-                        this.call("app.article.list-button", listButton);
+                        observing("app.article.list-button", listButton);
                         break;
                     }
                 }
-                for (const listButton of container.querySelectorAll(".ArticleBottomBtns > .right_area > a")) {
+                const divBottomRightArea = container.querySelector(".ArticleBottomBtns > .right_area");
+                for (const listButton of divBottomRightArea.querySelectorAll("a")) {
                     if (listButton.textContent.trim() === "목록") {
-                        this.call("app.article.list-button", listButton);
+                        observing("app.article.list-button", listButton);
                         break;
                     }
                 }
-                for (const linkElement of container.querySelectorAll("a.se-link")) {
-                    this.call("app.article.content-link-element", linkElement);
-                }
-                for (const oglinkElement of container.querySelectorAll(".se-module-oglink")) {
-                    this.call("app.article.content-oglink-element", oglinkElement);
-                }
+                watchingChild(divTopRightArea, "a.btn_prev", (prevButton) => {
+                    observing("app.article.prev-button", prevButton);
+                });
+                watchingChild(divTopRightArea, "a.btn_next", (nextButton) => {
+                    observing("app.article.next-button", nextButton);
+                });
             }
         },
         "app.article.prev-button": {
@@ -228,16 +254,28 @@ class Monitor {
         "app.article.list-button": {
             parentKeys: ["app.article.container"]
         },
+        "app.article.content-box": {
+            parentKeys: ["app.article.container"],
+            onFoundEnd: (divContentBox) => {
+                this.call("app.changed.document", divContentBox.ownerDocument);
+                for (const linkElement of divContentBox.querySelectorAll("a.se-link")) {
+                    this.call("app.article.content-link-element", linkElement);
+                }
+                for (const oglinkElement of divContentBox.querySelectorAll(".se-module-oglink")) {
+                    this.call("app.article.content-oglink-element", oglinkElement);
+                }
+            }
+        },
         "app.article.content-link-element": {
-            parentKeys: ["app.article.container"]
+            parentKeys: ["app.article.content-box"]
         },
         "app.article.content-oglink-element": {
-            parentKeys: ["app.article.container"]
+            parentKeys: ["app.article.content-box"]
         },
         // --- --- --- --- --- --- --- --- App.Popular --- --- --- --- --- --- --- ---
         "app.popular.container": {
             parentKeys: ["app.document"],
-            onActivate: (container) => {
+            onFoundEnd: (container) => {
                 // 페이지 변경 감지
                 const pageChangeObserver = new MutationObserver((mutationList) => {
                     for (const mutation of mutationList) {
@@ -265,7 +303,7 @@ class Monitor {
         },
         "app.popular.tbody-page": {
             parentKeys: ["app.popular.container"],
-            onActivate: (tbodyPage) => {
+            onFoundEnd: (tbodyPage) => {
                 this.call("app.changed.document", tbodyPage.ownerDocument);
                 for (const listTypeElement of tbodyPage.querySelectorAll(".inner_list")) {
                     this.call("app.popular.list-type-element", listTypeElement);
@@ -278,7 +316,7 @@ class Monitor {
         // --- --- --- --- --- --- --- --- App.Member --- --- --- --- --- --- --- ---
         "app.member.container": {
             parentKeys: ["app.document"],
-            onActivate: (container) => {
+            onFoundEnd: (container) => {
                 watchSelector(container, ".sub_tit_profile").then((profile) => {
                     this.call("app.member.profile", profile);
                 });
@@ -308,7 +346,7 @@ class Monitor {
         },
         "app.member.tbody-page": {
             parentKeys: ["app.member.container"],
-            onActivate: (tbodyPage) => {
+            onFoundEnd: (tbodyPage) => {
                 this.call("app.changed.document", tbodyPage.ownerDocument);
                 for (const listTypeElement of tbodyPage.querySelectorAll("div.board-list .inner_list")) {
                     this.call("app.member.list-type-element", listTypeElement);
@@ -334,7 +372,7 @@ class Monitor {
         // --- --- --- --- --- --- --- --- CafeIntro --- --- --- --- --- --- --- ---
         "cafe-intro.document": {
             parentKeys: ["iframe.document"],
-            onActivate: (doc) => {
+            onFoundEnd: (doc) => {
                 const divBasisElement = doc.querySelector("#basisElement");
                 if (divBasisElement) {
                     for (const boardHeadElement of divBasisElement.querySelectorAll(".list-tit")) {
@@ -367,7 +405,7 @@ class Monitor {
         // --- --- --- --- --- --- --- --- ArticleList --- --- --- --- --- --- --- ---
         "article-list.document": {
             parentKeys: ["iframe.document"],
-            onActivate: (doc) => {
+            onFoundEnd: (doc) => {
                 const divMainArea = doc.querySelector("#main-area");
                 if (divMainArea) {
                     for (const listTypeElement of divMainArea.querySelectorAll(".article-board .inner_list")) {
@@ -394,7 +432,7 @@ class Monitor {
         // --- --- --- --- --- --- --- --- ArticleSearchList --- --- --- --- --- --- --- ---
         "article-search-list.document": {
             parentKeys: ["iframe.document"],
-            onActivate: (doc) => {
+            onFoundEnd: (doc) => {
                 const divMainArea = doc.querySelector("#main-area");
                 if (divMainArea) {
                     for (const listTypeElement of divMainArea.querySelectorAll(".result-board .inner_list")) {
