@@ -1,5 +1,12 @@
 class OnFoundPopular {
 
+    /** @param {Options} options */
+    static getIndex(options) {
+        return [
+            ["app.popular.list-type-element", OnFoundPopular.listTypeElement, options.cafeDefaultNewTab || options.optimizeCafe]
+        ];
+    }
+
     /** @this {HTMLElement}
       * @param {Options} options */
     static listTypeElement(options) {

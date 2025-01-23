@@ -2,11 +2,24 @@
 
 class OnFoundDocument {
 
+    /** @param {Options} options */
+    static getIndex(options) {
+        return [
+            ["cafe.document", /*          */ OnFoundDocument.cafeDocument, /*        */ options.pageArrowShortcut || options.searchCommentShortcut || options.optimizeCafe],
+            ["iframe.document", /*        */ OnFoundDocument.iframeDocument, /*      */ options.pageArrowShortcut || options.searchCommentShortcut],
+            ["only.document", /*          */ OnFoundDocument.onlyDocument, /*        */ options.pageArrowShortcut || options.searchCommentShortcut],
+            ["app.document", /*           */ OnFoundDocument.appDocument, /*         */ options.pageArrowShortcut || options.searchCommentShortcut],
+            ["article-list.document", /*  */ OnFoundDocument.articleListDocument, /* */ options.pageArrowShortcut || options.searchCommentShortcut],
+            ["article-search-list.document", OnFoundDocument.articleSearchListDocument, options.pageArrowShortcut || options.searchCommentShortcut]
+        ];
+    }
+
     /** @this {Document}
       * @param {Options} options */
     static cafeDocument(options) {
         // (1) 단축키: 페이지 넘기기
         // (2) 단축키: 검색창·댓글창 포커스
+        // (3) 카페 최적화: 상단 새글 링크 수정 및 컨트롤 클릭 버그 수정
 
         // (1)
         if (options.pageArrowShortcut) {
@@ -30,6 +43,15 @@ class OnFoundDocument {
                 }
             });
             this.addEventListener("inputsafebackspacekeyup", onInputSafeBackspaceKeyUpInCafe);
+        }
+
+        // (3)
+        if (options.optimizeCafe) {
+            const a = document.querySelector("#button_mynews_alarm a.link_chatting");
+            if (a?.href === location.href + "#") {
+                a.href = "https://section.cafe.naver.com/ca-fe/home/feed";
+            }
+            createClickShieldSpan(a?.firstChild, true);
         }
     }
 

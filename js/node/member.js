@@ -1,5 +1,15 @@
 class OnFoundMember {
 
+    /** @param {Options} options */
+    static getIndex(options) {
+        const optionsOnlyCafeDefaultBackground = options.cafeDefaultNewTab && options.cafeDefaultBackground;
+        const optionsOptimizeCafeWhenRedirectArticle = options.newTabRedirectArticle && options.optimizeCafe;
+        return [
+            ["app.member.list-type-element", OnFoundMember.listTypeElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirectArticle],
+            ["app.member.card-type-element", OnFoundMember.cardTypeElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirectArticle]
+        ];
+    }
+
     /** @this {HTMLElement}
       * @param {Options} options */
     static listTypeElement(options) {

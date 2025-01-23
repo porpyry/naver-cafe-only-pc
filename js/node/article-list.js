@@ -1,5 +1,15 @@
 class OnFoundArticleList {
 
+    /** @param {Options} options */
+    static getIndex(options) {
+        const optionsOptimizeCafeWhenRedirectArticle = options.newTabRedirectArticle && options.optimizeCafe;
+        return [
+            ["article-list.list-type-element", OnFoundArticleList.listTypeElement, options.cafeDefaultNewTab || optionsOptimizeCafeWhenRedirectArticle],
+            ["article-list.image-type-element", OnFoundArticleList.imageTypeElement, options.cafeDefaultNewTab || optionsOptimizeCafeWhenRedirectArticle],
+            ["article-list.card-type-element", OnFoundArticleList.cardTypeElement, options.cafeDefaultNewTab || optionsOptimizeCafeWhenRedirectArticle]
+        ];
+    }
+
     /** @this {HTMLElement}
       * @param {Options} options */
     static listTypeElement(options) {

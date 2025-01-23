@@ -2,6 +2,20 @@
 
 class OnFoundArticle {
 
+    /** @param {Options} options */
+    static getIndex(options) {
+        const optionsOnlyCafeDefaultBackground = options.cafeDefaultNewTab && options.cafeDefaultBackground;
+        const optionsOptimizeCafeWhenRedirect = (options.newTabRedirectMobile || options.newTabRedirectArticle) && options.optimizeCafe;
+        return [
+            ["app.article.content-link-element", OnFoundArticle.contentLinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect],
+            ["app.article.content-oglink-element", OnFoundArticle.contentOglinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect],
+            ["app.article.container", OnFoundArticle.container, options.optimizeCafe || options.preventRenewalPage],
+            ["app.article.prev-button", OnFoundArticle.prevButton, options.optimizeCafe],
+            ["app.article.next-button", OnFoundArticle.nextButton, options.optimizeCafe],
+            ["app.article.list-button", OnFoundArticle.listButton, options.optimizeCafe]
+        ];
+    }
+
     /** @this {HTMLAnchorElement}
       * @param {Options} options */
     static async contentLinkElement(options) {

@@ -1,5 +1,12 @@
 class OnFoundCafe {
 
+    /** @param {Options} options */
+    static getIndex(options) {
+        return [
+            ["cafe.favorite-menu", OnFoundCafe.favoriteMenu, options.changeFavoriteOrder]
+        ];
+    }
+
     /** @this {HTMLULElement}
       * @param {Options} options */
     static async favoriteMenu(options) {

@@ -1,5 +1,13 @@
 class OnFoundArticleSearchList {
 
+    /** @param {Options} options */
+    static getIndex(options) {
+        const optionsOptimizeCafeWhenRedirectArticle = options.newTabRedirectArticle && options.optimizeCafe;
+        return [
+            ["article-search-list.list-type-element", OnFoundArticleSearchList.listTypeElement, options.cafeDefaultNewTab || optionsOptimizeCafeWhenRedirectArticle]
+        ];
+    }
+
     /** @this {HTMLElement}
       * @param {Options} options */
     static listTypeElement(options) {
