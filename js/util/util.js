@@ -102,7 +102,8 @@ function replaceHrefToArticleOnly(a) {
     if (!a) {
         return;
     }
-    if (a.pathname === "/ArticleRead.nhn" || a.pathname === "/ca-fe/ArticleRead.nhn") {
+    const matches = a.pathname.match(PCArticleURLParser.RE_ARTICLE_NHN);
+    if (matches) {
         const searchParams = new URLSearchParams(a.search);
         const cafeId = searchParams.get("clubid");
         const articleId = searchParams.get("articleid");
@@ -112,5 +113,50 @@ function replaceHrefToArticleOnly(a) {
             const newSearch = searchParams.size > 0 ? "?" + searchParams.toString() : "";
             a.href = `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}${newSearch}`;
         }
+    }
+}
+
+async function cleanUpUrlForRefresh(pathname, search) {
+    let url;
+    const info = PCURLParser.getIframeUrlInfo(pathname, search);
+    switch (info?.type) {
+        case "cafe-intro":
+            {
+                const cafeName = await SessionCafeInfo.getCafeName(info.cafeId);
+                if (cafeName) {
+                    url = `https://cafe.naver.com/${cafeName}`;
+                }
+            } break;
+        case "app.article":
+            {
+                const cafeName = await SessionCafeInfo.getCafeName(info.cafeId);
+                if (cafeName) {
+                    url = `https://cafe.naver.com/${cafeName}/${info.articleId}`;
+                }
+            } break;
+        default:
+            {
+                let cafeName;
+                if (info.cafeId) {
+                    cafeName = await SessionCafeInfo.getCafeName(info.cafeId);
+                } else {
+                    cafeName = tryFindCafeNameFromUrl();
+                }
+                if (cafeName) {
+                    const iframeUrl = (pathname + search).replaceAll("&", "%26").replaceAll("#", "%23");
+                    url = `https://cafe.naver.com/${cafeName}?iframe_url=${iframeUrl}`; // or iframe_url_utf8=encodeURIComponent(pathname + search)
+                }
+            } break;
+    }
+    if (url && location.href !== url) {
+        history.replaceState(null, "", url);
+    }
+}
+
+function tryFindCafeNameFromUrl() {
+    const matches = location.pathname.match(/^\/(?<cafeName>\w+)(\/|\.cafe)?$/);
+    if (matches) {
+        const { cafeName } = matches.groups;
+        return cafeName;
     }
 }

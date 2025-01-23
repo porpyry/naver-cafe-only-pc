@@ -9,33 +9,31 @@ class OnFoundCafe {
 
     /** @this {HTMLULElement}
       * @param {Options} options */
-    static favoriteMenu(options) {
+    static favoriteMenu(/*options*/) {
         // (1) 즐겨찾기 순서 변경
 
         // (1)
-        if (options.changeFavoriteOrder) {
-            const aForId = this.querySelector("li a");
-            const cafeId = new URLSearchParams(aForId?.search).get("search.clubid");
-            if (cafeId) {
-                chrome.storage.sync.get("favoriteOrder").then((items) => {
-                    const favoriteOrder = items.favoriteOrder?.find(item => item.cafeId === cafeId)?.favoriteOrder;
-                    if (favoriteOrder) {
-                        for (const idInt of favoriteOrder) {
-                            const a = this.querySelector(`#favoriteMenuLink${idInt}`);
-                            const li = a?.closest("li");
-                            if (li) {
-                                this.appendChild(li);
-                            }
+        const aForId = this.querySelector("li a");
+        const cafeId = new URLSearchParams(aForId?.search).get("search.clubid");
+        if (cafeId) {
+            chrome.storage.sync.get("favoriteOrder").then((items) => {
+                const favoriteOrder = items.favoriteOrder?.find(item => item.cafeId === cafeId)?.favoriteOrder;
+                if (favoriteOrder) {
+                    for (const idInt of favoriteOrder) {
+                        const a = this.querySelector(`#favoriteMenuLink${idInt}`);
+                        const li = a?.closest("li");
+                        if (li) {
+                            this.appendChild(li);
                         }
                     }
-                    for (const a of this.querySelectorAll("li a")) {
-                        a.addEventListener("dragstart", onDragStartFavoriteMenu);
-                        a.addEventListener("dragenter", preventDefaultFunction);
-                        a.addEventListener("dragover", preventDefaultFunction);
-                        a.addEventListener("drop", onDropFavoriteMenu);
-                    }
-                });
-            }
+                }
+                for (const a of this.querySelectorAll("li a")) {
+                    a.addEventListener("dragstart", onDragStartFavoriteMenu);
+                    a.addEventListener("dragenter", preventDefaultFunction);
+                    a.addEventListener("dragover", preventDefaultFunction);
+                    a.addEventListener("drop", onDropFavoriteMenu);
+                }
+            });
         }
     }
 }

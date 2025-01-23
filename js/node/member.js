@@ -13,16 +13,14 @@ class OnFoundMember {
 
     /** @this {HTMLElement}
       * @param {Options} options */
-    static profile(options) {
-        // (1) 단독 게시글 페이지에서 탭 제목 수정
+    static profile(/*options*/) {
+        // (1) 카페 최적화 (단독 게시글 페이지에서 탭 제목 수정)
 
         // (1)
-        if (options.optimizeCafe) {
-            if (this.ownerDocument === document) {
-                const nick = this.querySelector("button.nick_btn");
-                if (nick) {
-                    document.title = nick.textContent.trim();
-                }
+        if (this.ownerDocument === document) {
+            const nick = this.querySelector("button.nick_btn");
+            if (nick) {
+                document.title = nick.textContent.trim() + " : 네이버 카페";
             }
         }
     }

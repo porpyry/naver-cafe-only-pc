@@ -37,7 +37,7 @@ class Monitor {
         }
         const baseItem = this.baseDAG[key];
         if (!baseItem) {
-            throw new Error("Invalid monitor key.");
+            throw new Error("NaverCafeOnlyPC: Invalid key.");
         }
         const { parentKeys, onActivate } = baseItem;
         this.map.set(key, { isActive: false, parentKeys, childKeys: [], onFound, onActivate });
@@ -128,15 +128,21 @@ class Monitor {
             parentKeys: ["cafe.document"],
             onActivate: (doc) => {
                 this.clear("cafe.document", true);
-                const pathname = doc.location.pathname;
-                if (pathname.startsWith("/ca-fe/cafes/") || pathname.startsWith("/ArticleRead.nhn")) {
-                    this.call("app.document", doc);
-                } else if (pathname.startsWith("/MyCafeIntro.nhn")) {
-                    this.call("cafe-intro.document", doc);
-                } else if (pathname.startsWith("/ArticleList.nhn")) {
-                    this.call("article-list.document", doc);
-                } else if (pathname.startsWith("/ArticleSearchList.nhn")) {
-                    this.call("article-search-list.document", doc);
+                const info = PCURLParser.getIframeUrlInfo(doc.location.pathname, doc.location.search);
+                switch (info?.type) {
+                    case "app":
+                    case "app.article":
+                        this.call("app.document", doc);
+                        break;
+                    case "cafe-intro":
+                        this.call("cafe-intro.document", doc);
+                        break;
+                    case "article-list":
+                        this.call("article-list.document", doc);
+                        break;
+                    case "article-search-list":
+                        this.call("article-search-list.document", doc);
+                        break;
                 }
             }
         },
@@ -260,6 +266,7 @@ class Monitor {
         "app.popular.tbody-page": {
             parentKeys: ["app.popular.container"],
             onActivate: (tbodyPage) => {
+                this.call("app.changed.document", tbodyPage.ownerDocument);
                 for (const listTypeElement of tbodyPage.querySelectorAll(".inner_list")) {
                     this.call("app.popular.list-type-element", listTypeElement);
                 }
@@ -302,6 +309,7 @@ class Monitor {
         "app.member.tbody-page": {
             parentKeys: ["app.member.container"],
             onActivate: (tbodyPage) => {
+                this.call("app.changed.document", tbodyPage.ownerDocument);
                 for (const listTypeElement of tbodyPage.querySelectorAll("div.board-list .inner_list")) {
                     this.call("app.member.list-type-element", listTypeElement);
                 }
@@ -318,6 +326,10 @@ class Monitor {
         },
         "app.member.card-type-element": {
             parentKeys: ["app.member.tbody-page"]
+        },
+        // --- --- --- --- --- --- --- --- (App.Changed) --- --- --- --- --- --- --- ---
+        "app.changed.document": {
+            parentKeys: ["app.popular.tbody-page", "app.member.tbody-page"]
         },
         // --- --- --- --- --- --- --- --- CafeIntro --- --- --- --- --- --- --- ---
         "cafe-intro.document": {

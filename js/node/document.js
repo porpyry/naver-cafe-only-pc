@@ -6,11 +6,12 @@ class OnFoundDocument {
     static getIndex(options) {
         return [
             ["cafe.document", /*          */ this.cafeDocument, /*        */ options.pageArrowShortcut || options.searchCommentShortcut || options.optimizeCafe],
-            ["iframe.document", /*        */ this.iframeDocument, /*      */ options.pageArrowShortcut || options.searchCommentShortcut],
+            ["iframe.document", /*        */ this.iframeDocument, /*      */ options.pageArrowShortcut || options.searchCommentShortcut || options.optimizeCafe],
             ["only.document", /*          */ this.onlyDocument, /*        */ options.pageArrowShortcut || options.searchCommentShortcut],
             ["app.document", /*           */ this.appDocument, /*         */ options.pageArrowShortcut || options.searchCommentShortcut],
             ["article-list.document", /*  */ this.articleListDocument, /* */ options.pageArrowShortcut || options.searchCommentShortcut],
-            ["article-search-list.document", this.articleSearchListDocument, options.pageArrowShortcut || options.searchCommentShortcut]
+            ["article-search-list.document", this.articleSearchListDocument, options.pageArrowShortcut || options.searchCommentShortcut],
+            ["app.changed.document", /*   */ this.appChangedDocument, /*  */ options.optimizeCafe]
         ];
     }
 
@@ -60,6 +61,7 @@ class OnFoundDocument {
     static iframeDocument(options) {
         // (1) 단축키: 페이지 넘기기
         // (2) 단축키: 검색창·댓글창 포커스
+        // (3) 카페 최적화 (새로고침 가능하도록 URL 변경)
 
         // (1)
         if (options.pageArrowShortcut) {
@@ -71,6 +73,11 @@ class OnFoundDocument {
             document.removeEventListener("keyup", dispatchInputSafeBackspaceKeyUpEvent);
             this.addEventListener("keyup", dispatchInputSafeBackspaceKeyUpEvent);
             this.addEventListener("inputsafebackspacekeyup", onInputSafeBackspaceKeyUpInIframe); // 다른 맥락에서 사용된다면 제거될 리스너
+        }
+
+        // (3)
+        if (options.optimizeCafe) {
+            cleanUpUrlForRefresh(this.location.pathname, this.location.search);
         }
     }
 
@@ -143,6 +150,15 @@ class OnFoundDocument {
             this.removeEventListener("inputsafebackspacekeyup", onInputSafeBackspaceKeyUpInIframe);
             this.addEventListener("inputsafebackspacekeyup", onInputSafeBackspaceKeyUpFocusSearch);
         }
+    }
+
+    /** @this {Document}
+      * @param {Options} options */
+    static appChangedDocument(/*options*/) {
+        // (1) 카페 최적화 (새로고침 가능하도록 URL 변경)
+
+        // (1)
+        cleanUpUrlForRefresh(this.location.pathname, this.location.search);
     }
 }
 
@@ -408,7 +424,5 @@ function onInputSafeBackspaceKeyUpFocusSearch(/*event*/) {
         input.focus();
         input.setSelectionRange(input.value.length, input.value.length)
     }
-
-    // 상단 검색창은
-    // #content-area #main-area .search_result .search_input form .input_search_area .input_component input#queryTop
+    // 상단 검색창은 #content-area #main-area .search_result .search_input form .input_search_area .input_component input#queryTop
 }

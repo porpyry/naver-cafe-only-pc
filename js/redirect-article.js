@@ -54,21 +54,21 @@
         switch (pageStatus) {
             case 401: // no-login
                 cafeName = await SessionCafeInfo.getCafeName(cafeId);
-                writeMessage("로그인이 필요합니다.", `https://cafe.naver.com/${cafeName}/${articleId}`);
+                writeMessage("로그인이 필요합니다.", `https://cafe.naver.com/${cafeName}/${articleId}`, "로그인하러 가기");
                 break;
             case 404: // no-article
                 cafeName = await SessionCafeInfo.getCafeName(cafeId);
-                writeMessage("없는 게시글입니다.", `https://cafe.naver.com/${cafeName}`);
+                writeMessage("없는 게시글입니다.", `https://cafe.naver.com/${cafeName}`, "홈으로 가기");
                 break;
         }
 
-        function writeMessage(msg, url) {
+        function writeMessage(msg, linkUrl, linkText) {
             const app = document.querySelector("#app");
             if (!app) {
                 return;
             }
             const div = document.createElement("div");
-            div.innerHTML = `<p>${msg}</p><br><a href="${url}" style="all: revert;">홈으로 가기</a>`;
+            div.innerHTML = `<p>${msg}</p><br><a href="${linkUrl}" style="all: revert;">${linkText}</a>`;
             app.insertBefore(div, app.firstChild);
         }
     }
@@ -81,15 +81,3 @@
         } catch (e) { console.error(e); }
     }
 })();
-
-/* TEST
-https://cafe.naver.com/steamindiegame/13999369
-https://cafe.naver.com/ArticleRead.nhn?clubid=27842958&page=1&menuid=1150&boardtype=L&articleid=13999369&referrerAllArticles=false
-https://cafe.naver.com/ca-fe/ArticleRead.nhn?clubid=27842958&page=1&menuid=1150&boardtype=L&articleid=13999369&referrerAllArticles=false
-https://cafe.naver.com/steamindiegame?iframe_url=%2FArticleRead.nhn%3Fclubid%3D27842958%26articleid%3D13999369%26referrerAllArticles%3Dfalse%26menuid%3D1150%26page%3D1%26boardtype%3DL
-https://cafe.naver.com/steamindiegame?iframe_url_utf8=%2FArticleRead.nhn%253Fclubid%3D27842958%2526page%3D1%2526menuid%3D1150%2526boardtype%3DL%2526articleid%3D13999369%2526referrerAllArticles%3Dfalse
-https://cafe.naver.com/ca-fe/cafes/27842958/articles/13999369?referrerAllArticles=false&menuid=1150&page=1&boardtype=L
-https://cafe.naver.com/ca-fe/cafes/27842958/articles/13999369?oldPath=%2FArticleRead.nhn%3FreferrerAllArticles%3Dfalse%26menuid%3D1150%26page%3D1%26boardtype%3DL%26clubid%3D27842958%26articleid%3D19012958
-https://cafe.naver.com/ca-fe/cafes/30660728/articles/48794 (no-login)
-https://cafe.naver.com/ca-fe/cafes/27842958/articles/28953115 (no-article)
-*/
