@@ -5,9 +5,26 @@ class OnFoundMember {
         const optionsOnlyCafeDefaultBackground = options.cafeDefaultNewTab && options.cafeDefaultBackground;
         const optionsOptimizeCafeWhenRedirectArticle = options.newTabRedirectArticle && options.optimizeCafe;
         return [
-            ["app.member.list-type-element", OnFoundMember.listTypeElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirectArticle],
-            ["app.member.card-type-element", OnFoundMember.cardTypeElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirectArticle]
+            ["app.member.profile", this.profile, options.optimizeCafe],
+            ["app.member.list-type-element", this.listTypeElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirectArticle],
+            ["app.member.card-type-element", this.cardTypeElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirectArticle]
         ];
+    }
+
+    /** @this {HTMLElement}
+      * @param {Options} options */
+    static profile(options) {
+        // (1) 단독 게시글 페이지에서 탭 제목 수정
+
+        // (1)
+        if (options.optimizeCafe) {
+            if (this.ownerDocument === document) {
+                const nick = this.querySelector("button.nick_btn");
+                if (nick) {
+                    document.title = nick.textContent.trim();
+                }
+            }
+        }
     }
 
     /** @this {HTMLElement}

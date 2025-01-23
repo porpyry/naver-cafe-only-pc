@@ -34,13 +34,19 @@ class SessionCafeInfo {
         Object.assign(this, items);
     }
 
-    findCafeId(cafeName1) {
+    findCafeId(cafeName) {
+        const cafeName1 = cafeName;
         return this.cafeInfo.find(({ cafeName }) => cafeName === cafeName1)?.cafeId;
     }
 
-    findCafeName(cafeId1) {
-        cafeId1 = parseInt(cafeId1);
+    findCafeName(cafeId) {
+        const cafeId1 = parseInt(cafeId);
         return this.cafeInfo.find(({ cafeId }) => cafeId === cafeId1)?.cafeName;
+    }
+
+    findCafeTitle(cafeId) {
+        const cafeId1 = parseInt(cafeId);
+        return this.cafeInfo.find(({ cafeId }) => cafeId === cafeId1)?.cafeTitle;
     }
 
     async requestCafeInfoByCafeName(cafeName) {
@@ -88,28 +94,41 @@ class SessionCafeInfo {
     }
 
     static async getCafeId(cafeName) {
-        const session = await this.get();
-        const cafeId = session.findCafeId(cafeName);
+        const instance = await this.get();
+        const cafeId = instance.findCafeId(cafeName);
         if (cafeId) {
             return cafeId;
         }
         if (!this._request) {
-            this._request = session.requestCafeInfoByCafeName(cafeName);
+            this._request = instance.requestCafeInfoByCafeName(cafeName);
         }
         await this._request;
-        return session.findCafeId(cafeName);
+        return instance.findCafeId(cafeName);
     }
 
     static async getCafeName(cafeId) {
-        const session = await this.get();
-        const cafeName = session.findCafeName(cafeId);
+        const instance = await this.get();
+        const cafeName = instance.findCafeName(cafeId);
         if (cafeName) {
             return cafeName;
         }
         if (!this._request) {
-            this._request = session.requestCafeInfoByCafeId(cafeId);
+            this._request = instance.requestCafeInfoByCafeId(cafeId);
         }
         await this._request;
-        return session.findCafeName(cafeId);
+        return instance.findCafeName(cafeId);
+    }
+
+    static async getCafeTitle(cafeId) {
+        const instance = await this.get();
+        const cafeTitle = instance.findCafeTitle(cafeId);
+        if (cafeTitle) {
+            return cafeTitle;
+        }
+        if (!this._request) {
+            this._request = instance.requestCafeInfoByCafeId(cafeId);
+        }
+        await this._request;
+        return instance.findCafeTitle(cafeId);
     }
 }

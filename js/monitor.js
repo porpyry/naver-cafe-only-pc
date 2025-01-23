@@ -35,7 +35,11 @@ class Monitor {
             }
             return;
         }
-        const { parentKeys, onActivate } = this.baseDAG[key];
+        const baseItem = this.baseDAG[key];
+        if (!baseItem) {
+            throw new Error("Invalid monitor key.");
+        }
+        const { parentKeys, onActivate } = baseItem;
         this.map.set(key, { isActive: false, parentKeys, childKeys: [], onFound, onActivate });
         for (const parentKey of parentKeys) {
             this.on(parentKey, null);
@@ -182,12 +186,6 @@ class Monitor {
         "app.article.container": {
             parentKeys: ["app.document"],
             onActivate: (container) => {
-                for (const linkElement of container.querySelectorAll("a.se-link")) {
-                    this.call("app.article.content-link-element", linkElement);
-                }
-                for (const oglinkElement of container.querySelectorAll(".se-module-oglink")) {
-                    this.call("app.article.content-oglink-element", oglinkElement);
-                }
                 const divRightArea = container.querySelector(".ArticleTopBtns > .right_area");
                 watchSelector(divRightArea, "a.btn_prev").then((prevButton) => {
                     this.call("app.article.prev-button", prevButton);
@@ -207,13 +205,13 @@ class Monitor {
                         break;
                     }
                 }
+                for (const linkElement of container.querySelectorAll("a.se-link")) {
+                    this.call("app.article.content-link-element", linkElement);
+                }
+                for (const oglinkElement of container.querySelectorAll(".se-module-oglink")) {
+                    this.call("app.article.content-oglink-element", oglinkElement);
+                }
             }
-        },
-        "app.article.content-link-element": {
-            parentKeys: ["app.article.container"]
-        },
-        "app.article.content-oglink-element": {
-            parentKeys: ["app.article.container"]
         },
         "app.article.prev-button": {
             parentKeys: ["app.article.container"]
@@ -222,6 +220,12 @@ class Monitor {
             parentKeys: ["app.article.container"]
         },
         "app.article.list-button": {
+            parentKeys: ["app.article.container"]
+        },
+        "app.article.content-link-element": {
+            parentKeys: ["app.article.container"]
+        },
+        "app.article.content-oglink-element": {
             parentKeys: ["app.article.container"]
         },
         // --- --- --- --- --- --- --- --- App.Popular --- --- --- --- --- --- --- ---
@@ -268,6 +272,9 @@ class Monitor {
         "app.member.container": {
             parentKeys: ["app.document"],
             onActivate: (container) => {
+                watchSelector(container, ".sub_tit_profile").then((profile) => {
+                    this.call("app.member.profile", profile);
+                });
                 const divArticleBoard = container.querySelector(".article-board");
                 if (divArticleBoard) {
                     // 페이지 변경 감지
@@ -302,6 +309,9 @@ class Monitor {
                     this.call("app.member.card-type-element", cardTypeElement);
                 }
             }
+        },
+        "app.member.profile": {
+            parentKeys: ["app.member.container"]
         },
         "app.member.list-type-element": {
             parentKeys: ["app.member.tbody-page"]

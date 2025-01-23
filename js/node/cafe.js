@@ -3,32 +3,38 @@ class OnFoundCafe {
     /** @param {Options} options */
     static getIndex(options) {
         return [
-            ["cafe.favorite-menu", OnFoundCafe.favoriteMenu, options.changeFavoriteOrder]
+            ["cafe.favorite-menu", this.favoriteMenu, options.changeFavoriteOrder]
         ];
     }
 
     /** @this {HTMLULElement}
       * @param {Options} options */
-    static async favoriteMenu(options) {
+    static favoriteMenu(options) {
         // (1) 즐겨찾기 순서 변경
 
         // (1)
         if (options.changeFavoriteOrder) {
-            const favoriteOrder = (await chrome.storage.sync.get("favoriteOrder")).favoriteOrder;
-            if (favoriteOrder instanceof Array) {
-                for (const idInt of favoriteOrder) {
-                    const a = this.querySelector(`#favoriteMenuLink${idInt}`);
-                    const li = a?.closest("li");
-                    if (li) {
-                        this.appendChild(li);
+            const aForId = this.querySelector("li a");
+            const cafeId = new URLSearchParams(aForId?.search).get("search.clubid");
+            if (cafeId) {
+                chrome.storage.sync.get("favoriteOrder").then((items) => {
+                    const favoriteOrder = items.favoriteOrder?.find(item => item.cafeId === cafeId)?.favoriteOrder;
+                    if (favoriteOrder) {
+                        for (const idInt of favoriteOrder) {
+                            const a = this.querySelector(`#favoriteMenuLink${idInt}`);
+                            const li = a?.closest("li");
+                            if (li) {
+                                this.appendChild(li);
+                            }
+                        }
                     }
-                }
-            }
-            for (const a of this.querySelectorAll("li a")) {
-                a.addEventListener("dragstart", onDragStartFavoriteMenu);
-                a.addEventListener("dragenter", preventDefaultFunction);
-                a.addEventListener("dragover", preventDefaultFunction);
-                a.addEventListener("drop", onDropFavoriteMenu);
+                    for (const a of this.querySelectorAll("li a")) {
+                        a.addEventListener("dragstart", onDragStartFavoriteMenu);
+                        a.addEventListener("dragenter", preventDefaultFunction);
+                        a.addEventListener("dragover", preventDefaultFunction);
+                        a.addEventListener("drop", onDropFavoriteMenu);
+                    }
+                });
             }
         }
     }
@@ -55,6 +61,10 @@ function onDropFavoriteMenu(event) {
     if (!ul || !liDropFrom || !liDropTo) {
         return;
     }
+    const cafeId = new URLSearchParams(aDropTo.search).get("search.clubid");
+    if (!cafeId) {
+        return;
+    }
     const liArray = [...ul.children];
     const fromIndex = liArray.indexOf(liDropFrom);
     const toIndex = liArray.indexOf(liDropTo);
@@ -76,5 +86,16 @@ function onDropFavoriteMenu(event) {
     if (favoriteOrder.some(num => num === undefined)) {
         return;
     }
-    chrome.storage.sync.set({ favoriteOrder });
+    chrome.storage.sync.get("favoriteOrder").then((items) => {
+        if (!items.favoriteOrder) {
+            items.favoriteOrder = [];
+        }
+        const favoriteOrderItem = items.favoriteOrder.find(item => item.cafeId === cafeId);
+        if (favoriteOrderItem) {
+            favoriteOrderItem.favoriteOrder = favoriteOrder;
+        } else {
+            items.favoriteOrder.push({ cafeId, favoriteOrder });
+        }
+        chrome.storage.sync.set(items);
+    });
 }

@@ -21,6 +21,9 @@
 
     for (const functionNodeIndex of functionNodeIndexList) {
         for (const [key, functionNode, isValid] of functionNodeIndex) {
+            if (!functionNode) {
+                throw new Error("Invalid function node.");
+            }
             if (isValid) {
                 monitor.on(key, functionNode);
             }

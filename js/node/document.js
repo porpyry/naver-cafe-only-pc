@@ -5,12 +5,12 @@ class OnFoundDocument {
     /** @param {Options} options */
     static getIndex(options) {
         return [
-            ["cafe.document", /*          */ OnFoundDocument.cafeDocument, /*        */ options.pageArrowShortcut || options.searchCommentShortcut || options.optimizeCafe],
-            ["iframe.document", /*        */ OnFoundDocument.iframeDocument, /*      */ options.pageArrowShortcut || options.searchCommentShortcut],
-            ["only.document", /*          */ OnFoundDocument.onlyDocument, /*        */ options.pageArrowShortcut || options.searchCommentShortcut],
-            ["app.document", /*           */ OnFoundDocument.appDocument, /*         */ options.pageArrowShortcut || options.searchCommentShortcut],
-            ["article-list.document", /*  */ OnFoundDocument.articleListDocument, /* */ options.pageArrowShortcut || options.searchCommentShortcut],
-            ["article-search-list.document", OnFoundDocument.articleSearchListDocument, options.pageArrowShortcut || options.searchCommentShortcut]
+            ["cafe.document", /*          */ this.cafeDocument, /*        */ options.pageArrowShortcut || options.searchCommentShortcut || options.optimizeCafe],
+            ["iframe.document", /*        */ this.iframeDocument, /*      */ options.pageArrowShortcut || options.searchCommentShortcut],
+            ["only.document", /*          */ this.onlyDocument, /*        */ options.pageArrowShortcut || options.searchCommentShortcut],
+            ["app.document", /*           */ this.appDocument, /*         */ options.pageArrowShortcut || options.searchCommentShortcut],
+            ["article-list.document", /*  */ this.articleListDocument, /* */ options.pageArrowShortcut || options.searchCommentShortcut],
+            ["article-search-list.document", this.articleSearchListDocument, options.pageArrowShortcut || options.searchCommentShortcut]
         ];
     }
 

@@ -4,9 +4,9 @@ class OnFoundArticleList {
     static getIndex(options) {
         const optionsOptimizeCafeWhenRedirectArticle = options.newTabRedirectArticle && options.optimizeCafe;
         return [
-            ["article-list.list-type-element", OnFoundArticleList.listTypeElement, options.cafeDefaultNewTab || optionsOptimizeCafeWhenRedirectArticle],
-            ["article-list.image-type-element", OnFoundArticleList.imageTypeElement, options.cafeDefaultNewTab || optionsOptimizeCafeWhenRedirectArticle],
-            ["article-list.card-type-element", OnFoundArticleList.cardTypeElement, options.cafeDefaultNewTab || optionsOptimizeCafeWhenRedirectArticle]
+            ["article-list.list-type-element", this.listTypeElement, options.cafeDefaultNewTab || optionsOptimizeCafeWhenRedirectArticle],
+            ["article-list.image-type-element", this.imageTypeElement, options.cafeDefaultNewTab || optionsOptimizeCafeWhenRedirectArticle],
+            ["article-list.card-type-element", this.cardTypeElement, options.cafeDefaultNewTab || optionsOptimizeCafeWhenRedirectArticle]
         ];
     }
 

@@ -4,10 +4,10 @@ class OnFoundCafeIntro {
     static getIndex(options) {
         const optionsOptimizeCafeWhenRedirectArticle = options.newTabRedirectArticle && options.optimizeCafe;
         return [
-            ["cafe-intro.list-type-element", OnFoundCafeIntro.listTypeElement, options.cafeDefaultNewTab || options.optimizeCafe],
-            ["cafe-intro.image-type-element", OnFoundCafeIntro.imageTypeElement, options.cafeDefaultNewTab || options.optimizeCafe],
-            ["cafe-intro.card-type-element", OnFoundCafeIntro.cardTypeElement, options.cafeDefaultNewTab || optionsOptimizeCafeWhenRedirectArticle],
-            ["cafe-intro.board-head-element", OnFoundCafeIntro.boardHeadElement, options.optimizeCafe]
+            ["cafe-intro.list-type-element", this.listTypeElement, options.cafeDefaultNewTab || options.optimizeCafe],
+            ["cafe-intro.image-type-element", this.imageTypeElement, options.cafeDefaultNewTab || options.optimizeCafe],
+            ["cafe-intro.card-type-element", this.cardTypeElement, options.cafeDefaultNewTab || optionsOptimizeCafeWhenRedirectArticle],
+            ["cafe-intro.board-head-element", this.boardHeadElement, options.optimizeCafe]
         ];
     }
 

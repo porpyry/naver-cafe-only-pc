@@ -4,7 +4,7 @@ class OnFoundArticleSearchList {
     static getIndex(options) {
         const optionsOptimizeCafeWhenRedirectArticle = options.newTabRedirectArticle && options.optimizeCafe;
         return [
-            ["article-search-list.list-type-element", OnFoundArticleSearchList.listTypeElement, options.cafeDefaultNewTab || optionsOptimizeCafeWhenRedirectArticle]
+            ["article-search-list.list-type-element", this.listTypeElement, options.cafeDefaultNewTab || optionsOptimizeCafeWhenRedirectArticle]
         ];
     }
 
