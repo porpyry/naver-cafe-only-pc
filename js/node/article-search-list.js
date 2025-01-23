@@ -2,7 +2,7 @@ class OnFoundArticleSearchList {
 
     /** @param {Options} options */
     static getIndex(options) {
-        const optionsOptimizeCafeWhenRedirectArticle = options.newTabRedirectArticle && options.optimizeCafe;
+        const optionsOptimizeCafeWhenRedirectArticle = options.newTabOnlyArticle && options.optimizeCafe;
         return [
             ["article-search-list.list-type-element", this.listTypeElement, options.cafeDefaultNewTab || optionsOptimizeCafeWhenRedirectArticle]
         ];
@@ -39,7 +39,7 @@ class OnFoundArticleSearchList {
         }
 
         // (3)
-        if (options.newTabRedirectArticle && options.optimizeCafe) {
+        if (options.newTabOnlyArticle && options.optimizeCafe) {
             replaceHrefToArticleOnly(aTitle);
             replaceHrefToArticleOnly(aComment);
             replaceHrefToArticleOnly(aContent);

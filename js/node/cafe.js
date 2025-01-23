@@ -42,10 +42,6 @@ function onDragStartFavoriteMenu(event) {
     event.dataTransfer.setData("application/ncop.a.id", this.id);
 }
 
-function preventDefaultFunction(event) {
-    event.preventDefault();
-}
-
 function onDropFavoriteMenu(event) {
     event.preventDefault();
     const dropFromId = event.dataTransfer.getData("application/ncop.a.id");

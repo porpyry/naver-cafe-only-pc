@@ -163,3 +163,7 @@ function tryFindCafeNameFromUrl() {
         return cafeName;
     }
 }
+
+function preventDefaultFunction(event) {
+    event.preventDefault();
+}

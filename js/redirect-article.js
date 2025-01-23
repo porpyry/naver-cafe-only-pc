@@ -5,7 +5,7 @@
     if (!options.enableApp) {
         return;
     }
-    if (!options.newTabRedirectArticle) {
+    if (!options.newTabOnlyArticle) {
         return;
     }
 

@@ -2,7 +2,7 @@ class OnFoundCafeIntro {
 
     /** @param {Options} options */
     static getIndex(options) {
-        const optionsOptimizeCafeWhenRedirectArticle = options.newTabRedirectArticle && options.optimizeCafe;
+        const optionsOptimizeCafeWhenRedirectArticle = options.newTabOnlyArticle && options.optimizeCafe;
         return [
             ["cafe-intro.list-type-element", this.listTypeElement, options.cafeDefaultNewTab || options.optimizeCafe],
             ["cafe-intro.image-type-element", this.imageTypeElement, options.cafeDefaultNewTab || options.optimizeCafe],
@@ -46,7 +46,7 @@ class OnFoundCafeIntro {
         }
 
         // (3-2)
-        if (options.newTabRedirectArticle && options.optimizeCafe) {
+        if (options.newTabOnlyArticle && options.optimizeCafe) {
             replaceHrefToArticleOnly(aTitle);
             replaceHrefToArticleOnly(aComment);
         }
@@ -96,7 +96,7 @@ class OnFoundCafeIntro {
             }
 
             // (3-3)
-            if (options.newTabRedirectArticle) {
+            if (options.newTabOnlyArticle) {
                 replaceHrefToArticleOnly(aImage);
                 replaceHrefToArticleOnly(aTitle);
                 replaceHrefToArticleOnly(aComment);
@@ -135,7 +135,7 @@ class OnFoundCafeIntro {
         }
 
         // (3)
-        if (options.newTabRedirectArticle && options.optimizeCafe) {
+        if (options.newTabOnlyArticle && options.optimizeCafe) {
             replaceHrefToArticleOnly(aTitle);
             replaceHrefToArticleOnly(aContent);
             replaceHrefToArticleOnly(aImage);

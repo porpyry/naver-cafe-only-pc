@@ -2,7 +2,7 @@ class OnFoundArticleList {
 
     /** @param {Options} options */
     static getIndex(options) {
-        const optionsOptimizeCafeWhenRedirectArticle = options.newTabRedirectArticle && options.optimizeCafe;
+        const optionsOptimizeCafeWhenRedirectArticle = options.newTabOnlyArticle && options.optimizeCafe;
         return [
             ["article-list.list-type-element", this.listTypeElement, options.cafeDefaultNewTab || optionsOptimizeCafeWhenRedirectArticle],
             ["article-list.image-type-element", this.imageTypeElement, options.cafeDefaultNewTab || optionsOptimizeCafeWhenRedirectArticle],
@@ -36,7 +36,7 @@ class OnFoundArticleList {
         }
 
         // (3)
-        if (options.newTabRedirectArticle && options.optimizeCafe) {
+        if (options.newTabOnlyArticle && options.optimizeCafe) {
             replaceHrefToArticleOnly(aTitle);
             replaceHrefToArticleOnly(aComment);
         }
@@ -73,7 +73,7 @@ class OnFoundArticleList {
         }
 
         // (3)
-        if (options.newTabRedirectArticle && options.optimizeCafe) {
+        if (options.newTabOnlyArticle && options.optimizeCafe) {
             replaceHrefToArticleOnly(aImage);
             replaceHrefToArticleOnly(aTitle);
             replaceHrefToArticleOnly(aComment);
@@ -111,7 +111,7 @@ class OnFoundArticleList {
         }
 
         // (3)
-        if (options.newTabRedirectArticle && options.optimizeCafe) {
+        if (options.newTabOnlyArticle && options.optimizeCafe) {
             replaceHrefToArticleOnly(aTitle);
             replaceHrefToArticleOnly(aContent);
             replaceHrefToArticleOnly(aImage);

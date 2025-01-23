@@ -238,17 +238,14 @@ class Monitor {
                     }
                 }
                 watchingChild(divTopRightArea, "a.btn_prev", (prevButton) => {
-                    observing("app.article.prev-button", prevButton);
+                    observing("app.article.prev-next-button", prevButton);
                 });
                 watchingChild(divTopRightArea, "a.btn_next", (nextButton) => {
-                    observing("app.article.next-button", nextButton);
+                    observing("app.article.prev-next-button", nextButton);
                 });
             }
         },
-        "app.article.prev-button": {
-            parentKeys: ["app.article.container"]
-        },
-        "app.article.next-button": {
+        "app.article.prev-next-button": {
             parentKeys: ["app.article.container"]
         },
         "app.article.list-button": {

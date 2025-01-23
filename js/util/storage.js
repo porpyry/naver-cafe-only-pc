@@ -1,7 +1,7 @@
 class Options {
     enableApp = true;
-    newTabRedirectArticle = true;
-    newTabRedirectMobile = true;
+    newTabOnlyArticle = true;
+    newTabOnlyPC = true;
     cafeDefaultNewTab = false;
     cafeDefaultBackground = false;
     pageArrowShortcut = false;

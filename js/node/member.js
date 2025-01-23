@@ -3,7 +3,7 @@ class OnFoundMember {
     /** @param {Options} options */
     static getIndex(options) {
         const optionsOnlyCafeDefaultBackground = options.cafeDefaultNewTab && options.cafeDefaultBackground;
-        const optionsOptimizeCafeWhenRedirectArticle = options.newTabRedirectArticle && options.optimizeCafe;
+        const optionsOptimizeCafeWhenRedirectArticle = options.newTabOnlyArticle && options.optimizeCafe;
         return [
             ["app.member.profile", this.profile, options.optimizeCafe],
             ["app.member.list-type-element", this.listTypeElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirectArticle],
@@ -48,7 +48,7 @@ class OnFoundMember {
         }
 
         // (2)
-        if (options.newTabRedirectArticle && options.optimizeCafe) {
+        if (options.newTabOnlyArticle && options.optimizeCafe) {
             replaceHrefToArticleOnly(aTitle);
             replaceHrefToArticleOnly(aComment);
         }
@@ -71,7 +71,7 @@ class OnFoundMember {
         }
 
         // (2)
-        if (options.newTabRedirectArticle && options.optimizeCafe) {
+        if (options.newTabOnlyArticle && options.optimizeCafe) {
             replaceHrefToArticleOnly(this);
         }
     }

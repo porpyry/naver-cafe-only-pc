@@ -278,10 +278,20 @@ function onInputSafeArrowKeyUpInArticle(doc, direction) {
         // .ArticleTopBtns > .right_area -> a.btn_next (다음글)
         if (direction === 1) {
             const nextBtn = doc.querySelector(".ArticleTopBtns > .right_area > a.btn_next");
-            return nextBtn?.click();
+            const shieldSpan = nextBtn?.querySelector("span.NCOP_CSA");
+            if (shieldSpan) {
+                return shieldSpan.click();
+            } else {
+                return nextBtn?.click();
+            }
         } else {
             const prevBtn = doc.querySelector(".ArticleTopBtns > .right_area > a.btn_prev");
-            return prevBtn?.click();
+            const shieldSpan = prevBtn?.querySelector("span.NCOP_CSA");
+            if (shieldSpan) {
+                return shieldSpan.click();
+            } else {
+                return prevBtn?.click();
+            }
         }
     } catch (e) { console.error(e); }
 }

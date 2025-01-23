@@ -32,9 +32,6 @@
 
     monitor.ready();
 
-    // debug
-    console.debug(monitor);
-
     window.addEventListener("DOMContentLoaded", () => {
         monitor.call("document", document);
     });

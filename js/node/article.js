@@ -5,12 +5,12 @@ class OnFoundArticle {
     /** @param {Options} options */
     static getIndex(options) {
         const optionsOnlyCafeDefaultBackground = options.cafeDefaultNewTab && options.cafeDefaultBackground;
-        const optionsOptimizeCafeWhenRedirect = (options.newTabRedirectMobile || options.newTabRedirectArticle) && options.optimizeCafe;
+        const optionsOptimizeCafeWhenRedirect = (options.newTabOnlyPC || options.newTabOnlyArticle) && options.optimizeCafe;
         return [
             ["app.article.container", this.container, options.optimizeCafe],
-            ["app.article.prev-button", this.prevButton, options.optimizeCafe], // async
-            ["app.article.next-button", this.nextButton, options.optimizeCafe], // async
+            ["app.article.prev-next-button", this.prevNextButton, options.optimizeCafe], // async
             ["app.article.list-button", this.listButton, options.optimizeCafe],
+            ["app.article.content-box", this.contentBox, options.optimizeCafe],
             ["app.article.content-link-element", this.contentLinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect],
             ["app.article.content-oglink-element", this.contentOglinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect]
         ];
@@ -20,10 +20,7 @@ class OnFoundArticle {
       * @param {Options} options */
     static container(/*options*/) {
         // (1-1) 카페 최적화 (URL에서 oldPath 제거)
-        // (1-2) 카페 최적화 (URL 복사에서 컨트롤 클릭 버그 수정)
-        // (1-3) 카페 최적화 (우하단 전체보기 버튼 target 수정)
-        // (1-4) 카페 최적화 (단독 게시글 페이지에서 탭 제목 수정)
-        // (1-5) 카페 최적화 (좌상단 게시판 버튼 href·target 수정)
+        // (1-2) 카페 최적화 (우하단 전체보기 버튼 target 수정)
 
         // (1-1)
         const url = new URL(this.baseURI);
@@ -33,72 +30,33 @@ class OnFoundArticle {
         }
 
         // (1-2)
-        const aCopy = this.querySelector(".ArticleTool a.button_url")
-        if (aCopy) {
-            createClickShieldSpan(aCopy.firstChild, true);
-        }
-
-        // (1-3)
         const brBoardLink = this.querySelector(".RelatedArticles .paginate_area a.more"); // BottomRight
         if (brBoardLink.pathname === "/ArticleList.nhn") {
             if (brBoardLink.target === "_parent" || brBoardLink.target === "_top") {
                 brBoardLink.target = "_self";
             }
         }
-
-        // (1-4)
-        if (this.ownerDocument === document) {
-            const articleTitle = this.querySelector(".ArticleTitle .title_text");
-            if (articleTitle) {
-                document.title = articleTitle.textContent + " : 네이버 카페";
-            }
-        }
-
-        // (1-5)
-        const tlBoardLink = this.querySelector(".ArticleTitle a.link_board"); // TopLeft
-        if (tlBoardLink.pathname === "/f-e/ArticleList.nhn") {
-            tlBoardLink.pathname = "/ArticleList.nhn";
-        }
-        if (tlBoardLink.target === "_parent" || tlBoardLink.target === "_top") {
-            tlBoardLink.target = "_self";
-        }
     }
 
     /** @this {HTMLAnchorElement}
       * @param {Options} options */
-    static async prevButton(options) {
-        // (1) 카페 최적화 (컨트롤 클릭 버그 수정, 게시글 단독 링크로 변경)
+    static async prevNextButton(options) {
+        // (1-1) 카페 최적화 (컨트롤 클릭 버그 수정, 게시글 단독 링크로 변경)
+        // (1-2) 카페 최적화 (이전글·다음글 부드럽게 이동)
 
-        // popstate 이용할 것이므로 다시 짜야 함
-
-        // (1)
+        // (1-1)
         // 기본 클릭 동작인 링크로 이동을 비활성화
         const url = totalLinkToIframeLink(this);
         if (url) {
-            if (options.newTabRedirectArticle) {
+            if (options.newTabOnlyArticle) {
                 await articleLinkToArticleOnlyLink(this);
             }
-            createClickShieldBox(this);
-        } else {
-            createClickShieldBox(this, true); // 실패시 컨트롤 클릭 버그라도 수정
-        }
-    }
+            const span = createClickShieldBox(this);
 
-    /** @this {HTMLAnchorElement}
-      * @param {Options} options */
-    static async nextButton(options) {
-        // (1) 카페 최적화 (컨트롤 클릭 버그 수정, 게시글 단독 링크로 변경)
-
-        // (1)
-        // 기본 클릭 동작인 링크로 이동을 비활성화
-        const url = totalLinkToIframeLink(this);
-        if (url) {
-            if (options.newTabRedirectArticle) {
-                await articleLinkToArticleOnlyLink(this);
-            }
-            createClickShieldBox(this);
+            // (1-2) (?iframe_url= 상태면 안 된다.)
+            span?.addEventListener("click", onClickPrevNextButton);
         } else {
-            createClickShieldBox(this, true); // 실패시 컨트롤 클릭 버그라도 수정
+            createClickShieldBox(this, true);
         }
     }
 
@@ -116,6 +74,37 @@ class OnFoundArticle {
             if (url) {
                 createClickShieldBox(this);
             }
+        }
+    }
+
+    /** @this {HTMLElement}
+      * @param {Options} options */
+    static contentBox(/*options*/) {
+        // (1-1) 카페 최적화 (URL 복사에서 컨트롤 클릭 버그 수정)
+        // (1-2) 카페 최적화 (단독 게시글 페이지에서 탭 제목 수정)
+        // (1-3) 카페 최적화 (좌상단 게시판 버튼 href·target 수정)
+
+        // (1-1)
+        const aCopy = this.querySelector(".ArticleTool a.button_url")
+        if (aCopy) {
+            createClickShieldSpan(aCopy.firstChild, true);
+        }
+
+        // (1-2)
+        if (this.ownerDocument === document) {
+            const articleTitle = this.querySelector(".ArticleTitle .title_text");
+            if (articleTitle) {
+                document.title = articleTitle.textContent + " : 네이버 카페";
+            }
+        }
+
+        // (1-3)
+        const tlBoardLink = this.querySelector(".ArticleTitle a.link_board"); // TopLeft
+        if (tlBoardLink.pathname === "/f-e/ArticleList.nhn") {
+            tlBoardLink.pathname = "/ArticleList.nhn";
+        }
+        if (tlBoardLink.target === "_parent" || tlBoardLink.target === "_top") {
+            tlBoardLink.target = "_self";
         }
     }
 
@@ -140,11 +129,11 @@ class OnFoundArticle {
         }
 
         // (2-1)
-        if (options.newTabRedirectMobile && options.optimizeCafe) {
+        if (options.newTabOnlyPC && options.optimizeCafe) {
             if (this.hostname === "m.cafe.naver.com") {
                 const isLinkTextSame = this.href === this.textContent;
                 let promise;
-                if (options.newTabRedirectArticle) {
+                if (options.newTabOnlyArticle) {
                     promise = mobileLinkToArticleOnlyLink(this);
                 } else {
                     promise = mobileLinkToArticleLink(this);
@@ -158,7 +147,7 @@ class OnFoundArticle {
         }
 
         // (2-2)
-        if (options.newTabRedirectArticle && options.optimizeCafe) {
+        if (options.newTabOnlyArticle && options.optimizeCafe) {
             if (this.hostname === "cafe.naver.com") {
                 const isLinkTextSame = this.href === this.textContent;
                 articleLinkToArticleOnlyLink(this).then((url) => {
@@ -187,10 +176,10 @@ class OnFoundArticle {
         }
 
         // (2-1)
-        if (options.newTabRedirectMobile && options.optimizeCafe) {
+        if (options.newTabOnlyPC && options.optimizeCafe) {
             if (aInfo?.hostname === "m.cafe.naver.com") {
                 let promise;
-                if (options.newTabRedirectArticle) {
+                if (options.newTabOnlyArticle) {
                     promise = mobileLinkToArticleOnlyLink(aInfo);
                 } else {
                     promise = mobileLinkToArticleLink(aInfo);
@@ -211,7 +200,7 @@ class OnFoundArticle {
         }
 
         // (2-2)
-        if (options.newTabRedirectArticle && options.optimizeCafe) {
+        if (options.newTabOnlyArticle && options.optimizeCafe) {
             if (aInfo?.hostname === "cafe.naver.com") {
                 articleLinkToArticleOnlyLink(aInfo).then((url) => {
                     if (url && aThumb) {
@@ -302,4 +291,24 @@ function totalLinkToIframeLink(a) {
         a.href = url;
     }
     return url;
+}
+
+async function onClickPrevNextButton(event) {
+    if (event.altKey || event.ctrlKey || event.shiftKey || event.metaKey) {
+        return;
+    }
+    const a = this.parentElement;
+    if (!a || a.tagName !== "A") {
+        return;
+    }
+    event.preventDefault();
+    const win = this.ownerDocument.defaultView;
+    const currentInfo = PCArticleURLParser.getInfo(win.location.pathname, win.location.search);
+    const linkInfo = PCArticleURLParser.getInfo(a.pathname, a.search);
+    if (!currentInfo || !linkInfo || currentInfo.articleId === linkInfo.articleId) {
+        return;
+    }
+    const linkUrl = await PCArticleURLParser.getArticleOnlyURL(linkInfo);
+    win.history.pushState(null, "", linkUrl);
+    win.dispatchEvent(new PopStateEvent("popstate"));
 }

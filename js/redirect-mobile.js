@@ -9,7 +9,7 @@
     if (!options.enableApp) {
         return;
     }
-    if (!options.newTabRedirectMobile) {
+    if (!options.newTabOnlyPC) {
         return;
     }
 
@@ -19,7 +19,7 @@
     }
 
     let url;
-    if (options.newTabRedirectArticle) {
+    if (options.newTabOnlyArticle) {
         url = await MobileURLParser.getArticleOnlyURL(info)
     } else {
         url = await MobileURLParser.getArticleURL(info);
