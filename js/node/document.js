@@ -233,31 +233,23 @@ function getAppPageState(doc) {
 
 function onInputSafeArrowKeyUpMovePage(event) {
     try {
+        // #content-area #main-area .prev-next (a "NUMBER", a.on "NUMBER", a.pgL span "이전", a.pgR span "다음")
         const direction = event.detail.direction;
-        const searchParams = new URLSearchParams(this.location.search);
-        let currentPage = searchParams.get("search.page");
-        if (!currentPage) {
-            currentPage = "1";
-        }
-        currentPage = parseInt(currentPage);
-        let nextPage = currentPage + direction;
-        if (nextPage < 1) {
-            nextPage = 1;
-        }
-        if (direction === 1) {
-            const pageBtns = this.querySelectorAll(".prev-next > a");
-            const lastPageBtn = pageBtns[pageBtns.length - 1];
-            const lastPageBtnSearchParams = new URLSearchParams(lastPageBtn.href);
-            const lastPage = lastPageBtnSearchParams.get("search.page");
-            if (parseInt(lastPage) < nextPage) {
-                nextPage -= 1;
-            }
-        }
-        if (currentPage === nextPage) {
+        const currentPageBtn = this.querySelector(".prev-next a.on");
+        if (!currentPageBtn) {
             return;
         }
-        searchParams.set("search.page", nextPage);
-        this.location.search = "?" + searchParams.toString();
+        if (direction === 1) {
+            const nextPageBtn = currentPageBtn.nextElementSibling;
+            if (nextPageBtn?.tagName === "A") {
+                nextPageBtn.click();
+            }
+        } else {
+            const prevPageBtn = currentPageBtn.previousElementSibling;
+            if (prevPageBtn?.tagName === "A") {
+                prevPageBtn?.click();
+            }
+        }
     } catch (e) { console.error(e); }
 }
 
@@ -276,8 +268,7 @@ function onInputSafeArrowKeyUpInApp(event) {
 
 function onInputSafeArrowKeyUpInArticle(doc, direction) {
     try {
-        // .ArticleTopBtns > .right_area -> a.btn_prev (이전글)
-        // .ArticleTopBtns > .right_area -> a.btn_next (다음글)
+        // .ArticleTopBtns > .right_area -> (a.btn_prev, a.btn_next)
         if (direction === 1) {
             const nextBtn = doc.querySelector(".ArticleTopBtns > .right_area > a.btn_next");
             const shieldSpan = nextBtn?.querySelector("span.NCOP_CSA");
@@ -301,47 +292,19 @@ function onInputSafeArrowKeyUpInArticle(doc, direction) {
 function onInputSafeArrowKeyUpInPopular(doc, direction) {
     try {
         // section div .BoardBottomOption .paginate_area .ArticlePaginate (button.type_prev | button.number "NUMBER" | button.type_next)
-        const pageBtns = doc.querySelectorAll(".ArticlePaginate button.number");
-        if (pageBtns.length === 0) {
+        const currentPageBtn = doc.querySelector(".ArticlePaginate button.number[aria-current]");
+        if (!currentPageBtn) {
             return;
         }
-        let currentPage;
-        for (const pageBtn of pageBtns) {
-            if (pageBtn.ariaCurrent) {
-                currentPage = parseInt(pageBtn.textContent);
-                break;
-            }
-        }
-        if (currentPage === undefined) {
-            return;
-        }
-        const nextPage = currentPage + direction;
         if (direction === 1) {
-            const lastPageBtn = pageBtns[pageBtns.length - 1];
-            const lastPage = parseInt(lastPageBtn.textContent);
-            if (lastPage < nextPage) {
-                const nextPageBtn = doc.querySelector(".ArticlePaginate button.type_next");
-                if (nextPageBtn) {
-                    return nextPageBtn.click();
-                } else {
-                    return;
-                }
+            const nextPageBtn = currentPageBtn.nextElementSibling;
+            if (nextPageBtn?.tagName === "BUTTON") {
+                nextPageBtn.click();
             }
         } else {
-            const firstPageBtn = pageBtns[0];
-            const firstPage = parseInt(firstPageBtn.textContent);
-            if (nextPage < firstPage) {
-                const prevPageBtn = doc.querySelector(".ArticlePaginate button.type_prev");
-                if (prevPageBtn) {
-                    return prevPageBtn.click();
-                } else {
-                    return;
-                }
-            }
-        }
-        for (const pageBtn of pageBtns) {
-            if (parseInt(pageBtn.textContent) === nextPage) {
-                return pageBtn.click();
+            const prevPageBtn = currentPageBtn.previousElementSibling;
+            if (prevPageBtn?.tagName === "BUTTON") {
+                prevPageBtn?.click();
             }
         }
     } catch (e) { console.error(e); }
@@ -361,47 +324,19 @@ function onInputSafeArrowKeyUpInMember(doc, direction) {
             }
         }
         // .MemberProfile .paginage_area .ArticlePaginate (button.type_prev | button.number "NUMBER" | button.type_next)
-        const pageBtns = doc.querySelectorAll(".ArticlePaginate button.number");
-        if (pageBtns.length === 0) {
+        const currentPageBtn = doc.querySelector(".ArticlePaginate button.number[aria-current]");
+        if (!currentPageBtn) {
             return;
         }
-        let currentPage;
-        for (const pageBtn of pageBtns) {
-            if (pageBtn.ariaCurrent) {
-                currentPage = parseInt(pageBtn.textContent);
-                break;
-            }
-        }
-        if (currentPage === undefined) {
-            return;
-        }
-        const nextPage = currentPage + direction;
         if (direction === 1) {
-            const lastPageBtn = pageBtns[pageBtns.length - 1];
-            const lastPage = parseInt(lastPageBtn.textContent);
-            if (lastPage < nextPage) {
-                const nextPageBtn = doc.querySelector(".ArticlePaginate button.type_next");
-                if (nextPageBtn) {
-                    return nextPageBtn.click();
-                } else {
-                    return;
-                }
+            const nextPageBtn = currentPageBtn.nextElementSibling;
+            if (nextPageBtn?.tagName === "BUTTON") {
+                nextPageBtn.click();
             }
         } else {
-            const firstPageBtn = pageBtns[0];
-            const firstPage = parseInt(firstPageBtn.textContent);
-            if (nextPage < firstPage) {
-                const prevPageBtn = doc.querySelector(".ArticlePaginate button.type_prev");
-                if (prevPageBtn) {
-                    return prevPageBtn.click();
-                } else {
-                    return;
-                }
-            }
-        }
-        for (const pageBtn of pageBtns) {
-            if (parseInt(pageBtn.textContent) === nextPage) {
-                return pageBtn.click();
+            const prevPageBtn = currentPageBtn.previousElementSibling;
+            if (prevPageBtn?.tagName === "BUTTON") {
+                prevPageBtn?.click();
             }
         }
     } catch (e) { console.error(e); }
