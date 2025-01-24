@@ -181,6 +181,10 @@ class Monitor {
                 });
             }
         },
+        // 기능적 노드
+        "changed.document": {
+            parentKeys: ["iframe.document", "app.article.content-box", "app.popular.tbody-page", "app.member.tbody-page"]
+        },
         // --- --- --- --- --- --- --- --- Cafe --- --- --- --- --- --- --- ---
         "cafe.side-panel": {
             parentKeys: ["cafe.document"],
@@ -254,7 +258,7 @@ class Monitor {
         "app.article.content-box": {
             parentKeys: ["app.article.container"],
             onFoundEnd: (divContentBox) => {
-                this.call("app.changed.document", divContentBox.ownerDocument);
+                this.call("changed.document", divContentBox.ownerDocument);
                 for (const linkElement of divContentBox.querySelectorAll("a.se-link")) {
                     this.call("app.article.content-link-element", linkElement);
                 }
@@ -301,7 +305,7 @@ class Monitor {
         "app.popular.tbody-page": {
             parentKeys: ["app.popular.container"],
             onFoundEnd: (tbodyPage) => {
-                this.call("app.changed.document", tbodyPage.ownerDocument);
+                this.call("changed.document", tbodyPage.ownerDocument);
                 for (const listTypeElement of tbodyPage.querySelectorAll(".inner_list")) {
                     this.call("app.popular.list-type-element", listTypeElement);
                 }
@@ -344,7 +348,7 @@ class Monitor {
         "app.member.tbody-page": {
             parentKeys: ["app.member.container"],
             onFoundEnd: (tbodyPage) => {
-                this.call("app.changed.document", tbodyPage.ownerDocument);
+                this.call("changed.document", tbodyPage.ownerDocument);
                 for (const listTypeElement of tbodyPage.querySelectorAll("div.board-list .inner_list")) {
                     this.call("app.member.list-type-element", listTypeElement);
                 }
@@ -361,10 +365,6 @@ class Monitor {
         },
         "app.member.card-type-element": {
             parentKeys: ["app.member.tbody-page"]
-        },
-        // --- --- --- --- --- --- --- --- (App.Changed) --- --- --- --- --- --- --- ---
-        "app.changed.document": {
-            parentKeys: ["app.popular.tbody-page", "app.member.tbody-page"]
         },
         // --- --- --- --- --- --- --- --- CafeIntro --- --- --- --- --- --- --- ---
         "cafe-intro.document": {
@@ -432,7 +432,7 @@ class Monitor {
             onFoundEnd: (doc) => {
                 const divMainArea = doc.querySelector("#main-area");
                 if (divMainArea) {
-                    for (const listTypeElement of divMainArea.querySelectorAll(".result-board .inner_list")) {
+                    for (const listTypeElement of divMainArea.querySelectorAll(".article-board:not(#upperArticleList) .inner_list")) {
                         this.call("article-search-list.list-type-element", listTypeElement);
                     }
                 }
@@ -508,8 +508,6 @@ async function getDivApp(doc) {
 }
 
 /*
-(2025-01-21)
-
 [default]
 body > #cafe-body-skin > #cafe-body > #content-area > #main-area > iframe#cafe_name -> document
 
@@ -555,12 +553,13 @@ body > #cafe-body-skin > #cafe-body > #content-area > #main-area > #basisElement
   .card_area > .movie-img > a (이미지) > img
 
 [/ArticleSearchList.nhn]
-body > #content-area > #main-area > .result-board > table > tbody > tr > td.td_article > .board-list > (list-type-element)
+body > #content-area > #main-area > .article-board(.result-board) > table > tbody > tr > td.td_article > .board-list > (list-type-element)
 (list-type-element)
   .inner_list > a.article (제목) > span.head (말머리) > TEXT
   .inner_list > a.article (제목) > TEXT, em, TEXT
   .inner_list > a.cmt (댓글수) > "[", em, "]"
   .inner_list > .result_contents > a.link_contents (내용) > TEXT, b, TEXT
+.article-board는 로그인시에만 .result-board가 생긴다. #upperArticleList는 설명줄이다.
 
 [Article]
 body > #app (empty)

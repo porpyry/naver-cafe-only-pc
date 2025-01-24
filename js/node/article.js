@@ -31,7 +31,7 @@ class OnFoundArticle {
 
         // (1-2)
         const brBoardLink = this.querySelector(".RelatedArticles .paginate_area a.more"); // BottomRight
-        if (brBoardLink.pathname === "/ArticleList.nhn") {
+        if (brBoardLink?.pathname === "/ArticleList.nhn") {
             if (brBoardLink.target === "_parent" || brBoardLink.target === "_top") {
                 brBoardLink.target = "_self";
             }
@@ -100,11 +100,13 @@ class OnFoundArticle {
 
         // (1-3)
         const tlBoardLink = this.querySelector(".ArticleTitle a.link_board"); // TopLeft
-        if (tlBoardLink.pathname === "/f-e/ArticleList.nhn") {
-            tlBoardLink.pathname = "/ArticleList.nhn";
-        }
-        if (tlBoardLink.target === "_parent" || tlBoardLink.target === "_top") {
-            tlBoardLink.target = "_self";
+        if (tlBoardLink) {
+            if (tlBoardLink.pathname === "/f-e/ArticleList.nhn") {
+                tlBoardLink.pathname = "/ArticleList.nhn";
+            }
+            if (tlBoardLink.target === "_parent" || tlBoardLink.target === "_top") {
+                tlBoardLink.target = "_self";
+            }
         }
     }
 
@@ -119,7 +121,7 @@ class OnFoundArticle {
         if (options.cafeDefaultNewTab && options.cafeDefaultBackground) {
 
             // 링크·내용 불일치 경고문 건드리지 않기
-            if (!isValidHttpUrl(this.textContent) || this.href === this.textContent) {
+            if (!(isValidHttpUrl(this.textContent) && this.href !== this.textContent)) {
 
                 // 기본 클릭 동작인 새 탭에서 열기를 비활성화
                 const spanLink = createClickShieldSpan(this.firstChild);
@@ -139,8 +141,10 @@ class OnFoundArticle {
                     promise = mobileLinkToArticleLink(this);
                 }
                 promise?.then((url) => {
-                    if (isLinkTextSame && url) {
-                        this.textContent = url;
+                    if (isLinkTextSame && url && this.firstChild) {
+                        if (this.firstChild.tagName === "SPAN" || this.firstChild.nodeType === Node.TEXT_NODE) {
+                            this.firstChild.textContent = url;
+                        }
                     }
                 });
             }
@@ -151,8 +155,10 @@ class OnFoundArticle {
             if (this.hostname === "cafe.naver.com") {
                 const isLinkTextSame = this.href === this.textContent;
                 articleLinkToArticleOnlyLink(this).then((url) => {
-                    if (isLinkTextSame && url) {
-                        this.textContent = url;
+                    if (isLinkTextSame && url && this.firstChild) {
+                        if (this.firstChild.tagName === "SPAN" || this.firstChild.nodeType === Node.TEXT_NODE) {
+                            this.firstChild.textContent = url;
+                        }
                     }
                 });
             }

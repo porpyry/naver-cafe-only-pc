@@ -98,7 +98,7 @@ function groupChildrenWithSpan(parent) {
 function isIframeDocumentLoaded(iframe) {
     return iframe
         && iframe.contentDocument?.readyState === "complete"
-        && iframe.contentWindow.location.hostname !== "";
+        && iframe.contentWindow.location?.hostname;
 }
 
 function replaceHrefToArticleOnly(a) {

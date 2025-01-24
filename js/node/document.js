@@ -11,7 +11,7 @@ class OnFoundDocument {
             ["app.document", /*           */ this.appDocument, /*         */ options.pageArrowShortcut || options.searchCommentShortcut],
             ["article-list.document", /*  */ this.articleListDocument, /* */ options.pageArrowShortcut || options.searchCommentShortcut],
             ["article-search-list.document", this.articleSearchListDocument, options.pageArrowShortcut || options.searchCommentShortcut],
-            ["app.changed.document", /*   */ this.appChangedDocument, /*  */ options.optimizeCafe]
+            ["changed.document", /*       */ this.changedDocument, /*     */ options.optimizeCafe]
         ];
     }
 
@@ -166,12 +166,14 @@ class OnFoundDocument {
 
     /** @this {Document}
       * @param {Options} options */
-    static appChangedDocument(/*options*/) {
+    static changedDocument(/*options*/) {
         // (1) 카페 최적화 (새로고침 가능하도록 URL 변경)
 
         // (1)
         if (this !== document) {
-            cleanUpUrlForRefresh(this.location.pathname, this.location.search);
+            setTimeout(() => {
+                cleanUpUrlForRefresh(this.location.pathname, this.location.search);
+            }, 1); // 타 확장과 충돌 방지
         }
     }
 }
