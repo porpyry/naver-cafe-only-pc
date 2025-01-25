@@ -39,7 +39,7 @@ async function updateDefaultOptions() {
         }
     }
 
-    await chrome.storage.sync.set({ options: newOptions });
+    chrome.storage.sync.set({ options: newOptions });
 }
 
 async function updateVersion(previousVersion) {
@@ -51,7 +51,7 @@ async function updateVersion(previousVersion) {
     }
     if (previousVersion < '2.0.3') {
         const options = (await chrome.storage.sync.get("options")).options;
-        if (options.optimizeCafe) {
+        if (options?.optimizeCafe) {
             options.smoothPrevNext = true;
             chrome.storage.sync.set({ options });
         }
