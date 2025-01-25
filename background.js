@@ -49,4 +49,11 @@ async function updateVersion(previousVersion) {
         await chrome.storage.sync.set({ options: oldOptions });
         await chrome.storage.local.clear();
     }
+    if (previousVersion < '2.0.3') {
+        const options = (await chrome.storage.sync.get("options")).options;
+        if (options.optimizeCafe) {
+            options.smoothPrevNext = true;
+            chrome.storage.sync.set({ options });
+        }
+    }
 }

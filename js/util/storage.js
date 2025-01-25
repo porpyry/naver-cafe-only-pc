@@ -8,6 +8,7 @@ class Options {
     searchCommentShortcut = false;
     changeFavoriteOrder = false;
     optimizeCafe = false;
+    smoothPrevNext = false;
 
     constructor(options) {
         Object.assign(this, options);

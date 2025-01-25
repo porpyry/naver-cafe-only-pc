@@ -9,7 +9,7 @@ class OnFoundArticle {
         return [
             ["app.article.base", this.base, options.newTabOnlyArticle && options.optimizeCafe],
             ["app.article.container", this.container, options.optimizeCafe],
-            ["app.article.prev-next-button", this.prevNextButton, options.optimizeCafe], // async
+            ["app.article.prev-next-button", this.prevNextButton, options.optimizeCafe || options.smoothPrevNext], // async
             ["app.article.list-button", this.listButton, options.optimizeCafe],
             ["app.article.content-box", this.contentBox, options.optimizeCafe],
             ["app.article.content-link-element", this.contentLinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect],
@@ -56,10 +56,10 @@ class OnFoundArticle {
     /** @this {HTMLAnchorElement}
       * @param {Options} options */
     static async prevNextButton(options) {
-        // (1-1) 카페 최적화 (컨트롤 클릭 버그 수정, 게시글 단독 링크로 변경)
-        // (1-2) 카페 최적화 (이전글·다음글 부드럽게 이동)
+        // (1) 카페 최적화 (컨트롤 클릭 버그 수정, 게시글 단독 링크로 변경)
+        // (2) 이전글·다음글 부드럽게 전환
 
-        // (1-1)
+        // (1), (2)
         // 기본 클릭 동작인 링크로 이동을 비활성화
         const url = totalLinkToIframeLink(this);
         if (url) {
@@ -68,8 +68,10 @@ class OnFoundArticle {
             }
             const span = createClickShieldBox(this);
 
-            // (1-2) (?iframe_url= 상태면 안 된다.)
-            span?.addEventListener("click", onClickPrevNextButton);
+            // (2)
+            if (options.smoothPrevNext) {
+                span?.addEventListener("click", onClickPrevNextButton);
+            }
         } else {
             createClickShieldBox(this, true);
         }
@@ -132,48 +134,29 @@ class OnFoundArticle {
         // (2-1) 카페 최적화 (카페 링크로 변경) ..(모바일 -> PC 사용시)
         // (2-2) 카페 최적화 (게시글 단독 링크로 변경) ..(게시글 부분만 로딩시)
 
+        // 기본 클릭 동작인 새 탭에서 열기를 비활성화
+        const spanLink = createClickShieldSpan(this.firstChild);
+
         // (1)
         if (options.cafeDefaultNewTab && options.cafeDefaultBackground) {
-
-            // 링크·내용 불일치 경고문 건드리지 않기
-            if (!(isValidHttpUrl(this.textContent) && this.href !== this.textContent)) {
-
-                // 기본 클릭 동작인 새 탭에서 열기를 비활성화
-                const spanLink = createClickShieldSpan(this.firstChild);
-
-                spanLink?.addEventListener("click", openInBackgroundListener);
-            }
+            spanLink?.addEventListener("click", openInBackgroundListener);
         }
 
         // (2-1)
         if (options.newTabOnlyPC && options.optimizeCafe) {
             if (this.hostname === "m.cafe.naver.com") {
-                const isLinkTextSame = this.href === this.textContent;
-                const originalLink = this.href;
-                let promise;
                 if (options.newTabOnlyArticle) {
-                    promise = mobileLinkToArticleOnlyLink(this);
+                    mobileLinkToArticleOnlyLink(this);
                 } else {
-                    promise = mobileLinkToArticleLink(this);
+                    mobileLinkToArticleLink(this);
                 }
-                promise?.then((url) => {
-                    if (isLinkTextSame && url) {
-                        this.innerHTML = this.innerHTML.replace(originalLink, url);
-                    }
-                });
             }
         }
 
         // (2-2)
         if (options.newTabOnlyArticle && options.optimizeCafe) {
             if (this.hostname === "cafe.naver.com") {
-                const isLinkTextSame = this.href === this.textContent;
-                const originalLink = this.href;
-                articleLinkToArticleOnlyLink(this).then((url) => {
-                    if (isLinkTextSame && url) {
-                        this.innerHTML = this.innerHTML.replace(originalLink, url);
-                    }
-                });
+                articleLinkToArticleOnlyLink(this);
             }
         }
     }
