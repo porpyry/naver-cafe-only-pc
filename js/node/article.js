@@ -7,6 +7,7 @@ class OnFoundArticle {
         const optionsOnlyCafeDefaultBackground = options.cafeDefaultNewTab && options.cafeDefaultBackground;
         const optionsOptimizeCafeWhenRedirect = (options.newTabOnlyPC || options.newTabOnlyArticle) && options.optimizeCafe;
         return [
+            ["app.article.base", this.base, options.newTabOnlyArticle && options.optimizeCafe],
             ["app.article.container", this.container, options.optimizeCafe],
             ["app.article.prev-next-button", this.prevNextButton, options.optimizeCafe], // async
             ["app.article.list-button", this.listButton, options.optimizeCafe],
@@ -14,6 +15,20 @@ class OnFoundArticle {
             ["app.article.content-link-element", this.contentLinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect],
             ["app.article.content-oglink-element", this.contentOglinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect]
         ];
+    }
+
+    /** @this {HTMLElement}
+      * @param {Options} options */
+    static base(/*options*/) {
+        // (1) 단독 탭에서 게시글이 유효하지 않은 경우 메시지 표시하기 ..(카페 최적화로 이전글·다음글 이동할 때 등)
+
+        // (1)
+        if (this.ownerDocument === document) {
+            const info = PCArticleURLParser.getInfo(location.pathname, location.search);
+            if (info?.type === PCArticleURLParser.TYPE_ARTICLE_ONLY) {
+                checkArticleStatus(info.cafeId, info.articleId);
+            }
+        }
     }
 
     /** @this {HTMLElement}

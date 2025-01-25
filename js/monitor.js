@@ -168,9 +168,13 @@ class Monitor {
             onFoundEnd: (doc) => {
                 this.clear("only.document", true);
                 getDivApp(doc).then((divApp) => {
-                    watchingChild(divApp, ".Article", async (divArticle) => {
-                        const container = await watchSelector(divArticle, ".ArticleContainerWrap");
-                        this.call("app.article.container", container);
+                    watchingChild(divApp, ".Article", (divArticle) => {
+                        this.call("app.article.base", divArticle);
+                        watchingChild(divArticle, ".ArticleContainerWrap", (container) => {
+                            this.call("app.article.container", container);
+                        }, () => {
+                            this.call("app.article.base", divArticle);
+                        });
                     });
                     watchingChild(divApp, "section", (container) => {
                         this.call("app.popular.container", container);
@@ -183,7 +187,7 @@ class Monitor {
         },
         // 기능적 노드
         "changed.document": {
-            parentKeys: ["iframe.document", "app.article.content-box", "app.popular.tbody-page", "app.member.tbody-page"]
+            parentKeys: ["app.article.content-box", "app.popular.tbody-page", "app.member.tbody-page"]
         },
         // --- --- --- --- --- --- --- --- Cafe --- --- --- --- --- --- --- ---
         "cafe.side-panel": {
@@ -211,6 +215,9 @@ class Monitor {
             parentKeys: ["cafe.side-panel"]
         },
         // --- --- --- --- --- --- --- --- App.Article --- --- --- --- --- --- --- ---
+        "app.article.base": {
+            parentKeys: ["app.document"]
+        },
         "app.article.container": {
             parentKeys: ["app.document"],
             onFoundEnd: (container) => {
@@ -486,12 +493,17 @@ async function watchSelector(parent, selectors, subtree = false, condition) {
 // 자식 중에서 해당하는 요소가 나타날 때마다 콜백을 호출한다.
 // 해당하는 요소가 이미 존재한다면 바로 한 번 호출한다.
 // callback: (foundElement) => any
-function watchingChild(parent, selectors, callback) {
+function watchingChild(parent, selectors, callback, removedCallback) {
     new MutationObserver((mutationList) => {
         for (const mutation of mutationList) {
             for (const node of mutation.addedNodes) {
                 if (node.nodeType === Node.ELEMENT_NODE && node.matches(selectors)) {
                     callback(node);
+                }
+            }
+            for (const node of mutation.removedNodes) {
+                if (node.nodeType === Node.ELEMENT_NODE && node.matches(selectors)) {
+                    removedCallback?.();
                 }
             }
         }
