@@ -286,11 +286,10 @@ async function articleLinkToArticleOnlyLink(a) {
     if (!info) {
         return;
     }
-    let url = await PCArticleURLParser.getArticleOnlyURL(info);
+    const url = await PCArticleURLParser.getArticleOnlyURL(info);
     if (!url) {
         return;
     }
-    url = url.split("?", 2)[0]; // remove search
     if (a.href !== url) {
         a.href = url;
     }
