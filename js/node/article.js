@@ -149,6 +149,7 @@ class OnFoundArticle {
         if (options.newTabOnlyPC && options.optimizeCafe) {
             if (this.hostname === "m.cafe.naver.com") {
                 const isLinkTextSame = this.href === this.textContent;
+                const originalLink = this.href;
                 let promise;
                 if (options.newTabOnlyArticle) {
                     promise = mobileLinkToArticleOnlyLink(this);
@@ -156,10 +157,8 @@ class OnFoundArticle {
                     promise = mobileLinkToArticleLink(this);
                 }
                 promise?.then((url) => {
-                    if (isLinkTextSame && url && this.firstChild) {
-                        if (this.firstChild.tagName === "SPAN" || this.firstChild.nodeType === Node.TEXT_NODE) {
-                            this.firstChild.textContent = url;
-                        }
+                    if (isLinkTextSame && url) {
+                        this.innerHTML = this.innerHTML.replace(originalLink, url);
                     }
                 });
             }
@@ -169,11 +168,10 @@ class OnFoundArticle {
         if (options.newTabOnlyArticle && options.optimizeCafe) {
             if (this.hostname === "cafe.naver.com") {
                 const isLinkTextSame = this.href === this.textContent;
+                const originalLink = this.href;
                 articleLinkToArticleOnlyLink(this).then((url) => {
-                    if (isLinkTextSame && url && this.firstChild) {
-                        if (this.firstChild.tagName === "SPAN" || this.firstChild.nodeType === Node.TEXT_NODE) {
-                            this.firstChild.textContent = url;
-                        }
+                    if (isLinkTextSame && url) {
+                        this.innerHTML = this.innerHTML.replace(originalLink, url);
                     }
                 });
             }
