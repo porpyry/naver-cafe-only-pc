@@ -11,7 +11,7 @@ class OnFoundDocument {
             ["app.document", /*           */ this.appDocument, /*         */ options.pageArrowShortcut || options.searchCommentShortcut],
             ["article-list.document", /*  */ this.articleListDocument, /* */ options.pageArrowShortcut || options.searchCommentShortcut],
             ["article-search-list.document", this.articleSearchListDocument, options.pageArrowShortcut || options.searchCommentShortcut],
-            ["changed.document", /*       */ this.changedDocument, /*     */ options.optimizeCafe || options.smoothPrevNext]
+            ["changed.document", /*       */ this.changedDocument, /*     */ options.optimizeCafe]
         ];
     }
 
@@ -168,7 +168,6 @@ class OnFoundDocument {
       * @param {Options} options */
     static changedDocument(options) {
         // (1) 카페 최적화 (새로고침 가능하도록 URL 변경)
-        // (2) 이전글·다음글 부드럽게 전환 (로딩중일 경우 로딩중 해제)
 
         // (1)
         if (options.optimizeCafe) {
@@ -177,15 +176,6 @@ class OnFoundDocument {
                     cleanUpUrlForRefresh(this.location.pathname, this.location.search);
                 }, 1); // 타 확장과 충돌 방지
             }
-        }
-
-        // (2)
-        if (options.smoothPrevNext) {
-            const topRightArea = this.querySelector(".ArticleTopBtns > .right_area");
-            const prevBtn = topRightArea?.querySelector("a.btn_prev");
-            const nextBtn = topRightArea?.querySelector("a.btn_next");
-            prevBtn?.classList.remove("NCOP_LOADING");
-            nextBtn?.classList.remove("NCOP_LOADING");
         }
     }
 }

@@ -5,7 +5,7 @@ class OnFoundMember {
         const optionsOnlyCafeDefaultBackground = options.cafeDefaultNewTab && options.cafeDefaultBackground;
         const optionsOptimizeCafeWhenRedirectArticle = options.newTabOnlyArticle && options.optimizeCafe;
         return [
-            ["app.member.profile", this.profile, options.optimizeCafe],
+            ["app.member.profile", this.profile, true],
             ["app.member.list-type-element", this.listTypeElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirectArticle],
             ["app.member.card-type-element", this.cardTypeElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirectArticle]
         ];
@@ -14,7 +14,7 @@ class OnFoundMember {
     /** @this {HTMLElement}
       * @param {Options} options */
     static profile(/*options*/) {
-        // (1) 카페 최적화 (단독 게시글 페이지에서 탭 제목 수정)
+        // (1) 기본 기능 (단독 게시글 페이지에서 탭 제목 수정)
 
         // (1)
         if (this.ownerDocument === document) {

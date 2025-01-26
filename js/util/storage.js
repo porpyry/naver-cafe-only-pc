@@ -15,13 +15,13 @@ class Options {
     }
 
     /** @type {Promise<Options>} */
-    static _options = null;
+    static _instance = null;
 
     static async get() {
-        if (!this._options) {
-            this._options = chrome.storage.sync.get("options").then(items => new this(items.options));
+        if (!this._instance) {
+            this._instance = chrome.storage.sync.get("options").then(items => new this(items.options));
         }
-        return this._options;
+        return this._instance;
     }
 }
 
@@ -30,6 +30,7 @@ class SessionCafeInfo {
     /** @type {{ cafeId: number, cafeName: string, cafeTitle: string }[]} */
     cafeInfo = [];
 
+    // items: { cafeInfo: [...] }
     constructor(items) {
         Object.assign(this, items);
     }
@@ -81,16 +82,16 @@ class SessionCafeInfo {
     }
 
     /** @type {Promise<SessionCafeInfo>} */
-    static _session = null;
+    static _instance = null;
 
     /** @type {Promise<any>} */
     static _request = null;
 
     static async get() {
-        if (!this._session) {
-            this._session = chrome.storage.session.get("cafeInfo").then(items => new this(items));
+        if (!this._instance) {
+            this._instance = chrome.storage.session.get("cafeInfo").then(items => new this(items));
         }
-        return this._session;
+        return this._instance;
     }
 
     static async getCafeId(cafeName) {
@@ -130,5 +131,23 @@ class SessionCafeInfo {
         }
         await this._request;
         return instance.findCafeTitle(cafeId);
+    }
+}
+
+class SessionSafeFlags {
+    noSmoothPrevNext = false;
+
+    constructor(safeFlags) {
+        Object.assign(this, safeFlags);
+    }
+
+    /** @type {Promise<SessionSafeFlags>} */
+    static _instance = null;
+
+    static async get() {
+        if (!this._instance) {
+            this._instance = chrome.storage.session.get("safeFlags").then(items => new this(items.safeFlags));
+        }
+        return this._instance;
     }
 }

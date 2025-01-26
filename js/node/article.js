@@ -11,7 +11,7 @@ class OnFoundArticle {
             ["app.article.container", this.container, options.optimizeCafe],
             ["app.article.prev-next-button", this.prevNextButton, options.optimizeCafe || options.smoothPrevNext], // async
             ["app.article.list-button", this.listButton, options.optimizeCafe],
-            ["app.article.content-box", this.contentBox, options.optimizeCafe],
+            ["app.article.content-box", this.contentBox, true],
             ["app.article.content-link-element", this.contentLinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect],
             ["app.article.content-oglink-element", this.contentOglinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect],
             ["app.article.content-image-link-element", this.contentImageLinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect]
@@ -64,14 +64,18 @@ class OnFoundArticle {
         // 기본 클릭 동작인 링크로 이동을 비활성화
         const url = totalLinkToIframeLink(this);
         if (url) {
-            if (options.newTabOnlyArticle) {
+            if (options.newTabOnlyArticle && options.optimizeCafe) {
                 await articleLinkToArticleOnlyLink(this);
             }
             const span = createClickShieldBox(this);
 
             // (2)
             if (options.smoothPrevNext) {
-                span?.addEventListener("click", onClickPrevNextButton);
+                const safeFlags = await SessionSafeFlags.get();
+                if (!safeFlags.noSmoothPrevNext) {
+                    span?.addEventListener("click", onClickPrevNextButton);
+                }
+                this.classList.remove("NCOP_LOADING"); // 로딩중 표시 해제
             }
         } else {
             createClickShieldBox(this, true);
@@ -97,18 +101,12 @@ class OnFoundArticle {
 
     /** @this {HTMLElement}
       * @param {Options} options */
-    static contentBox(/*options*/) {
-        // (1-1) 카페 최적화 (URL 복사에서 컨트롤 클릭 버그 수정)
-        // (1-2) 카페 최적화 (단독 게시글 페이지에서 탭 제목 수정)
-        // (1-3) 카페 최적화 (좌상단 게시판 버튼 href·target 수정)
+    static contentBox(options) {
+        // (1) 기본 기능 (단독 게시글 페이지에서 탭 제목 수정)
+        // (2-1) 카페 최적화 (URL 복사에서 컨트롤 클릭 버그 수정)
+        // (2-2) 카페 최적화 (좌상단 게시판 버튼 href·target 수정)
 
-        // (1-1)
-        const aCopy = this.querySelector(".ArticleTool a.button_url")
-        if (aCopy) {
-            createClickShieldSpan(aCopy.firstChild, true);
-        }
-
-        // (1-2)
+        // (1)
         if (this.ownerDocument === document) {
             const articleTitle = this.querySelector(".ArticleTitle .title_text");
             if (articleTitle) {
@@ -116,14 +114,22 @@ class OnFoundArticle {
             }
         }
 
-        // (1-3)
-        const tlBoardLink = this.querySelector(".ArticleTitle a.link_board"); // TopLeft
-        if (tlBoardLink) {
-            if (tlBoardLink.pathname === "/f-e/ArticleList.nhn") {
-                tlBoardLink.pathname = "/ArticleList.nhn";
+        if (options.optimizeCafe) {
+            // (2-1)
+            const aCopy = this.querySelector(".ArticleTool a.button_url")
+            if (aCopy) {
+                createClickShieldSpan(aCopy.firstChild, true);
             }
-            if (tlBoardLink.target === "_parent" || tlBoardLink.target === "_top") {
-                tlBoardLink.target = "_self";
+
+            // (2-2)
+            const tlBoardLink = this.querySelector(".ArticleTitle a.link_board"); // TopLeft
+            if (tlBoardLink) {
+                if (tlBoardLink.pathname === "/f-e/ArticleList.nhn") {
+                    tlBoardLink.pathname = "/ArticleList.nhn";
+                }
+                if (tlBoardLink.target === "_parent" || tlBoardLink.target === "_top") {
+                    tlBoardLink.target = "_self";
+                }
             }
         }
     }
@@ -340,15 +346,25 @@ async function onClickPrevNextButton(event) {
     if (!a || a.tagName !== "A") {
         return;
     }
-    event.preventDefault();
-    const win = this.ownerDocument.defaultView;
-    const currentInfo = PCArticleURLParser.getInfo(win.location.pathname, win.location.search);
-    const linkInfo = PCArticleURLParser.getInfo(a.pathname, a.search);
-    if (!currentInfo || !linkInfo || currentInfo.articleId === linkInfo.articleId) {
-        return;
+    event.preventDefault(); // 링크 동작 중지
+    if (a.classList.contains("NCOP_LOADING")) {
+        return; // 로딩 중 클릭한 경우
     }
+    const oldHref = a.href;
+    const linkInfo = PCArticleURLParser.getInfo(a.pathname, a.search);
     const linkUrl = await PCArticleURLParser.getArticleOnlyURL(linkInfo);
+    const win = this.ownerDocument.defaultView;
     win.history.pushState(null, "", linkUrl);
     win.dispatchEvent(new PopStateEvent("popstate"));
     a.classList.add("NCOP_LOADING");
+
+    // 로딩이 너무 늦으면 링크 동작 재개, 세션에 비정상 정보 등록
+    setTimeout(async () => {
+        if (a.classList.contains("NCOP_LOADING") && a.href === oldHref) {
+            a.click();
+            const safeFlags = await SessionSafeFlags.get();
+            safeFlags.noSmoothPrevNext = true;
+            chrome.storage.session.set({ safeFlags });
+        }
+    }, 10000);
 }

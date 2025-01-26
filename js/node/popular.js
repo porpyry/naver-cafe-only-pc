@@ -3,7 +3,7 @@ class OnFoundPopular {
     /** @param {Options} options */
     static getIndex(options) {
         return [
-            ["app.popular.container", this.container, options.optimizeCafe],
+            ["app.popular.container", this.container, true],
             ["app.popular.list-type-element", this.listTypeElement, options.cafeDefaultNewTab || options.optimizeCafe]
         ];
     }
@@ -11,9 +11,9 @@ class OnFoundPopular {
     /** @this {HTMLElement}
       * @param {Options} options */
     static container(/*options*/) {
-        // (1-1) 카페 최적화 (단독 게시글 페이지에서 탭 제목 수정)
+        // (1) 기본 기능 (단독 게시글 페이지에서 탭 제목 수정)
 
-        // (1-1)
+        // (1)
         if (this.ownerDocument === document) {
             document.title = "카페 인기글 : 네이버 카페";
         }

@@ -111,8 +111,9 @@ function replaceHrefToArticleOnly(a) {
         const cafeId = searchParams.get("clubid");
         const articleId = searchParams.get("articleid");
         if (cafeId && articleId) {
-            searchParams.delete("clubid");
-            searchParams.delete("articleid");
+            // 이거 지우면 형이봤이랑 충돌함
+            // searchParams.delete("clubid");
+            // searchParams.delete("articleid");
             const newSearch = searchParams.size > 0 ? "?" + searchParams.toString() : "";
             a.href = `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}${newSearch}`;
         }
