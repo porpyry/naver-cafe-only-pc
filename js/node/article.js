@@ -13,7 +13,8 @@ class OnFoundArticle {
             ["app.article.list-button", this.listButton, options.optimizeCafe],
             ["app.article.content-box", this.contentBox, options.optimizeCafe],
             ["app.article.content-link-element", this.contentLinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect],
-            ["app.article.content-oglink-element", this.contentOglinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect]
+            ["app.article.content-oglink-element", this.contentOglinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect],
+            ["app.article.content-image-link-element", this.contentImageLinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect]
         ];
     }
 
@@ -135,7 +136,8 @@ class OnFoundArticle {
         // (2-2) 카페 최적화 (게시글 단독 링크로 변경) ..(게시글 부분만 로딩시)
 
         // 기본 클릭 동작인 새 탭에서 열기를 비활성화
-        const spanLink = createClickShieldSpan(this.firstChild);
+        const spanLink = groupChildrenWithSpan(this);
+        createClickShieldSpan(spanLink);
 
         // (1)
         if (options.cafeDefaultNewTab && options.cafeDefaultBackground) {
@@ -209,6 +211,42 @@ class OnFoundArticle {
                         aThumb.href = url;
                     }
                 });
+            }
+        }
+    }
+    // 기본적으로 새 탭에서 열린다.
+
+    /** @this {HTMLAnchorElement}
+      * @param {Options} options */
+    static contentImageLinkElement(options) {
+        // (1) 기본 백그라운드에서 열기 ..(기본 새 탭에서 열기시)
+        // (2-1) 카페 최적화 (카페 링크로 변경) ..(모바일 -> PC 사용시)
+        // (2-2) 카페 최적화 (게시글 단독 링크로 변경) ..(게시글 부분만 로딩시)
+
+        // 기본 클릭 동작인 새 탭에서 열기를 비활성화
+        const spanLink = createClickShieldBox(this);
+        this.target = "_blank"; // a 태그에 기본값 설정
+
+        // (1)
+        if (options.cafeDefaultNewTab && options.cafeDefaultBackground) {
+            spanLink?.addEventListener("click", openInBackgroundListener);
+        }
+
+        // (2-1)
+        if (options.newTabOnlyPC && options.optimizeCafe) {
+            if (this.hostname === "m.cafe.naver.com") {
+                if (options.newTabOnlyArticle) {
+                    mobileLinkToArticleOnlyLink(this);
+                } else {
+                    mobileLinkToArticleLink(this);
+                }
+            }
+        }
+
+        // (2-2)
+        if (options.newTabOnlyArticle && options.optimizeCafe) {
+            if (this.hostname === "cafe.naver.com") {
+                articleLinkToArticleOnlyLink(this);
             }
         }
     }

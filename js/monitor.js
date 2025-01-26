@@ -272,12 +272,18 @@ class Monitor {
                 for (const oglinkElement of divContentBox.querySelectorAll(".se-module-oglink")) {
                     this.call("app.article.content-oglink-element", oglinkElement);
                 }
+                for (const imageLinkElement of divContentBox.querySelectorAll("a.se-module-image-link")) {
+                    this.call("app.article.content-image-link-element", imageLinkElement);
+                }
             }
         },
         "app.article.content-link-element": {
             parentKeys: ["app.article.content-box"]
         },
         "app.article.content-oglink-element": {
+            parentKeys: ["app.article.content-box"]
+        },
+        "app.article.content-image-link-element": {
             parentKeys: ["app.article.content-box"]
         },
         // --- --- --- --- --- --- --- --- App.Popular --- --- --- --- --- --- --- ---
