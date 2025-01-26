@@ -23,6 +23,7 @@
 마우스 뒤로가기 버튼으로 탭을 끌 수 있습니다.">
               <label><input type="checkbox" name="newTabOnlyArticle">새 탭에서 게시글 부분만 로딩</label>
             </div>
+            <p class="tip">탭 끄기 : 마우스 뒤로가기 버튼</p>
             <div class="option-checkbox" title="모바일 게시글 링크를 새 탭으로 열었을 때 PC 게시글 링크로 리다이렉트합니다.">
               <label><input type="checkbox" name="newTabOnlyPC">모바일 링크 → PC 링크</label>
             </div>
@@ -39,13 +40,13 @@
           <span class="group-title">편의 기능</span>
           <div class="group-items">
             <div class="option-checkbox" title="좌우 방향키로 게시판에서는 페이지 이동, 게시글에서는 이전·다음글로 이동합니다.">
-              <label><input type="checkbox" name="pageArrowShortcut">좌우 방향키로 페이지 이동</label>
+              <label><input type="checkbox" name="pageArrowShortcut">페이지 이동 단축키 (←, →)</label>
             </div>
             <div class="option-checkbox" title="백스페이스로 검색창을 포커스합니다. 게시글에서는 댓글창을 포커스합니다.">
-              <label><input type="checkbox" name="searchCommentShortcut">백스페이스로 검색창 / 댓글창</label>
+              <label><input type="checkbox" name="searchCommentShortcut">검색·댓글 단축키 (Backspace)</label>
             </div>
-            <div class="option-checkbox" title="즐겨찾는 게시판 목록을 열고 각각을 드래그&드롭해서 순서를 변경합니다.">
-              <label><input type="checkbox" name="changeFavoriteOrder">드래그로 즐겨찾기 순서 변경</label>
+            <div class="option-checkbox" title="즐겨찾는 게시판 목록에서 드래그&드롭으로 순서를 변경할 수 있습니다.">
+              <label><input type="checkbox" name="changeFavoriteOrder">즐겨찾는 게시판 순서 변경</label>
             </div>
           </div>
         </div>
@@ -72,7 +73,7 @@
       </div>
     </div>
     <div id="description">
-      <span>새로고침 후 반영됩니다.</span>
+      <p class="guide">새로고침 후 반영됩니다.</p>
     </div>
     <script src="../js/util/storage.js"></script>
     <script src="popup.js"></script>

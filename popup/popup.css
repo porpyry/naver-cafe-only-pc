@@ -9,7 +9,17 @@
 #description {
     margin-top: 16px;
     font-size: 0.8em;
+}
+#description p.guide {
     color: blue;
+}
+p.tip {
+    margin-top: 0;
+    margin-bottom: 6px;
+    margin-left: 20px;
+    font-size: 0.8em;
+    font-weight: bold;
+    user-select: none;
 }
 
 #option-contents {

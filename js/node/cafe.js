@@ -15,16 +15,10 @@ class OnFoundCafe {
         // (1)
         const cafeId = new URLSearchParams(this.querySelector("li a")?.search).get("search.clubid");
         if (cafeId) {
-            chrome.storage.sync.get("favoriteOrder").then((items) => {
+            chrome.storage.sync.get("favoriteOrder").then(items => {
                 const favoriteOrder = items.favoriteOrder?.find(item => item.cafeId === cafeId)?.favoriteOrder;
                 if (favoriteOrder) {
-                    for (const idInt of favoriteOrder) {
-                        const a = this.querySelector(`#favoriteMenuLink${idInt}`);
-                        const li = a?.closest("li");
-                        if (li) {
-                            this.appendChild(li);
-                        }
-                    }
+                    arrangeFavorite(this, favoriteOrder);
                 }
                 for (const a of this.querySelectorAll("li a")) {
                     a.addEventListener("dragstart", onDragStartFavoriteMenu);
@@ -33,6 +27,16 @@ class OnFoundCafe {
                     a.addEventListener("drop", onDropFavoriteMenu);
                 }
             });
+        }
+    }
+}
+
+function arrangeFavorite(ul, favoriteOrder) {
+    for (const id of favoriteOrder) {
+        const a = ul.querySelector(`#favoriteMenuLink${id}`);
+        const li = a?.closest("li");
+        if (li) {
+            ul.appendChild(li);
         }
     }
 }
@@ -69,17 +73,14 @@ function onDropFavoriteMenu(event) {
     } else {
         ul.insertBefore(liDropFrom, liDropTo.nextSibling);
     }
-    const favoriteOrder = [...ul.querySelectorAll("li a")].map((a) => {
-        const matches = a.id?.match(/^favoriteMenuLink(?<idInt>\d+)$/);
+    const favoriteOrder = [...ul.querySelectorAll("li a")].map(a => {
+        const matches = a.id?.match(/^favoriteMenuLink(?<idStr>\d+)$/);
         if (matches) {
-            const { idInt } = matches.groups;
-            return parseInt(idInt);
+            const { idStr } = matches.groups;
+            return parseInt(idStr);
         }
-    });
-    if (favoriteOrder.some(num => num === undefined)) {
-        return;
-    }
-    chrome.storage.sync.get("favoriteOrder").then((items) => {
+    }).filter(item => item !== undefined);
+    chrome.storage.sync.get("favoriteOrder").then(items => {
         if (!items.favoriteOrder) {
             items.favoriteOrder = [];
         }
