@@ -92,8 +92,9 @@ class PCArticleURLParser {
                 {
                     const { cafeId, articleId, search } = info;
                     const searchParams = new URLSearchParams(search);
-                    searchParams.delete("clubid");
-                    searchParams.delete("articleid");
+                    // 타 확장과 호환 고려해서 삭제하지 않음
+                    // searchParams.delete("clubid");
+                    // searchParams.delete("articleid");
                     const newSearch = searchParams.size > 0 ? "?" + searchParams.toString() : "";
                     return `https://cafe.naver.com/ca-fe/cafes/${cafeId}/articles/${articleId}${newSearch}`;
                 }

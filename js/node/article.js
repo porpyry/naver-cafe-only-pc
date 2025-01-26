@@ -108,6 +108,7 @@ class OnFoundArticle {
         // (1) 기본 기능 (단독 게시글 페이지에서 탭 제목 수정)
         // (2-1) 카페 최적화 (URL 복사에서 컨트롤 클릭 버그 수정)
         // (2-2) 카페 최적화 (좌상단 게시판 버튼 href·target 수정)
+        // (3) 이전글·다음글 부드럽게 전환 (alzartak과 호환)
 
         // (1)
         if (this.ownerDocument === document) {
@@ -134,6 +135,11 @@ class OnFoundArticle {
                     tlBoardLink.target = "_self";
                 }
             }
+        }
+
+        // (3)
+        if (options.smoothPrevNext) {
+            this.ownerDocument.dispatchEvent(new Event("readystatechange"));
         }
     }
 
