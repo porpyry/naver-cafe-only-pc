@@ -9,3 +9,7 @@
     right: 0;
     bottom: 0;
 }
+
+a.btn_prev.NCOP_LOADING, a.btn_next.NCOP_LOADING {
+    opacity: 0.3;
+}

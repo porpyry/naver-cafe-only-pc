@@ -350,4 +350,5 @@ async function onClickPrevNextButton(event) {
     const linkUrl = await PCArticleURLParser.getArticleOnlyURL(linkInfo);
     win.history.pushState(null, "", linkUrl);
     win.dispatchEvent(new PopStateEvent("popstate"));
+    a.classList.add("NCOP_LOADING");
 }
