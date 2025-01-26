@@ -13,8 +13,7 @@ class OnFoundCafe {
         // (1) 즐겨찾기 순서 변경
 
         // (1)
-        const aForId = this.querySelector("li a");
-        const cafeId = new URLSearchParams(aForId?.search).get("search.clubid");
+        const cafeId = new URLSearchParams(this.querySelector("li a")?.search).get("search.clubid");
         if (cafeId) {
             chrome.storage.sync.get("favoriteOrder").then((items) => {
                 const favoriteOrder = items.favoriteOrder?.find(item => item.cafeId === cafeId)?.favoriteOrder;

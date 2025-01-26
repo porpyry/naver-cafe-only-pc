@@ -11,7 +11,7 @@ class OnFoundDocument {
             ["app.document", /*           */ this.appDocument, /*         */ options.pageArrowShortcut || options.searchCommentShortcut],
             ["article-list.document", /*  */ this.articleListDocument, /* */ options.pageArrowShortcut || options.searchCommentShortcut],
             ["article-search-list.document", this.articleSearchListDocument, options.pageArrowShortcut || options.searchCommentShortcut],
-            ["changed.document", /*       */ this.changedDocument, /*     */ options.optimizeCafe]
+            ["changed.document", /*       */ this.changedDocument, /*     */ options.optimizeCafe || options.smoothPrevNext]
         ];
     }
 
