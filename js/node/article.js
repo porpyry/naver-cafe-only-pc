@@ -1,5 +1,7 @@
 "use strict";
 
+let g_prevNextCheckTimeout;
+
 class OnFoundArticle {
 
     /** @param {Options} options */
@@ -75,6 +77,7 @@ class OnFoundArticle {
                 if (!safeFlags.noSmoothPrevNext) {
                     span?.addEventListener("click", onClickPrevNextButton);
                 }
+                clearTimeout(g_prevNextCheckTimeout);
                 this.classList.remove("NCOP_LOADING"); // 로딩중 표시 해제
             }
         } else {
@@ -359,8 +362,9 @@ async function onClickPrevNextButton(event) {
     a.classList.add("NCOP_LOADING");
 
     // 로딩이 너무 늦으면 링크 동작 재개, 세션에 비정상 정보 등록
-    setTimeout(async () => {
-        if (a.classList.contains("NCOP_LOADING") && a.href === oldHref) {
+    clearTimeout(g_prevNextCheckTimeout);
+    g_prevNextCheckTimeout = setTimeout(async () => {
+        if (a?.isConnected && a?.classList.contains("NCOP_LOADING") && a?.href === oldHref) {
             a.click();
             const safeFlags = await SessionSafeFlags.get();
             safeFlags.noSmoothPrevNext = true;
