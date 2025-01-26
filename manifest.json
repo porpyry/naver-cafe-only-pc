@@ -1,6 +1,6 @@
 { "manifest_version": 3
 , "name"            : "네이버 카페 only PC"
-, "version"         : "2.0.4"
+, "version"         : "2.0.5"
 , "description"     : "새 탭에서 게시글 부분만 로딩합니다. / 모바일 페이지 접속을 방지합니다. / 편의 기능을 추가합니다."
 , "permissions"     : [ "storage" ]
 , "icons"           : { "128": "img/icon.png" }
