@@ -182,8 +182,8 @@ class OnFoundDocument {
         // (2)
         if (options.smoothPrevNext) {
             const topRightArea = this.querySelector(".ArticleTopBtns > .right_area");
-            const prevBtn = topRightArea.querySelector("a.btn_prev");
-            const nextBtn = topRightArea.querySelector("a.btn_next");
+            const prevBtn = topRightArea?.querySelector("a.btn_prev");
+            const nextBtn = topRightArea?.querySelector("a.btn_next");
             prevBtn?.classList.remove("NCOP_LOADING");
             nextBtn?.classList.remove("NCOP_LOADING");
         }
