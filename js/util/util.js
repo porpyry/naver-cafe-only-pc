@@ -212,3 +212,48 @@ function appWriteMessage(msg, linkUrl, linkText) {
         divMsg.remove();
     }, { once: true });
 }
+
+
+// 유효한 페이지인지 체크하기
+async function checkPageValidity(doc) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 기다린 후 로딩 여부 확인
+    const app = doc.querySelector("body > #app");
+    if (!app) {
+        try {
+            const res = await fetch(doc.location.href, { method: "HEAD" });
+            if (res?.status === 404) {
+                pageNotFound(doc);
+            }
+        } catch (e) { console.error(e); }
+    } else if (app.firstElementChild === null) {
+        pageNotFound(doc);
+    }
+}
+
+async function pageNotFound(doc) {
+    const info = PCArticleURLParser.getInfo(doc.location.pathname, doc.location.search);
+    if (info) {
+        const { cafeId, articleId } = info;
+        if (cafeId) {
+            const cafeName = await SessionCafeInfo.getCafeName(cafeId);
+            if (cafeName && articleId) {
+                history.replaceState(null, "", `https://cafe.naver.com/${cafeName}/${articleId}`);
+            }
+        }
+    }
+    const div = doc.createElement("div");
+    div.innerHTML = "<p>확장 프로그램 〈네이버 카페 새 탭에서 열기〉에서 오류가 발생했습니다.</p>";
+    div.innerHTML += "<br><p>새로고침 해주세요.</p><br>"
+    const a = doc.createElement("a");
+    a.href = "#";
+    a.textContent = "해당 확장 프로그램 비활성화하기";
+    a.style.all = "revert";
+    a.addEventListener("click", async () => {
+        const options = await Options.get();
+        options.enableApp = false;
+        await options.save();
+        a.textContent = "비활성화 완료되었습니다.";
+    });
+    div.appendChild(a);
+    doc.body.appendChild(div);
+}

@@ -9,7 +9,8 @@ class OnFoundArticle {
         const optionsOnlyCafeDefaultBackground = options.cafeDefaultNewTab && options.cafeDefaultBackground;
         const optionsOptimizeCafeWhenRedirect = (options.newTabOnlyPC || options.newTabOnlyArticle) && options.optimizeCafe;
         return [
-            ["app.article.base", this.base, options.newTabOnlyArticle && options.optimizeCafe],
+            ["app.article.base", this.base, options.newTabOnlyArticle],
+            ["app.article.removed", this.removed, options.smoothPrevNext],
             ["app.article.container", this.container, options.optimizeCafe],
             ["app.article.prev-next-button", this.prevNextButton, options.optimizeCafe || options.smoothPrevNext], // async
             ["app.article.list-button", this.listButton, options.optimizeCafe],
@@ -23,7 +24,7 @@ class OnFoundArticle {
     /** @this {HTMLElement}
       * @param {Options} options */
     static base(/*options*/) {
-        // (1) 단독 탭에서 게시글이 유효하지 않은 경우 메시지 표시하기 ..(카페 최적화로 이전글·다음글 이동할 때 등)
+        // (1) 단독 게시글이 유효하지 않은 경우 메시지 표시하기
 
         // (1)
         if (this.ownerDocument === document) {
@@ -32,6 +33,15 @@ class OnFoundArticle {
                 checkArticleStatus(info.cafeId, info.articleId);
             }
         }
+    }
+
+    /** @this {HTMLElement}
+      * @param {Options} options */
+    static removed(/*options*/) {
+        // (1) 이전글·다음글 부드럽게 이동하기에서 유효하지 않은 페이지로 이동할 경우 메시지 표시
+
+        // (1)
+        checkPageValidity(this.ownerDocument);
     }
 
     /** @this {HTMLElement}
@@ -108,6 +118,7 @@ class OnFoundArticle {
         // (1) 기본 기능 (단독 게시글 페이지에서 탭 제목 수정)
         // (2-1) 카페 최적화 (URL 복사에서 컨트롤 클릭 버그 수정)
         // (2-2) 카페 최적화 (좌상단 게시판 버튼 href·target 수정)
+        // (2-3) 카페 최적화가 아니더라도 새로고침 가능하도록 URL 변경
         // (3) 이전글·다음글 부드럽게 전환 (alzartak과 호환)
 
         // (1)
@@ -134,6 +145,14 @@ class OnFoundArticle {
                 if (tlBoardLink.target === "_parent" || tlBoardLink.target === "_top") {
                     tlBoardLink.target = "_self";
                 }
+            }
+        } else {
+            // (2-3)
+            if (this.ownerDocument !== document) {
+                setTimeout(() => {
+                    const loc = this.ownerDocument.location;
+                    cleanUpUrlForRefresh(loc.pathname, loc.search);
+                }, 1); // 타 확장과 충돌 방지
             }
         }
 
@@ -376,5 +395,5 @@ async function onClickPrevNextButton(event) {
             safeFlags.noSmoothPrevNext = true;
             chrome.storage.session.set({ safeFlags });
         }
-    }, 10000);
+    }, 5000);
 }

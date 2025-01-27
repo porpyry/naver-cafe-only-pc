@@ -175,6 +175,8 @@ class Monitor {
                         }, () => {
                             this.call("app.article.base", divArticle);
                         });
+                    }, () => {
+                        this.call("app.article.removed", divApp);
                     });
                     watchingChild(divApp, "section", (container) => {
                         this.call("app.popular.container", container);
@@ -186,7 +188,7 @@ class Monitor {
             }
         },
         // 기능적 노드
-        "changed.document": {
+        "app.changed.document": {
             parentKeys: ["app.article.content-box", "app.popular.tbody-page", "app.member.tbody-page"]
         },
         // --- --- --- --- --- --- --- --- Cafe --- --- --- --- --- --- --- ---
@@ -218,6 +220,9 @@ class Monitor {
         "app.article.base": {
             parentKeys: ["app.document"]
         },
+        "app.article.removed": {
+            parentKeys: ["app.document"]
+        },
         "app.article.container": {
             parentKeys: ["app.document"],
             onFoundEnd: (container) => {
@@ -234,24 +239,25 @@ class Monitor {
                     await this.calling(key, node);
                     observer.observe(node, observeOptions);
                 }
+                // tight conditions for safety
                 const divTopRightArea = container.querySelector(".ArticleTopBtns > .right_area");
-                for (const listButton of divTopRightArea.querySelectorAll("a")) {
-                    if (listButton.textContent.trim() === "목록") {
+                for (const listButton of divTopRightArea.querySelectorAll("a.BaseButton.BaseButton--skinGray.size_default")) {
+                    if (listButton.querySelector("span.BaseButton__txt")?.textContent.trim() === "목록") {
                         observing("app.article.list-button", listButton);
                         break;
                     }
                 }
                 const divBottomRightArea = container.querySelector(".ArticleBottomBtns > .right_area");
-                for (const listButton of divBottomRightArea.querySelectorAll("a")) {
-                    if (listButton.textContent.trim() === "목록") {
+                for (const listButton of divBottomRightArea.querySelectorAll("a.BaseButton.BaseButton--skinGray.size_default")) {
+                    if (listButton.querySelector("span.BaseButton__txt")?.textContent.trim() === "목록") {
                         observing("app.article.list-button", listButton);
                         break;
                     }
                 }
-                watchingChild(divTopRightArea, "a.btn_prev", (prevButton) => {
+                watchingChild(divTopRightArea, "a.btn_prev.BaseButton.BaseButton--skinGray.size_default", (prevButton) => {
                     observing("app.article.prev-next-button", prevButton);
                 });
-                watchingChild(divTopRightArea, "a.btn_next", (nextButton) => {
+                watchingChild(divTopRightArea, "a.btn_next.BaseButton.BaseButton--skinGray.size_default", (nextButton) => {
                     observing("app.article.prev-next-button", nextButton);
                 });
             }
@@ -265,7 +271,7 @@ class Monitor {
         "app.article.content-box": {
             parentKeys: ["app.article.container"],
             onFoundEnd: (divContentBox) => {
-                this.call("changed.document", divContentBox.ownerDocument);
+                this.call("app.changed.document", divContentBox.ownerDocument);
                 for (const linkElement of divContentBox.querySelectorAll("a.se-link")) {
                     this.call("app.article.content-link-element", linkElement);
                 }
@@ -318,7 +324,7 @@ class Monitor {
         "app.popular.tbody-page": {
             parentKeys: ["app.popular.container"],
             onFoundEnd: (tbodyPage) => {
-                this.call("changed.document", tbodyPage.ownerDocument);
+                this.call("app.changed.document", tbodyPage.ownerDocument);
                 for (const listTypeElement of tbodyPage.querySelectorAll(".inner_list")) {
                     this.call("app.popular.list-type-element", listTypeElement);
                 }
@@ -361,7 +367,7 @@ class Monitor {
         "app.member.tbody-page": {
             parentKeys: ["app.member.container"],
             onFoundEnd: (tbodyPage) => {
-                this.call("changed.document", tbodyPage.ownerDocument);
+                this.call("app.changed.document", tbodyPage.ownerDocument);
                 for (const listTypeElement of tbodyPage.querySelectorAll("div.board-list .inner_list")) {
                     this.call("app.member.list-type-element", listTypeElement);
                 }

@@ -14,6 +14,10 @@ class Options {
         Object.assign(this, options);
     }
 
+    async save() {
+        chrome.storage.sync.set({ options: this });
+    }
+
     /** @type {Promise<Options>} */
     static _instance = null;
 

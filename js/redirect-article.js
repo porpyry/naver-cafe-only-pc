@@ -25,7 +25,9 @@
 
     const isComplete = url === location.href; // oldPath가 존재하지 않음
     if (isComplete) {
-        return addBackClickListener();
+        checkPageValidity(document);
+        addBackClickListener();
+        return;
     }
 
     return location.replace(url);

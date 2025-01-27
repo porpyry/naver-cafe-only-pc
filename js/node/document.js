@@ -11,7 +11,7 @@ class OnFoundDocument {
             ["app.document", /*           */ this.appDocument, /*         */ options.pageArrowShortcut || options.searchCommentShortcut],
             ["article-list.document", /*  */ this.articleListDocument, /* */ options.pageArrowShortcut || options.searchCommentShortcut],
             ["article-search-list.document", this.articleSearchListDocument, options.pageArrowShortcut || options.searchCommentShortcut],
-            ["changed.document", /*       */ this.changedDocument, /*     */ options.optimizeCafe]
+            ["app.changed.document", /*   */ this.appChangedDocument, /*  */ options.optimizeCafe]
         ];
     }
 
@@ -166,7 +166,7 @@ class OnFoundDocument {
 
     /** @this {Document}
       * @param {Options} options */
-    static changedDocument(options) {
+    static appChangedDocument(options) {
         // (1) 카페 최적화 (새로고침 가능하도록 URL 변경)
 
         // (1)
