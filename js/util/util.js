@@ -216,7 +216,7 @@ function appWriteMessage(msg, linkUrl, linkText) {
 
 // 유효한 페이지인지 체크하기
 async function checkPageValidity(doc) {
-    await new Promise(resolve => setTimeout(resolve, 5000)); // 5초 기다린 후 로딩 여부 확인
+    await new Promise(resolve => setTimeout(resolve, 10000)); // 10초 기다린 후 로딩 여부 확인
     const app = doc.querySelector("body > #app");
     if (!app) {
         try {
@@ -250,7 +250,7 @@ async function pageNotFound(doc) {
     }
     const a = doc.createElement("a");
     a.href = "#";
-    a.textContent = "〈네이버 카페 새 탭에서 열기〉 확장 프로그램 비활성화하기";
+    a.textContent = "&quot;네이버 카페 easy PC&quot; 확장 비활성화하기";
     a.style.all = "revert";
     a.addEventListener("click", async () => {
         const options = await Options.get();
