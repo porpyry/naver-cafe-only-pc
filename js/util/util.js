@@ -175,7 +175,7 @@ async function checkArticleStatus(cafeId, articleId) {
     if (document.querySelector(".ArticleContainerWrap")) {
         return;
     }
-    const pageStatus = await getPageStatus(cafeId, articleId);
+    const pageStatus = await getArticleStatus(cafeId, articleId);
     if (!pageStatus || pageStatus === 200) {
         return;
     }
@@ -192,7 +192,7 @@ async function checkArticleStatus(cafeId, articleId) {
     }
 }
 
-async function getPageStatus(cafeId, articleId) {
+async function getArticleStatus(cafeId, articleId) {
     try {
         const url = `https://apis.naver.com/cafe-web/cafe-articleapi/v3/cafes/${cafeId}/articles/${articleId}?query=&useCafeId=true&requestFrom=A`;
         const res = await fetch(url, { method: "HEAD", credentials: "include" });
@@ -205,18 +205,18 @@ function appWriteMessage(msg, linkUrl, linkText) {
     if (!app) {
         return;
     }
-    const divMsg = document.createElement("div");
-    divMsg.innerHTML = `<p>${msg}</p><br><a href="${linkUrl}" style="all: revert;">${linkText}</a>`;
-    app.insertBefore(divMsg, app.firstChild);
+    const div = document.createElement("div");
+    div.classList.add("NCOP_WARN1");
+    div.innerHTML = `<p>${msg}</p><br><a href="${linkUrl}" style="all: revert;">${linkText}</a>`;
+    app.insertBefore(div, app.firstChild);
     window.addEventListener("popstate", () => {
-        divMsg.remove();
+        div.remove();
     }, { once: true });
 }
 
-
 // 유효한 페이지인지 체크하기
 async function checkPageValidity(doc) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 기다린 후 로딩 여부 확인
+    await new Promise(resolve => setTimeout(resolve, 5000)); // 5초 기다린 후 로딩 여부 확인
     const app = doc.querySelector("body > #app");
     if (!app) {
         try {
@@ -226,27 +226,31 @@ async function checkPageValidity(doc) {
             }
         } catch (e) { console.error(e); }
     } else if (app.firstElementChild === null) {
-        pageNotFound(doc);
+        pageNotFound(doc); // 로딩중인 경우에도 실행됨
     }
 }
 
 async function pageNotFound(doc) {
     const info = PCArticleURLParser.getInfo(doc.location.pathname, doc.location.search);
+    let url;
     if (info) {
         const { cafeId, articleId } = info;
         if (cafeId) {
             const cafeName = await SessionCafeInfo.getCafeName(cafeId);
             if (cafeName && articleId) {
-                history.replaceState(null, "", `https://cafe.naver.com/${cafeName}/${articleId}`);
+                url = `https://cafe.naver.com/${cafeName}/${articleId}`;
             }
         }
     }
     const div = doc.createElement("div");
-    div.innerHTML = "<p>확장 프로그램 〈네이버 카페 새 탭에서 열기〉에서 오류가 발생했습니다.</p>";
-    div.innerHTML += "<br><p>새로고침 해주세요.</p><br>"
+    div.classList.add("NCOP_WARN2");
+    div.innerHTML = "<p>로딩이 안 된다면 확장 프로그램 오류일 수 있습니다.</p><br>";
+    if (url) {
+        div.innerHTML += `<p><a href="${url}" style="all: revert;">기존 페이지로 돌아가기</a></p><br>`;
+    }
     const a = doc.createElement("a");
     a.href = "#";
-    a.textContent = "해당 확장 프로그램 비활성화하기";
+    a.textContent = "확장:〈네이버 카페 새 탭에서 열기〉 비활성화하기";
     a.style.all = "revert";
     a.addEventListener("click", async () => {
         const options = await Options.get();

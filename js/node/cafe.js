@@ -32,12 +32,106 @@ class OnFoundCafe {
 }
 
 function arrangeFavorite(ul, favoriteOrder) {
-    for (const id of favoriteOrder) {
-        const a = ul.querySelector(`#favoriteMenuLink${id}`);
-        const li = a?.closest("li");
-        if (li) {
-            ul.appendChild(li);
+    const itemArray = [...ul.querySelectorAll("li")].map(li => {
+        const a = li.querySelector("a");
+        const matches = a?.id?.match(/^favoriteMenuLink(?<idStr>\d+)$/);
+        if (matches) {
+            const { idStr } = matches.groups;
+            const id = parseInt(idStr);
+            return { li, id };
         }
+    }).filter(item => item !== undefined);
+    const favoriteOrderSet = new Set(favoriteOrder);
+    const existMap = new Map();
+    let index = 0;
+    for (const item of itemArray) {
+        if (favoriteOrderSet.has(item.id)) {
+            existMap.set(item.id, item);
+        } else {
+            item.index = index;
+            index += 1;
+        }
+    }
+    for (const id of favoriteOrder) {
+        const item = existMap.get(id);
+        if (item) {
+            item.index = index;
+            index += 1;
+        }
+    }
+    const LIS = getLIS(itemArray);
+    let indexBefore = -1;
+    for (const lisItem of LIS) {
+        if (lisItem.index === indexBefore + 1) {
+            indexBefore = lisItem.index;
+            continue;
+        }
+        const part = itemArray
+            .filter(item => indexBefore < item.index && item.index < lisItem.index)
+            .sort((a, b) => a.index - b.index);
+        for (const item of part) {
+            ul.insertBefore(item.li, lisItem.li);
+        }
+        indexBefore = lisItem.index;
+    }
+    if (indexBefore < itemArray.length - 1) {
+        const part = itemArray
+            .filter(item => indexBefore < item.index)
+            .sort((a, b) => a.index - b.index);
+        for (const item of part) {
+            ul.insertBefore(item.li, null);
+        }
+    }
+    // old method
+    // for (const id of favoriteOrder) {
+    //     const a = ul.querySelector(`#favoriteMenuLink${id}`);
+    //     const li = a?.closest("li");
+    //     if (li) {
+    //         ul.appendChild(li);
+    //     }
+    // }
+    // https://en.wikipedia.org/wiki/Longest_increasing_subsequence
+    function getLIS(itemArray) {
+        const N = itemArray.length;
+        const P = []; // array of length N
+        const M = [-1]; // array of length N + 1
+        let L = 0;
+        for (let i = 0; i < N; i++) {
+            // Binary search for the smallest positive l ≤ L
+            // such that X[M[l]] >= X[i]
+            let lo = 1;
+            let hi = L + 1;
+            while (lo < hi) {
+                const mid = lo + Math.floor((hi - lo) / 2); // lo <= mid < hi
+                if (itemArray[M[mid]].index >= itemArray[i].index) {
+                    hi = mid;
+                } else {
+                    lo = mid + 1;
+                }
+            }
+            // After searching, lo == hi is 1 greater than the
+            // length of the longest prefix of X[i]
+            const newL = lo;
+            // The predecessor of X[i] is the last index of
+            // the subsequence of length newL-1
+            P[i] = M[newL - 1];
+            M[newL] = i;
+            if (newL > L) {
+                // If we found a subsequence longer than any we've
+                // found yet, update L
+                L = newL;
+            }
+        }
+        // Reconstruct the longest increasing subsequence
+        // It consists of the values of X at the L indices:
+        // ...,  P[P[M[L]]], P[M[L]], M[L]
+        const S = []; // array of length L
+        let k = M[L];
+        for (let j = L - 1; j >= 0; j--) {
+            S[j] = itemArray[k];
+            k = P[k];
+        }
+        return S;
     }
 }
 

@@ -120,6 +120,7 @@ class OnFoundArticle {
         // (2-2) 카페 최적화 (좌상단 게시판 버튼 href·target 수정)
         // (2-3) 카페 최적화가 아니더라도 새로고침 가능하도록 URL 변경
         // (3) 이전글·다음글 부드럽게 전환 (alzartak과 호환)
+        // (4) 로딩이 오래 걸려서 생성된 경고문 삭제
 
         // (1)
         if (this.ownerDocument === document) {
@@ -159,6 +160,12 @@ class OnFoundArticle {
         // (3)
         if (options.smoothPrevNext) {
             this.ownerDocument.dispatchEvent(new Event("readystatechange"));
+        }
+
+        // (4)
+        if (options.newTabOnlyArticle || options.smoothPrevNext) {
+            this.ownerDocument.querySelector(".NCOP_WARN1")?.remove();
+            this.ownerDocument.querySelector(".NCOP_WARN2")?.remove();
         }
     }
 
