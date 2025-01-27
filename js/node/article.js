@@ -402,5 +402,5 @@ async function onClickPrevNextButton(event) {
             safeFlags.noSmoothPrevNext = true;
             chrome.storage.session.set({ safeFlags });
         }
-    }, 5000);
+    }, 10000);
 }
