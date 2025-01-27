@@ -244,13 +244,13 @@ async function pageNotFound(doc) {
     }
     const div = doc.createElement("div");
     div.classList.add("NCOP_WARN2");
-    div.innerHTML = "<p>로딩이 안 된다면 확장 프로그램 오류일 수 있습니다.</p><br>";
+    div.innerHTML = "<p>게시글이 안 보인다면 확장 프로그램 오류일 수 있습니다.</p><br>";
     if (url) {
         div.innerHTML += `<p><a href="${url}" style="all: revert;">기존 페이지로 돌아가기</a></p><br>`;
     }
     const a = doc.createElement("a");
     a.href = "#";
-    a.textContent = "확장:〈네이버 카페 새 탭에서 열기〉 비활성화하기";
+    a.textContent = "〈네이버 카페 새 탭에서 열기〉 확장 프로그램 비활성화하기";
     a.style.all = "revert";
     a.addEventListener("click", async () => {
         const options = await Options.get();

@@ -1,6 +1,6 @@
 { "manifest_version": 3
 , "name"            : "네이버 카페 새 탭에서 열기"
-, "version"         : "2.0.5"
+, "version"         : "2.0.6"
 , "description"     : "새 탭에서 게시글 부분만 로딩 / 모바일 페이지 접속 방지 / 추가 편의 기능 제공"
 , "permissions"     : [ "storage" ]
 , "icons"           : { "128": "img/icon.png" }
