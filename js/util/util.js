@@ -217,7 +217,11 @@ function appWriteMessage(msg, linkUrl, linkText) {
 // 유효한 페이지인지 체크하기
 async function checkPageValidity(doc) {
     await new Promise(resolve => setTimeout(resolve, 10000)); // 10초 기다린 후 로딩 여부 확인
-    const app = doc.querySelector("body > #app");
+    if (doc.readyState !== "complete") {
+        checkPageValidity(doc);
+        return;
+    }
+    let app = doc.querySelector("body > #app");
     if (!app) {
         try {
             const res = await fetch(doc.location.href, { method: "HEAD" });
@@ -226,7 +230,11 @@ async function checkPageValidity(doc) {
             }
         } catch (e) { console.error(e); }
     } else if (app.firstElementChild === null) {
-        pageNotFound(doc); // 로딩중인 경우에도 실행됨
+        await new Promise(resolve => setTimeout(resolve, 30000)); // 30초 추가 대기
+        app = doc.querySelector("body > #app");
+        if (app && app.firstElementChild === null) {
+            pageNotFound(doc);
+        }
     }
 }
 
@@ -244,17 +252,18 @@ async function pageNotFound(doc) {
     }
     const div = doc.createElement("div");
     div.classList.add("NCOP_WARN2");
-    div.innerHTML = "<p>게시글이 안 보인다면 확장 프로그램 오류일 수 있습니다.</p><br>";
+    div.innerHTML = "<p>게시글 연결이 지연되고 있습니다.</p><br>";
     if (url) {
-        div.innerHTML += `<p><a href="${url}" style="all: revert;">기존 페이지로 돌아가기</a></p><br>`;
+        div.innerHTML += `<p><a href="${url}" style="all: revert;">카페로 돌아가기</a></p><br>`;
     }
     const a = doc.createElement("a");
     a.href = "#";
-    a.textContent = "&quot;네이버 카페 easy PC&quot; 확장 비활성화하기";
+    a.textContent = "\"새 탭에서 게시글 부분만 로딩\" 비활성화하기";
     a.style.all = "revert";
     a.addEventListener("click", async () => {
         const options = await Options.get();
-        options.enableApp = false;
+        options.newTabOnlyArticle = false;
+        options.smoothPrevNext = false;
         await options.save();
         a.textContent = "비활성화 완료되었습니다.";
     });
