@@ -226,19 +226,19 @@ async function checkPageValidity(doc) {
         try {
             const res = await fetch(doc.location.href, { method: "HEAD" });
             if (res?.status === 404) {
-                pageNotFound(doc);
+                pageNotFound(doc, true);
             }
         } catch (e) { console.error(e); }
     } else if (app.firstElementChild === null) {
         await new Promise(resolve => setTimeout(resolve, 30000)); // 30초 추가 대기
         app = doc.querySelector("body > #app");
         if (app && app.firstElementChild === null) {
-            pageNotFound(doc);
+            pageNotFound(doc, false);
         }
     }
 }
 
-async function pageNotFound(doc) {
+async function pageNotFound(doc, is404) {
     const info = PCArticleURLParser.getInfo(doc.location.pathname, doc.location.search);
     let url;
     if (info) {
@@ -252,9 +252,13 @@ async function pageNotFound(doc) {
     }
     const div = doc.createElement("div");
     div.classList.add("NCOP_WARN2");
-    div.innerHTML = "<p>게시글 연결이 지연되고 있습니다.</p><br>";
+    if (is404) {
+        div.innerHTML = "<p>페이지를 찾을 수 없습니다.</p><br>";
+    } else {
+        div.innerHTML = "<p>잠시만 기다려주세요...</p><br>";
+    }
     if (url) {
-        div.innerHTML += `<p><a href="${url}" style="all: revert;">카페로 돌아가기</a></p><br>`;
+        div.innerHTML += `<p><a href="${url}" target="_top" style="all: revert;">카페로 이동</a></p><br>`;
     }
     const a = doc.createElement("a");
     a.href = "#";
