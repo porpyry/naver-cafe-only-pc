@@ -278,7 +278,7 @@ class Monitor {
                 for (const oglinkElement of divContentBox.querySelectorAll(".se-module-oglink")) {
                     this.call("app.article.content-oglink-element", oglinkElement);
                 }
-                for (const imageLinkElement of divContentBox.querySelectorAll("a.se-module-image-link")) {
+                for (const imageLinkElement of divContentBox.querySelectorAll("a.se-module-image-link-use")) {
                     this.call("app.article.content-image-link-element", imageLinkElement);
                 }
             }
