@@ -174,5 +174,86 @@ class PCURLParser {
                 return { type: "article-search-list", cafeId };
             }
         }
+
+        // { type: "new-cafe" }
+        if (pathname.startsWith("/f-e/cafes/")) {
+            return { type: "new-cafe" };
+        }
+    }
+}
+
+class PCURLParserFE {
+    static TYPE_ARTICLE_DEFAULT = 0;
+    static TYPE_MENU = 1;
+    static TYPE_ARTICLE = 2;
+    static TYPE_POPULAR = 3;
+    static TYPE_MEMBER = 4;
+
+    static RE_ARTICLE_DEFAULT = /^\/(?<cafeName>\w+)\/(?<articleId>\d+)$/;
+    static RE_MENU = /^\/f-e\/cafes\/(?<cafeId>\d+)\/menus\/(?<menuId>\d+)\/?$/;
+    static RE_ARTICLE = /^\/f-e\/cafes\/(?<cafeId>\d+)\/articles\/(?<articleId>\d+)\/?$/;
+    static RE_POPULAR = /^\/f-e\/cafes\/(?<cafeId>\d+)\/popular\/?$/;
+    static RE_MEMBER = /^\/f-e\/cafes\/(?<cafeId>\d+)\/members\/(?<memberCode>[\w-]+)\/?$/;
+
+    static getInfo(pathname, search) {
+        // { type: TYPE_ARTICLE_DEFAULT, cafeName, articleId }
+        {
+            const matches = pathname.match(this.RE_ARTICLE_DEFAULT);
+            if (matches) {
+                const { cafeName, articleId } = matches.groups;
+                return { type: this.TYPE_ARTICLE_DEFAULT, cafeName, articleId };
+            }
+        }
+
+        // { type: TYPE_MENU, cafeId, menuId, search }
+        {
+            const matches = pathname.match(this.RE_MENU);
+            if (matches) {
+                const { cafeId, menuId } = matches.groups;
+                const newSearchParams = new URLSearchParams(search);
+                if (newSearchParams.has("viewType")) { // viewType -> search.boardtype
+                    newSearchParams.set("search.boardtype", newSearchParams.get("viewType"));
+                }
+                if (newSearchParams.has("page")) { // page -> search.page
+                    newSearchParams.set("search.page", newSearchParams.get("page"));
+                }
+                if (newSearchParams.has("size")) { // size -> userDisplay
+                    newSearchParams.set("userDisplay", newSearchParams.get("size"));
+                }
+                newSearchParams.set("search.clubid", cafeId); // cafeId -> search.clubid
+                newSearchParams.set("search.cafeId", cafeId); // cafeId -> search.cafeId
+                if (menuId !== "0") {
+                    newSearchParams.set("search.menuid", menuId); // menuId -> search.menuid
+                }
+                return { type: this.TYPE_MENU, cafeId, menuId, search: "?" + newSearchParams.toString() };
+            }
+        }
+
+        // { type: TYPE_ARTICLE, cafeId, articleId, search }
+        {
+            const matches = pathname.match(this.RE_ARTICLE);
+            if (matches) {
+                const { cafeId, articleId } = matches.groups;
+                return { type: this.TYPE_ARTICLE, cafeId, articleId, search };
+            }
+        }
+
+        // { type: TYPE_POPULAR, cafeId }
+        {
+            const matches = pathname.match(this.RE_POPULAR);
+            if (matches) {
+                const { cafeId } = matches.groups;
+                return { type: this.TYPE_POPULAR, cafeId };
+            }
+        }
+
+        // { type: TYPE_MEMBER, cafeId, memberCode }
+        {
+            const matches = pathname.match(this.RE_MEMBER);
+            if (matches) {
+                const { cafeId, memberCode } = matches.groups;
+                return { type: this.TYPE_MEMBER, cafeId, memberCode };
+            }
+        }
     }
 }

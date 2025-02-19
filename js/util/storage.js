@@ -9,6 +9,7 @@ class Options {
     changeFavoriteOrder = false;
     optimizeCafe = false;
     smoothPrevNext = false;
+    backToOriginal = true;
 
     constructor(options) {
         Object.assign(this, options);

@@ -6,6 +6,13 @@
         return;
     }
 
+    if (g_initialPathname.startsWith("/f-e/cafes/")) {
+        if (options.backToOriginal) {
+            createBackToOriginalButton();
+        }
+        return;
+    }
+
     const monitor = new Monitor(options);
 
     const functionNodeIndexList = [

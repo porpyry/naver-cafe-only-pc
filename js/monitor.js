@@ -160,6 +160,9 @@ class Monitor {
                     case "article-search-list":
                         this.call("article-search-list.document", doc);
                         break;
+                    case "new-cafe":
+                        this.call("new-cafe.document", doc);
+                        break;
                 }
             }
         },
@@ -190,6 +193,9 @@ class Monitor {
         // 기능적 노드
         "app.changed.document": {
             parentKeys: ["app.article.content-box", "app.popular.tbody-page", "app.member.tbody-page"]
+        },
+        "new-cafe.document": {
+            parentKeys: ["iframe.document"]
         },
         // --- --- --- --- --- --- --- --- Cafe --- --- --- --- --- --- --- ---
         "cafe.side-panel": {

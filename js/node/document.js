@@ -11,7 +11,8 @@ class OnFoundDocument {
             ["app.document", /*           */ this.appDocument, /*         */ options.pageArrowShortcut || options.searchCommentShortcut],
             ["article-list.document", /*  */ this.articleListDocument, /* */ options.pageArrowShortcut || options.searchCommentShortcut],
             ["article-search-list.document", this.articleSearchListDocument, options.pageArrowShortcut || options.searchCommentShortcut],
-            ["app.changed.document", /*   */ this.appChangedDocument, /*  */ options.optimizeCafe]
+            ["app.changed.document", /*   */ this.appChangedDocument, /*  */ options.optimizeCafe],
+            ["new-cafe.document", /*      */ this.newCafeDocument, /*     */ options.backToOriginal]
         ];
     }
 
@@ -166,15 +167,27 @@ class OnFoundDocument {
 
     /** @this {Document}
       * @param {Options} options */
-    static appChangedDocument(options) {
+    static appChangedDocument(/*options*/) {
         // (1) 카페 최적화 (새로고침 가능하도록 URL 변경)
 
         // (1)
-        if (options.optimizeCafe) {
-            if (this !== document) {
-                setTimeout(() => {
-                    cleanUpUrlForRefresh(this.location.pathname, this.location.search);
-                }, 1); // 타 확장과 충돌 방지
+        if (this !== document) {
+            setTimeout(() => {
+                cleanUpUrlForRefresh(this.location.pathname, this.location.search);
+            }, 1); // 타 확장과 충돌 방지
+        }
+    }
+
+    /** @this {Document}
+      * @param {Options} options */
+    static newCafeDocument(/*options*/) {
+        // (1) 리뉴얼 이전으로 버튼 추가 (내부 프레임의 URL이 /f-e/cafes/...일 때 버튼 추가)
+
+        // (1)
+        if (this !== document) {
+            const infoFE = PCURLParserFE.getInfo(this.location.pathname, this.location.search);
+            if (infoFE.type === PCURLParserFE.TYPE_MENU) {
+                createBackToOriginalButton();
             }
         }
     }
@@ -394,8 +407,8 @@ function onInputSafeBackspaceKeyUpFocusSearch(/*event*/) {
 function iframeURLChange(iframe, callback) {
     var lastDispatched = null;
     var dispatchChange = function () {
-        var newHref = iframe.contentWindow.location.href;
-        if (newHref !== lastDispatched) {
+        var newHref = iframe.contentWindow?.location.href;
+        if (newHref && newHref !== lastDispatched) {
             callback(newHref);
             lastDispatched = newHref;
         }

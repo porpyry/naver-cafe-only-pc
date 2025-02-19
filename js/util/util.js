@@ -121,9 +121,12 @@ function replaceHrefToArticleOnly(a) {
 }
 
 async function cleanUpUrlForRefresh(pathname, search) {
-    let url;
     const info = PCURLParser.getIframeUrlInfo(pathname, search);
-    switch (info?.type) {
+    if (!info) {
+        return;
+    }
+    let url;
+    switch (info.type) {
         case "cafe-intro":
             {
                 const cafeName = await SessionCafeInfo.getCafeName(info.cafeId);
@@ -147,8 +150,7 @@ async function cleanUpUrlForRefresh(pathname, search) {
                     cafeName = tryFindCafeNameFromUrl();
                 }
                 if (cafeName) {
-                    const iframeUrl = (pathname + search).replaceAll("&", "%26").replaceAll("#", "%23");
-                    url = `https://cafe.naver.com/${cafeName}?iframe_url=${iframeUrl}`; // or iframe_url_utf8=encodeURIComponent(pathname + search)
+                    url = getCafeIframeUrl(cafeName, pathname, search);
                 }
             } break;
     }
@@ -216,7 +218,7 @@ function appWriteMessage(msg, linkUrl, linkText) {
 
 // 유효한 페이지인지 체크하기
 async function checkPageValidity(doc) {
-    await new Promise(resolve => setTimeout(resolve, 5000)); // 5초 기다린 후 로딩 여부 확인
+    await new Promise(resolve => setTimeout(resolve, 3000)); // 3초 기다린 후 로딩 여부 확인
     if (doc.readyState !== "complete") {
         checkPageValidity(doc);
         return;
@@ -230,7 +232,7 @@ async function checkPageValidity(doc) {
             }
         } catch (e) { console.error(e); }
     } else if (app.firstElementChild === null) {
-        await new Promise(resolve => setTimeout(resolve, 5000)); // 5초 추가 대기
+        await new Promise(resolve => setTimeout(resolve, 3000)); // 3초 추가 대기
         app = doc.querySelector("body > #app");
         if (app && app.firstElementChild === null) {
             pageNotFound(doc, false);
@@ -262,7 +264,7 @@ async function pageNotFound(doc, is404) {
     }
     const a = doc.createElement("a");
     a.href = "#";
-    a.textContent = "[Naver Cafe Easy PC] 확장 기능 비활성화하기";
+    a.textContent = "[네이버 카페 Easy PC] 확장 기능 비활성화하기";
     a.style.all = "revert";
     a.addEventListener("click", async () => {
         const options = await Options.get();
@@ -273,4 +275,79 @@ async function pageNotFound(doc, is404) {
     });
     div.appendChild(a);
     doc.body.appendChild(div);
+}
+
+function createBackToOriginalButton() {
+    if (document.querySelector("a.NCOP_BTO")) {
+        return;
+    }
+    const a = document.createElement("a");
+    a.classList.add("NCOP_BTO");
+    a.textContent = "⟳";
+    a.title = "구버전 카페로 새로고침\n(네이버 카페 easy PC 확장의 임시 기능입니다.)";
+    a.addEventListener("click", onClickBackToOriginalButton);
+    // document.body.appendChild(a); // bug
+    document.body.prepend(a);
+}
+
+async function onClickBackToOriginalButton(/*event*/) {
+    const iframe = document.querySelector("iframe#cafe_main");
+    const infoFE = PCURLParserFE.getInfo(location.pathname, location.search);
+    if (isIframeDocumentLoaded(iframe)) {
+        const loc = iframe.contentWindow.location;
+        const iframeInfoFE = PCURLParserFE.getInfo(loc.pathname, loc.search);
+        if (iframeInfoFE?.type === PCURLParserFE.TYPE_MENU) {
+            // 비정상적인 경우 (기존 카페인데 리뉴얼의 메뉴가 iframe에 들어감)
+            loc.replace("/ArticleList.nhn" + iframeInfoFE.search);
+            this.remove();
+            return;
+        }
+        // 리뉴얼 카페의 메뉴를 제외한 상황
+        if (infoFE) {
+            // f-e 주소가 정상적으로 읽힌 경우 -> 적합한 주소로 리다이렉트
+            let cafeName = infoFE.cafeName;
+            if (!cafeName && infoFE.cafeId) {
+                cafeName = await SessionCafeInfo.getCafeName(infoFE.cafeId);
+            }
+            if (cafeName) {
+                const url = getCafeIframeUrl(cafeName, loc.pathname, loc.search);
+                if (url) {
+                    location.replace(url);
+                    this.remove();
+                    return;
+                }
+            }
+        } else if (location.pathname.startsWith("/f-e")) {
+            // f-e 주소이지만 정상적으로 읽히지 않은 경우 (확장 충돌) -> iframe에서 정보를 찾음
+            const iframeInfo = PCURLParser.getIframeUrlInfo(loc.pathname, loc.search);
+            if (iframeInfo?.cafeId) {
+                const cafeName = await SessionCafeInfo.getCafeName(iframeInfo.cafeId);
+                if (cafeName) {
+                    const url = getCafeIframeUrl(cafeName, loc.pathname, loc.search);
+                    if (url) {
+                        location.replace(url);
+                        this.remove();
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    if (!iframe && infoFE?.type === PCURLParserFE.TYPE_MENU) {
+        // 리뉴얼 카페의 메뉴
+        const cafeName = await SessionCafeInfo.getCafeName(infoFE.cafeId);
+        if (cafeName) {
+            const url = getCafeIframeUrl(cafeName, "/ArticleList.nhn", infoFE.search);
+            if (url) {
+                location.replace(url);
+                this.remove();
+                return;
+            }
+        }
+    }
+}
+
+function getCafeIframeUrl(cafeName, pathname, search) {
+    const iframeUrl = (pathname + search).replaceAll("&", "%26").replaceAll("#", "%23");
+    return `https://cafe.naver.com/${cafeName}?iframe_url=${iframeUrl}`; // or iframe_url_utf8=encodeURIComponent(pathname + search)
 }
