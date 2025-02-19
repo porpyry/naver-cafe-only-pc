@@ -216,10 +216,24 @@ class Monitor {
                         }).observe(ulFavoriteMenu, { attributeFilter: ["style"] });
                     }
                 }
+                const aManager = divSidePanel.querySelector("#ia-info-data a.id.mlink");
+                if (aManager) {
+                    this.call("cafe.manager-profile", aManager);
+                }
+                const aPopular = divSidePanel.querySelector("#cafe-menu #menuLink-7");
+                if (aPopular?.href.includes("popular")) {
+                    this.call("cafe.popular-menu", aPopular);
+                }
                 this.map.delete("cafe.side-panel");
             }
         },
+        "cafe.manager-profile": {
+            parentKeys: ["cafe.side-panel"]
+        },
         "cafe.favorite-menu": {
+            parentKeys: ["cafe.side-panel"]
+        },
+        "cafe.popular-menu": {
             parentKeys: ["cafe.side-panel"]
         },
         // --- --- --- --- --- --- --- --- App.Article --- --- --- --- --- --- --- ---

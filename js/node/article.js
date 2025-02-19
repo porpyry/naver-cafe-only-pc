@@ -1,6 +1,6 @@
 "use strict";
 
-let g_prevNextCheckTimeout;
+let g_popStateTimeout;
 
 class OnFoundArticle {
 
@@ -72,6 +72,7 @@ class OnFoundArticle {
     static async prevNextButton(options) {
         // (1) 카페 최적화 (컨트롤 클릭 버그 수정, 게시글 단독 링크로 변경)
         // (2) 이전글·다음글 부드럽게 전환
+        const { noSmoothPrevNext } = await SessionSafeFlags.get();
 
         // (1), (2)
         // 기본 클릭 동작인 링크로 이동을 비활성화
@@ -84,11 +85,10 @@ class OnFoundArticle {
 
             // (2)
             if (options.smoothPrevNext) {
-                const safeFlags = await SessionSafeFlags.get();
-                if (!safeFlags.noSmoothPrevNext) {
+                if (noSmoothPrevNext === false) {
                     span?.addEventListener("click", onClickPrevNextButton);
                 }
-                clearTimeout(g_prevNextCheckTimeout);
+                clearTimeout(g_popStateTimeout);
                 this.classList.remove("NCOP_LOADING"); // 로딩중 표시 해제
             }
         } else {
@@ -153,8 +153,12 @@ class OnFoundArticle {
             // (2-3)
             const aProfileThumb = this.querySelector(".thumb_area a.thumb");
             const aProfileMore = this.querySelector(".ArticleWriterProfile a.more_area");
-            aProfileThumb?.addEventListener("click", clickToPopState);
-            aProfileMore?.addEventListener("click", clickToPopState);
+            SessionSafeFlags.get().then(({ noSmoothProfile }) => {
+                if (noSmoothProfile === false) {
+                    aProfileThumb?.addEventListener("click", clickToPopState);
+                    aProfileMore?.addEventListener("click", clickToPopState);
+                }
+            });
         } else {
             // (2-4)
             if (this.ownerDocument !== document) {
@@ -303,11 +307,12 @@ class OnFoundArticle {
 
     /** @this {HTMLElement}
       * @param {Options} options */
-    static profileArea(options) {
+    static async profileArea(options) {
         // 네이버 카페 애드온 (epcibdcgmbiimdleghmeldeopdjcaeic) 관련
         // (1) 카페 최적화 (프로필 사진에 링크 추가)
         // (2) 기본 새 탭에서 열기 (최근 글 목록 링크 변경)
         const doc = this.ownerDocument;
+        const { noSmoothProfile } = await SessionSafeFlags.get();
 
         // (1)
         if (options.optimizeCafe) {
@@ -317,7 +322,9 @@ class OnFoundArticle {
                 if (!profileThumb.parentElement.matches("a")) {
                     const a = doc.createElement("a");
                     a.href = url;
-                    a.addEventListener("click", clickToPopState);
+                    if (noSmoothProfile === false) {
+                        a.addEventListener("click", clickToPopState);
+                    }
                     profileThumb.parentNode.insertBefore(a, profileThumb);
                     a.appendChild(profileThumb);
                 }
@@ -325,7 +332,9 @@ class OnFoundArticle {
 
             // 이름 클릭
             const aName = this.querySelector("a.nicknameWrapper");
-            aName?.addEventListener("click", clickToPopState);
+            if (noSmoothProfile === false) {
+                aName?.addEventListener("click", clickToPopState);
+            }
         }
 
         // (2)
@@ -446,23 +455,37 @@ async function onClickPrevNextButton(event) {
     a.classList.add("NCOP_LOADING");
 
     // 로딩이 너무 늦으면 링크 동작 재개, 세션에 비정상 정보 등록
-    clearTimeout(g_prevNextCheckTimeout);
-    g_prevNextCheckTimeout = setTimeout(async () => {
+    clearTimeout(g_popStateTimeout);
+    g_popStateTimeout = setTimeout(async () => {
         if (a?.isConnected && a?.classList.contains("NCOP_LOADING") && a?.href === oldHref) {
             a.click();
             const safeFlags = await SessionSafeFlags.get();
             safeFlags.noSmoothPrevNext = true;
             chrome.storage.session.set({ safeFlags });
         }
-    }, 10000);
+    }, 6000);
 }
 
 function clickToPopState(event) {
     if (event.altKey || event.ctrlKey || event.shiftKey || event.metaKey) {
         return;
     }
+    if (this.tagName !== "A") {
+        return;
+    }
     event.preventDefault(); // 링크 동작 중지
     const win = this.ownerDocument.defaultView;
     win.history.pushState(null, "", this.href);
     win.dispatchEvent(new PopStateEvent("popstate"));
+
+    // 로딩이 너무 늦으면 링크 동작 재개, 세션에 비정상 정보 등록
+    clearTimeout(g_popStateTimeout);
+    g_popStateTimeout = setTimeout(async () => {
+        if (this?.isConnected) {
+            this.click();
+            const safeFlags = await SessionSafeFlags.get();
+            safeFlags.noSmoothProfile = true;
+            chrome.storage.session.set({ safeFlags });
+        }
+    }, 6000);
 }

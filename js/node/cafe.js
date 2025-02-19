@@ -3,7 +3,9 @@ class OnFoundCafe {
     /** @param {Options} options */
     static getIndex(options) {
         return [
-            ["cafe.favorite-menu", this.favoriteMenu, options.changeFavoriteOrder]
+            ["cafe.favorite-menu", this.favoriteMenu, options.changeFavoriteOrder],
+            ["cafe.manager-profile", this.managerProfile, options.optimizeCafe],
+            ["cafe.popular-menu", this.popularMenu, options.optimizeCafe]
         ];
     }
 
@@ -27,6 +29,32 @@ class OnFoundCafe {
                     a.addEventListener("drop", onDropFavoriteMenu);
                 }
             });
+        }
+    }
+
+    /** @this {HTMLAnchorElement}
+      * @param {Options} options */
+    static managerProfile(/*options*/) {
+        // (1) 카페 최적화 (f-e 링크를 기존 링크로 변경)
+
+        // (1)
+        const infoFE = PCURLParserFE.getInfo(this.pathname, this.search);
+        if (infoFE?.type === PCURLParserFE.TYPE_MEMBER) {
+            this.href = `/ca-fe/cafes/${infoFE.cafeId}/members/${infoFE.memberCode}`;
+            this.target = "cafe_main";
+        }
+    }
+
+    /** @this {HTMLAnchorElement}
+      * @param {Options} options */
+    static popularMenu(/*options*/) {
+        // (1) 카페 최적화 (f-e 링크를 기존 링크로 변경)
+
+        // (1)
+        const infoFE = PCURLParserFE.getInfo(this.pathname, this.search);
+        if (infoFE?.type === PCURLParserFE.TYPE_POPULAR) {
+            this.href = `/ca-fe/cafes/${infoFE.cafeId}/popular`;
+            this.target = "cafe_main";
         }
     }
 }

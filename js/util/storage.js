@@ -141,6 +141,7 @@ class SessionCafeInfo {
 
 class SessionSafeFlags {
     noSmoothPrevNext = false;
+    noSmoothProfile = false;
 
     constructor(safeFlags) {
         Object.assign(this, safeFlags);
