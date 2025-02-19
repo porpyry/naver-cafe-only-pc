@@ -278,16 +278,16 @@ async function pageNotFound(doc, is404) {
 }
 
 function createBackToOriginalButton() {
-    if (document.querySelector("a.NCOP_BTO")) {
+    if (document.querySelector("button.NCOP_BTO")) {
         return;
     }
-    const a = document.createElement("a");
-    a.classList.add("NCOP_BTO");
-    a.textContent = "⟳";
-    a.title = "구버전 카페로 새로고침\n(네이버 카페 easy PC 확장의 임시 기능입니다.)";
-    a.addEventListener("click", onClickBackToOriginalButton);
-    // document.body.appendChild(a); // bug
-    document.body.prepend(a);
+    const button = document.createElement("button");
+    button.classList.add("NCOP_BTO");
+    button.textContent = "⟳";
+    button.title = "구버전 카페로 새로고침\n(네이버 카페 easy PC 확장의 임시 기능입니다.)";
+    button.addEventListener("click", onClickBackToOriginalButton);
+    // document.body.appendChild(a); // bug (not loading)
+    document.body.prepend(button);
 }
 
 async function onClickBackToOriginalButton(/*event*/) {
@@ -298,7 +298,7 @@ async function onClickBackToOriginalButton(/*event*/) {
         const iframeInfoFE = PCURLParserFE.getInfo(loc.pathname, loc.search);
         if (iframeInfoFE?.type === PCURLParserFE.TYPE_MENU) {
             // 비정상적인 경우 (기존 카페인데 리뉴얼의 메뉴가 iframe에 들어감)
-            loc.replace("/ArticleList.nhn" + iframeInfoFE.search);
+            loc.assign("/ArticleList.nhn" + iframeInfoFE.search);
             this.remove();
             return;
         }
@@ -312,7 +312,7 @@ async function onClickBackToOriginalButton(/*event*/) {
             if (cafeName) {
                 const url = getCafeIframeUrl(cafeName, loc.pathname, loc.search);
                 if (url) {
-                    location.replace(url);
+                    location.assign(url);
                     this.remove();
                     return;
                 }
@@ -325,7 +325,7 @@ async function onClickBackToOriginalButton(/*event*/) {
                 if (cafeName) {
                     const url = getCafeIframeUrl(cafeName, loc.pathname, loc.search);
                     if (url) {
-                        location.replace(url);
+                        location.assign(url);
                         this.remove();
                         return;
                     }
@@ -339,7 +339,7 @@ async function onClickBackToOriginalButton(/*event*/) {
         if (cafeName) {
             const url = getCafeIframeUrl(cafeName, "/ArticleList.nhn", infoFE.search);
             if (url) {
-                location.replace(url);
+                location.assign(url);
                 this.remove();
                 return;
             }

@@ -225,6 +225,9 @@ class PCURLParserFE {
                 if (menuId !== "0") {
                     newSearchParams.set("search.menuid", menuId); // menuId -> search.menuid
                 }
+                // if (newSearchParams.has("q")) { // q -> search.query
+                // /ArticleSearchList.nhn? // 인코딩이 복잡하게 달라서 패스
+                // }
                 return { type: this.TYPE_MENU, cafeId, menuId, search: "?" + newSearchParams.toString() };
             }
         }
