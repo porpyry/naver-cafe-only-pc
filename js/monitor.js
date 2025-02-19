@@ -287,6 +287,18 @@ class Monitor {
                 for (const imageLinkElement of divContentBox.querySelectorAll("a.se-module-image-link-use")) {
                     this.call("app.article.content-image-link-element", imageLinkElement);
                 }
+                // 네이버 카페 애드온 (epcibdcgmbiimdleghmeldeopdjcaeic)
+                const articleWriterProfile = divContentBox.querySelector(".ArticleWriterProfile");
+                if (articleWriterProfile) {
+                    Promise.race([
+                        watchSelector(articleWriterProfile, ".profileArea"),
+                        new Promise((resolve) => setTimeout(resolve, 5000))
+                    ]).then((profileArea) => {
+                        if (profileArea) {
+                            this.call("app.article.profile-card", profileArea);
+                        }
+                    });
+                }
             }
         },
         "app.article.content-link-element": {
@@ -296,6 +308,9 @@ class Monitor {
             parentKeys: ["app.article.content-box"]
         },
         "app.article.content-image-link-element": {
+            parentKeys: ["app.article.content-box"]
+        },
+        "app.article.profile-card": {
             parentKeys: ["app.article.content-box"]
         },
         // --- --- --- --- --- --- --- --- App.Popular --- --- --- --- --- --- --- ---

@@ -17,7 +17,8 @@ class OnFoundArticle {
             ["app.article.content-box", this.contentBox, true],
             ["app.article.content-link-element", this.contentLinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect],
             ["app.article.content-oglink-element", this.contentOglinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect],
-            ["app.article.content-image-link-element", this.contentImageLinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect]
+            ["app.article.content-image-link-element", this.contentImageLinkElement, optionsOnlyCafeDefaultBackground || optionsOptimizeCafeWhenRedirect],
+            ["app.article.profile-card", this.profileArea, options.cafeDefaultNewTab || options.optimizeCafe],
         ];
     }
 
@@ -118,7 +119,8 @@ class OnFoundArticle {
         // (1) 기본 기능 (단독 게시글 페이지에서 탭 제목 수정)
         // (2-1) 카페 최적화 (URL 복사에서 컨트롤 클릭 버그 수정)
         // (2-2) 카페 최적화 (좌상단 게시판 버튼 href·target 수정)
-        // (2-3) 카페 최적화가 아니더라도 새로고침 가능하도록 URL 변경
+        // (2-3) 카페 최적화 (상단 프로필 사진, 하단 프로필 더보기 클릭 -> popState)
+        // (2-4) 카페 최적화가 아니더라도 새로고침 가능하도록 URL 변경
         // (3) 이전글·다음글 부드럽게 전환 (alzartak과 호환)
         // (4) 로딩이 오래 걸려서 생성된 경고문 삭제
 
@@ -147,8 +149,14 @@ class OnFoundArticle {
                     tlBoardLink.target = "_self";
                 }
             }
-        } else {
+
             // (2-3)
+            const aProfileThumb = this.querySelector(".thumb_area a.thumb");
+            const aProfileMore = this.querySelector(".ArticleWriterProfile a.more_area");
+            aProfileThumb?.addEventListener("click", clickToPopState);
+            aProfileMore?.addEventListener("click", clickToPopState);
+        } else {
+            // (2-4)
             if (this.ownerDocument !== document) {
                 setTimeout(() => {
                     const loc = this.ownerDocument.location;
@@ -292,6 +300,50 @@ class OnFoundArticle {
         }
     }
     // 기본적으로 새 탭에서 열린다.
+
+    /** @this {HTMLElement}
+      * @param {Options} options */
+    static profileArea(options) {
+        // 네이버 카페 애드온 (epcibdcgmbiimdleghmeldeopdjcaeic) 관련
+        // (1) 카페 최적화 (프로필 사진에 링크 추가)
+        // (2) 기본 새 탭에서 열기 (최근 글 목록 링크 변경)
+        const doc = this.ownerDocument;
+
+        // (1)
+        if (options.optimizeCafe) {
+            const url = doc.querySelector(".thumb_area a.thumb").href;
+            if (url) {
+                const profileThumb = this.querySelector("img.profileCircle");
+                if (!profileThumb.parentElement.matches("a")) {
+                    const a = doc.createElement("a");
+                    a.href = url;
+                    a.addEventListener("click", clickToPopState);
+                    profileThumb.parentNode.insertBefore(a, profileThumb);
+                    a.appendChild(profileThumb);
+                }
+            }
+
+            // 이름 클릭
+            const aName = this.querySelector("a.nicknameWrapper");
+            aName?.addEventListener("click", clickToPopState);
+        }
+
+        // (2)
+        for (const a of this.querySelectorAll("li.recentArticleItem a")) {
+            // 기본적으로 새 탭에서 열리게 함
+            if (options.optimizeCafe) {
+                a.target = "_blank";
+            }
+
+            if (options.cafeDefaultNewTab && options.cafeDefaultBackground) {
+                a.addEventListener("click", openInBackgroundListener);
+            }
+
+            if (options.newTabOnlyArticle && options.optimizeCafe) {
+                articleLinkToArticleOnlyLink(a);
+            }
+        }
+    }
 }
 
 function isValidHttpUrl(href) {
@@ -403,4 +455,14 @@ async function onClickPrevNextButton(event) {
             chrome.storage.session.set({ safeFlags });
         }
     }, 10000);
+}
+
+function clickToPopState(event) {
+    if (event.altKey || event.ctrlKey || event.shiftKey || event.metaKey) {
+        return;
+    }
+    event.preventDefault(); // 링크 동작 중지
+    const win = this.ownerDocument.defaultView;
+    win.history.pushState(null, "", this.href);
+    win.dispatchEvent(new PopStateEvent("popstate"));
 }
