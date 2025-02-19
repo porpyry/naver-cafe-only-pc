@@ -283,11 +283,12 @@ function createBackToOriginalButton() {
     }
     const button = document.createElement("button");
     button.classList.add("NCOP_BTO");
-    button.textContent = "⟳";
-    button.title = "구버전 카페로 새로고침\n(네이버 카페 easy PC 확장의 임시 기능입니다.)";
+    button.title = "구버전 카페로 새로고침\n(네이버 카페 easy PC 확장 임시 기능입니다.)";
     button.addEventListener("click", onClickBackToOriginalButton);
-    // document.body.appendChild(a); // bug (not loading)
-    document.body.prepend(button);
+    const i = document.createElement("i");
+    i.classList.add("nf", "nf-md-refresh"); // button.textContent = "⟳";
+    button.appendChild(i);
+    document.body.prepend(button); // document.body.appendChild(a); // bug (not loading)
 }
 
 async function onClickBackToOriginalButton(/*event*/) {
