@@ -72,7 +72,6 @@ class OnFoundArticle {
     static async prevNextButton(options) {
         // (1) 카페 최적화 (컨트롤 클릭 버그 수정, 게시글 단독 링크로 변경)
         // (2) 이전글·다음글 부드럽게 전환
-        const { noSmoothPrevNext } = await SessionSafeFlags.get();
 
         // (1), (2)
         // 기본 클릭 동작인 링크로 이동을 비활성화
@@ -85,6 +84,7 @@ class OnFoundArticle {
 
             // (2)
             if (options.smoothPrevNext) {
+                const { noSmoothPrevNext } = await SessionSafeFlags.get();
                 if (noSmoothPrevNext === false) {
                     span?.addEventListener("click", onClickPrevNextButton);
                 }
@@ -312,10 +312,11 @@ class OnFoundArticle {
         // (1) 카페 최적화 (프로필 사진에 링크 추가)
         // (2) 기본 새 탭에서 열기 (최근 글 목록 링크 변경)
         const doc = this.ownerDocument;
-        const { noSmoothProfile } = await SessionSafeFlags.get();
 
         // (1)
         if (options.optimizeCafe) {
+            const { noSmoothProfile } = await SessionSafeFlags.get();
+
             const url = doc.querySelector(".thumb_area a.thumb").href;
             if (url) {
                 const profileThumb = this.querySelector("img.profileCircle");
@@ -340,7 +341,7 @@ class OnFoundArticle {
         // (2)
         for (const a of this.querySelectorAll("li.recentArticleItem a")) {
             // 기본적으로 새 탭에서 열리게 함
-            if (options.optimizeCafe) {
+            if (options.cafeDefaultNewTab || options.optimizeCafe) {
                 a.target = "_blank";
             }
 
