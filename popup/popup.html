@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="ko">
   <head>
-    <title>Naver Cafe Easy PC</title>
+    <title>Naver Cafe Only PC</title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
     <link rel="stylesheet" href="popup.css">
   </head>
   <body>
     <div id="header">
-      <span>Naver Cafe Easy PC</span>
-      <span><br>v2.0.7</span> <!-- sync with manifest.json -->
+      <span>Naver Cafe Only PC</span>
+      <span><br>v2.0.8</span> <!-- sync with manifest.json -->
     </div>
     <div id="options">
       <div class="option-checkbox">
@@ -19,18 +19,18 @@
         <div class="option-group">
           <span class="group-title">새 탭</span>
           <div class="group-items">
-            <div class="option-checkbox" title="게시글을 새 탭으로 열었을 때 게시글 부분만 로딩하는 링크로 리다이렉트합니다.
+            <div class="option-checkbox" title="게시글을 새 탭으로 열었을 때 게시글 부분만 로딩하는 페이지로 변경합니다.
 마우스 뒤로가기 버튼으로 탭을 끌 수 있습니다.">
               <label><input type="checkbox" name="newTabOnlyArticle">새 탭에서 게시글 부분만 로딩</label>
             </div>
             <p class="tip guide">탭 끄기 : 마우스 뒤로가기 버튼</p>
-            <div class="option-checkbox" title="모바일 게시글 링크를 새 탭으로 열었을 때 PC 게시글 링크로 리다이렉트합니다.">
-              <label><input type="checkbox" name="newTabOnlyPC">모바일 링크 → PC 링크</label>
+            <div class="option-checkbox" title="모바일 버전의 게시글을 새 탭으로 열었을 때 PC 버전으로 변경합니다.">
+              <label><input type="checkbox" name="newTabOnlyPC">모바일 → PC</label>
             </div>
-            <div class="option-checkbox" title="카페에서 게시글을 클릭하면 새 탭에서 열립니다.">
+            <div class="option-checkbox" title="카페에서 게시글을 클릭하면 기본적으로 새 탭에서 열립니다.">
               <label><input type="checkbox" name="cafeDefaultNewTab">기본 새 탭으로 열기</label>
             </div>
-            <div class="option-checkbox submenu" data-parent="cafeDefaultNewTab" title="카페에서 게시글을 클릭하면 백그라운드에서 열립니다.">
+            <div class="option-checkbox submenu" data-parent="cafeDefaultNewTab" title="카페에서 게시글을 클릭하면 기본적으로 백그라운드에서 열립니다.">
               <label><input type="checkbox" name="cafeDefaultBackground">기본 백그라운드로 열기</label>
             </div>
           </div>
@@ -39,7 +39,7 @@
         <div class="option-group">
           <span class="group-title">편의 기능</span>
           <div class="group-items">
-            <div class="option-checkbox" title="좌우 방향키로 게시판에서는 페이지 이동, 게시글에서는 이전·다음글로 이동합니다.">
+            <div class="option-checkbox" title="좌우 방향키로 게시판에서는 페이지 이동, 게시글에서는 이전글·다음글로 이동합니다.">
               <label><input type="checkbox" name="pageArrowShortcut">페이지 이동 단축키 (←, →)</label>
             </div>
             <div class="option-checkbox" title="백스페이스로 검색창을 포커스합니다. 게시글에서는 댓글창을 포커스합니다.">
@@ -59,12 +59,12 @@
 1. 컨트롤 클릭이 안 되는 현상
 2. 페이지 전체가 불필요하게 로드되는 현상
 3. 새로고침하면 다른 페이지로 이동하는 현상
-4. 리뉴얼 페이지(/f-e/)로 이동하는 현상 (일부)
+4. 리뉴얼 페이지(/f-e/)로 이동하는 현상
 〈속도 향상〉
 1. 새 탭 기능 사용시 카페 내 링크들을 미리 효율적인 링크로 변환 (0.1초 정도 빨라짐)">
               <label><input type="checkbox" name="optimizeCafe">카페 최적화</label>
             </div>
-            <div class="option-checkbox" title="게시글의 이전글·다음글을 부드럽게 전환합니다.">
+            <div class="option-checkbox" title="게시글에서 이전글·다음글을 부드럽게 전환합니다.">
               <label><input type="checkbox" name="smoothPrevNext">이전글·다음글 부드럽게 전환</label>
             </div>
             <div class="option-checkbox" title="(임시 기능) 리뉴얼 페이지(/f-e/)에 접속됐을 때,

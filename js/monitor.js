@@ -298,9 +298,6 @@ class Monitor {
                 for (const oglinkElement of divContentBox.querySelectorAll(".se-module-oglink")) {
                     this.call("app.article.content-oglink-element", oglinkElement);
                 }
-                for (const imageLinkElement of divContentBox.querySelectorAll("a.se-module-image-link-use")) {
-                    this.call("app.article.content-image-link-element", imageLinkElement);
-                }
                 // 네이버 카페 애드온 (epcibdcgmbiimdleghmeldeopdjcaeic)
                 const articleWriterProfile = divContentBox.querySelector(".ArticleWriterProfile");
                 if (articleWriterProfile) {
@@ -319,9 +316,6 @@ class Monitor {
             parentKeys: ["app.article.content-box"]
         },
         "app.article.content-oglink-element": {
-            parentKeys: ["app.article.content-box"]
-        },
-        "app.article.content-image-link-element": {
             parentKeys: ["app.article.content-box"]
         },
         "app.article.profile-card": {

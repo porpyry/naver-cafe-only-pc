@@ -13,7 +13,7 @@
         return;
     }
 
-    const info = MobileURLParser.getInfo(location.pathname, location.search);
+    const info = MobileURLParser.getInfo(g_initialPathname, g_initialSearch);
     if (!info) {
         return;
     }

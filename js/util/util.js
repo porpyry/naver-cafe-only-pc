@@ -226,7 +226,8 @@ async function checkPageValidity(doc) {
     let app = doc.querySelector("body > #app");
     if (!app) {
         try {
-            const res = await fetch(doc.location.href, { method: "HEAD" });
+            const href = (doc === document) ? g_initialHref : doc.location.href;
+            const res = await fetch(href, { method: "HEAD" });
             if (res?.status === 404) {
                 pageNotFound(doc, true);
             }
@@ -264,7 +265,7 @@ async function pageNotFound(doc, is404) {
     }
     const a = doc.createElement("a");
     a.href = "#";
-    a.textContent = "[네이버 카페 Easy PC] 확장 기능 비활성화하기";
+    a.textContent = "[네이버 카페 Only PC] 해당 기능 비활성화하기";
     a.style.all = "revert";
     a.addEventListener("click", async () => {
         const options = await Options.get();
@@ -283,7 +284,7 @@ function createBackToOriginalButton() {
     }
     const button = document.createElement("button");
     button.classList.add("NCOP_BTO");
-    button.title = "구버전 카페로 새로고침\n(네이버 카페 easy PC 확장 임시 기능입니다.)";
+    button.title = "구버전 카페로 새로고침 (각종 확장 기능 정상화)\n\n - [네이버 카페 Only PC]";
     button.addEventListener("click", onClickBackToOriginalButton);
     button.innerHTML = `<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
 	width="40px" height="40px" viewBox="-10 -10 114.073 114.072" xml:space="preserve">
