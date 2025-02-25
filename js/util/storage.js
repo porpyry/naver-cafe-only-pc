@@ -1,7 +1,6 @@
 class Options {
     enableApp = true;
     newTabOnlyArticle = true;
-    newTabOnlyArticleUnsafe = false;
     newTabOnlyPC = true;
     cafeDefaultNewTab = false;
     cafeDefaultBackground = false;

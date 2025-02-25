@@ -17,11 +17,6 @@
     if (!info) {
         return;
     }
-    if (info.type === PCArticleURLParser.TYPE_DEFAULT) {
-        if (!options.newTabOnlyArticleUnsafe) {
-            return;
-        }
-    }
 
     const url = await PCArticleURLParser.getArticleOnlyURL(info)
     if (!url) {
