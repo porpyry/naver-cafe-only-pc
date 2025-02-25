@@ -488,6 +488,33 @@ class Monitor {
         },
         "article-search-list.list-type-element": {
             parentKeys: ["article-search-list.document"]
+        },
+        // --- --- --- --- --- --- --- --- NewCafe --- --- --- --- --- --- --- ---
+        "new-cafe.document": {
+            parentKeys: [],
+            onFoundEnd: (doc) => {
+                const cafeContent = doc.querySelector("#cafe_content");
+                if (cafeContent) {
+                    this.call("new-cafe.cafe-content", cafeContent);
+                }
+            }
+        },
+        "new-cafe.cafe-content": {
+            parentKeys: ["new-cafe.document"],
+            onFoundEnd: (cafeContent) => {
+                this.clear("new-cafe.document", true);
+                watchingChild(cafeContent, ".BoardHeader", () => {
+                    this.call("new-cafe.cafe-content.board.in", cafeContent);
+                }, () => {
+                    this.call("new-cafe.cafe-content.board.out", cafeContent);
+                });
+            }
+        },
+        "new-cafe.cafe-content.board.in": {
+            parentKeys: ["new-cafe.cafe-content"]
+        },
+        "new-cafe.cafe-content.board.out": {
+            parentKeys: ["new-cafe.cafe-content"]
         }
     };
 

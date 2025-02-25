@@ -413,6 +413,10 @@ async function onClickPrevNextButton(event) {
     const oldHref = a.href;
     const linkInfo = PCArticleURLParser.getInfo(a.pathname, a.search);
     const linkUrl = await PCArticleURLParser.getArticleOnlyURL(linkInfo);
+    if (!linkUrl) {
+        a.click();
+        return;
+    }
     const win = this.ownerDocument.defaultView;
     win.history.pushState(null, "", linkUrl);
     win.dispatchEvent(new PopStateEvent("popstate"));

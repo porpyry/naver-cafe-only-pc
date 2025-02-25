@@ -8,7 +8,7 @@
   <body>
     <div id="header">
       <span>Naver Cafe Only PC</span>
-      <span><br>v2.0.8</span> <!-- sync with manifest.json -->
+      <span><br>v2.0.9</span> <!-- sync with manifest.json -->
     </div>
     <div id="options">
       <div class="option-checkbox">
@@ -22,6 +22,10 @@
             <div class="option-checkbox" title="게시글을 새 탭으로 열었을 때 게시글 부분만 로딩하는 페이지로 변경합니다.
 마우스 뒤로가기 버튼으로 탭을 끌 수 있습니다.">
               <label><input type="checkbox" name="newTabOnlyArticle">새 탭에서 게시글 부분만 로딩</label>
+            </div>
+            <div class="option-checkbox submenu" data-parent="newTabOnlyArticle" title="카페 외부에서 게시글을 열 때도 적용합니다.
+(기본 게시글 링크를 강제 리다이렉트)">
+              <label><input type="checkbox" name="newTabOnlyArticleUnsafe">외부에서 열 때도 적용</label>
             </div>
             <p class="tip guide">탭 끄기 : 마우스 뒤로가기 버튼</p>
             <div class="option-checkbox" title="모바일 버전의 게시글을 새 탭으로 열었을 때 PC 버전으로 변경합니다.">

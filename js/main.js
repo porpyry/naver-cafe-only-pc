@@ -6,40 +6,53 @@
         return;
     }
 
-    if (g_initialPathname.startsWith("/f-e/cafes/")) {
-        if (options.backToOriginal) {
-            createBackToOriginalButton();
-        }
+    const isNewCafe = g_initialPathname.startsWith("/f-e/cafes/");
+    const items = filterItems(
+        isNewCafe ?
+            [
+                OnFoundNewCafe.getIndex(options)
+            ] :
+            [
+                OnFoundArticle.getIndex(options),
+                OnFoundArticleList.getIndex(options),
+                OnFoundArticleSearchList.getIndex(options),
+                OnFoundCafe.getIndex(options),
+                OnFoundCafeIntro.getIndex(options),
+                OnFoundDocument.getIndex(options),
+                OnFoundMember.getIndex(options),
+                OnFoundPopular.getIndex(options)
+            ]
+    );
+    if (items.length === 0) {
         return;
     }
 
     const monitor = new Monitor(options);
-
-    const functionNodeIndexList = [
-        OnFoundArticle.getIndex(options),
-        OnFoundArticleList.getIndex(options),
-        OnFoundArticleSearchList.getIndex(options),
-        OnFoundCafe.getIndex(options),
-        OnFoundCafeIntro.getIndex(options),
-        OnFoundDocument.getIndex(options),
-        OnFoundMember.getIndex(options),
-        OnFoundPopular.getIndex(options)
-    ];
-
-    for (const functionNodeIndex of functionNodeIndexList) {
-        for (const [key, functionNode, isValid] of functionNodeIndex) {
-            if (!functionNode) {
-                throw new Error("NaverCafeOnlyPC: Invalid function node.");
-            }
-            if (isValid) {
-                monitor.on(key, functionNode);
-            }
-        }
+    for (const { key, func } of items) {
+        monitor.on(key, func);
     }
-
     monitor.ready();
 
     window.addEventListener("DOMContentLoaded", () => {
-        monitor.call("document", document);
+        if (isNewCafe) {
+            monitor.call("new-cafe.document", document);
+        } else {
+            monitor.call("document", document);
+        }
     });
+
+    function filterItems(indexList) {
+        const items = [];
+        for (const index of indexList) {
+            for (const [key, func, isValid] of index) {
+                if (!func) {
+                    throw new Error(`NaverCafeOnlyPC: Invalid function at key: ${key}`);
+                }
+                if (isValid) {
+                    items.push({ key, func });
+                }
+            }
+        }
+        return items;
+    }
 })();

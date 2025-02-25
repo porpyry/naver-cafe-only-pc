@@ -17,8 +17,8 @@ button.NCOP_BTO {
     position: fixed;
     top: 20px;
     right: 20px;
-    width: 40px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
     z-index: 10000;
     color: white;
 }

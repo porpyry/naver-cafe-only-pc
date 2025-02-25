@@ -284,10 +284,10 @@ function createBackToOriginalButton() {
     }
     const button = document.createElement("button");
     button.classList.add("NCOP_BTO");
-    button.title = "구버전 카페로 새로고침 (각종 확장 기능 정상화)\n\n - [네이버 카페 Only PC]";
+    button.title = "구버전 카페로 새로고침 (각종 확장 기능 정상화)\n - [네이버 카페 Only PC]";
     button.addEventListener("click", onClickBackToOriginalButton);
     button.innerHTML = `<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-	width="40px" height="40px" viewBox="-10 -10 114.073 114.072" xml:space="preserve">
+	width="35px" height="35px" viewBox="-10 -10 114.073 114.072" xml:space="preserve">
 <g fill="currentcolor" stroke="black" stroke-width="3.5">
 	<g>
 		<path d="M91.465,5.491c-0.748-0.311-1.609-0.139-2.18,0.434l-8.316,8.316C72.046,5.057,60.125,0,47.399,0
