@@ -10,7 +10,8 @@
                       }
 , "background"      : { "service_worker": "background.js" }
 , "content_scripts" : [ { "matches": [ "https://m.cafe.naver.com/*" ]
-                        , "js"     : [ "js/util/storage.js"
+                        , "js"     : [ "js/early-check.js"
+                                     , "js/util/storage.js"
                                      , "js/util/url-parser-mobile.js"
                                      , "js/redirect-mobile.js"
                                      ]
