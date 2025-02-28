@@ -6,9 +6,8 @@
         return;
     }
 
-    const isNewCafe = g_initialPathname.startsWith("/f-e/cafes/");
     const items = filterItems(
-        isNewCafe ?
+        g_isNewCafe ?
             [
                 OnFoundNewCafe.getIndex(options)
             ] :
@@ -34,7 +33,7 @@
     monitor.ready();
 
     window.addEventListener("DOMContentLoaded", () => {
-        if (isNewCafe) {
+        if (g_isNewCafe) {
             monitor.call("new-cafe.document", document);
         } else {
             monitor.call("document", document);

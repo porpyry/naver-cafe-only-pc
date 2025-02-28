@@ -27,7 +27,7 @@ class OnFoundDocument {
         // (1)
         if (options.pageArrowShortcut) {
             this.addEventListener("keyup", (event) => {
-                const iframe = document.querySelector("iframe#cafe_main");
+                const iframe = document.querySelector("#main-area iframe#cafe_main");
                 if (isIframeDocumentLoaded(iframe)) {
                     const bound = dispatchInputSafeArrowKeyUpEvent.bind(iframe.contentDocument);
                     bound(event);
@@ -39,7 +39,7 @@ class OnFoundDocument {
         if (options.searchCommentShortcut) {
             this.addEventListener("keyup", dispatchInputSafeBackspaceKeyUpEvent); // iframe이 로드되기 전까지 사용할 리스너
             this.addEventListener("keyup", (event) => {
-                const iframe = document.querySelector("iframe#cafe_main");
+                const iframe = document.querySelector("#main-area iframe#cafe_main");
                 if (isIframeDocumentLoaded(iframe)) {
                     const bound = dispatchInputSafeBackspaceKeyUpEvent.bind(iframe.contentDocument);
                     bound(event);
@@ -57,7 +57,7 @@ class OnFoundDocument {
             createClickShieldSpan(a?.firstChild, true);
 
             // (3-2)
-            const iframe = document.querySelector("iframe#cafe_main");
+            const iframe = document.querySelector("#main-area iframe#cafe_main");
             if (iframe) {
                 iframeURLChange(iframe, (href) => {
                     const url = new URL(href);

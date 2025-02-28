@@ -1,6 +1,6 @@
 { "manifest_version": 3
 , "name"            : "네이버 카페 Only PC"
-, "version"         : "2.0.9"
+, "version"         : "2.0.9.1"
 , "description"     : "새 탭에서 게시글 부분만 로딩 / 모바일 페이지 접속 방지 / 기타 편의 기능"
 , "permissions"     : [ "storage" ]
 , "icons"           : { "128": "img/icon.png" }
@@ -32,7 +32,7 @@
                                      , "js/node/document.js"
                                      , "js/node/member.js"
                                      , "js/node/popular.js"
-                                     , "js/node/new-cafe.js"
+                                     , "js/node2/new-cafe.js"
                                      , "js/monitor.js"
                                      , "js/main.js"
                                      ]

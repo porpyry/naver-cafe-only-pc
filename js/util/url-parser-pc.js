@@ -176,7 +176,7 @@ class PCURLParser {
         }
 
         // { type: "new-cafe" }
-        if (pathname.startsWith("/f-e/cafes/")) {
+        if (pathname.startsWith("/f-e/")) {
             return { type: "new-cafe" };
         }
     }

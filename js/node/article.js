@@ -24,7 +24,7 @@ class OnFoundArticle {
     /** @this {HTMLElement}
       * @param {Options} options */
     static base(/*options*/) {
-        // (1) 단독 게시글이 유효하지 않은 경우 메시지 표시하기
+        // (1) 기본 새 탭 (단독 게시글이 유효하지 않은 경우 메시지 표시하기)
 
         // (1)
         if (this.ownerDocument === document) {
@@ -82,7 +82,10 @@ class OnFoundArticle {
             const span = createClickShieldBox(this);
 
             // (2)
-            if (options.smoothPrevNext) {
+            const loc = this.ownerDocument.location;
+            const info = PCArticleURLParser.getInfo(loc.pathname, loc.search);
+            const isArticleOnly = info.type === PCArticleURLParser.TYPE_ARTICLE_ONLY;
+            if (options.smoothPrevNext && isArticleOnly) {
                 const { noSmoothPrevNext } = await SessionSafeFlags.get();
                 if (noSmoothPrevNext === false) {
                     span?.addEventListener("click", onClickPrevNextButton);
@@ -91,7 +94,7 @@ class OnFoundArticle {
                 this.classList.remove("NCOP_LOADING"); // 로딩중 표시 해제
             }
         } else {
-            createClickShieldBox(this, true);
+            createClickShieldBox(this, true); // 기본 클릭 동작은 건들지 않음
         }
     }
 
@@ -102,12 +105,14 @@ class OnFoundArticle {
 
         // (1)
         // 기본 클릭 동작인 링크로 이동을 비활성화
-        if (this.ownerDocument === document) {
-            createClickShieldBox(this); // 게시글 단독 페이지에서는 전체 링크로 가는 게 더 효율적이다.
-        } else {
-            const url = totalLinkToIframeLink(this);
-            if (url) {
-                createClickShieldBox(this);
+        if (this.pathname === "/ArticleList.nhn") {
+            if (this.ownerDocument === document) {
+                createClickShieldBox(this); // 게시글 단독 페이지에서는 전체 링크로 가는 게 더 효율적이다.
+            } else {
+                const url = totalLinkToIframeLink(this);
+                if (url) {
+                    createClickShieldBox(this);
+                }
             }
         }
     }

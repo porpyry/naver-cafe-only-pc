@@ -270,7 +270,6 @@ async function pageNotFound(doc, is404) {
     a.addEventListener("click", async () => {
         const options = await Options.get();
         options.newTabOnlyArticle = false;
-        options.smoothPrevNext = false;
         await options.save();
         a.textContent = "비활성화 완료되었습니다.";
     });
@@ -284,7 +283,7 @@ function createBackToOriginalButton() {
     }
     const button = document.createElement("button");
     button.classList.add("NCOP_BTO");
-    button.title = "구버전 카페로 새로고침 (각종 확장 기능 정상화)\n - [네이버 카페 Only PC]";
+    button.title = "구버전 카페로 새로고침 (각종 확장 기능 정상화)\n - [네이버 카페 Only PC] 임시 옵션";
     button.addEventListener("click", onClickBackToOriginalButton);
     button.innerHTML = `<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
 	width="35px" height="35px" viewBox="-10 -10 114.073 114.072" xml:space="preserve">
@@ -307,7 +306,7 @@ function createBackToOriginalButton() {
 }
 
 async function onClickBackToOriginalButton(/*event*/) {
-    const iframe = document.querySelector("iframe#cafe_main");
+    const iframe = document.querySelector("#main-area iframe#cafe_main");
     const infoFE = PCURLParserFE.getInfo(location.pathname, location.search);
     if (isIframeDocumentLoaded(iframe)) {
         const loc = iframe.contentWindow.location;
@@ -333,7 +332,7 @@ async function onClickBackToOriginalButton(/*event*/) {
                     return;
                 }
             }
-        } else if (location.pathname.startsWith("/f-e")) {
+        } else if (location.pathname.startsWith("/f-e/")) {
             // f-e 주소이지만 정상적으로 읽히지 않은 경우 (확장 충돌) -> iframe에서 정보를 찾음
             const iframeInfo = PCURLParser.getIframeUrlInfo(loc.pathname, loc.search);
             if (iframeInfo?.cafeId) {

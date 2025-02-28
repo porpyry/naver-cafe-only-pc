@@ -107,7 +107,7 @@ class Monitor {
         "document": {
             parentKeys: [],
             onFoundEnd: (doc) => {
-                const iframe = doc.querySelector("iframe#cafe_main");
+                const iframe = doc.querySelector("#main-area iframe#cafe_main");
                 if (iframe) {
                     this.call("cafe.document", doc);
                 } else {
@@ -126,7 +126,7 @@ class Monitor {
             parentKeys: ["document"],
             onFoundEnd: (doc) => {
                 this.clear("document", true);
-                const iframe = doc.querySelector("iframe#cafe_main");
+                const iframe = doc.querySelector("#main-area iframe#cafe_main");
                 if (iframe) {
                     // 내부 프레임의 URL이 변경될 때마다 호출된다.
                     iframe.addEventListener("load", (event) => {
@@ -203,26 +203,39 @@ class Monitor {
             onFoundEnd: (divSidePanel) => {
                 const ulFavoriteMenu = divSidePanel.querySelector("ul#favoriteMenuGroup");
                 if (ulFavoriteMenu) {
-                    if (ulFavoriteMenu.style.display !== "none") {
-                        this.call("cafe.favorite-menu", ulFavoriteMenu);
-                    } else {
-                        new MutationObserver((mutationList) => {
-                            for (const mutation of mutationList) {
-                                if (mutation.target?.style?.display !== "none") {
-                                    this.call("cafe.favorite-menu", mutation.target);
-                                    return;
-                                }
+                    new MutationObserver((mutationList) => {
+                        for (const mutation of mutationList) {
+                            if (mutation.target?.style?.display !== "none") {
+                                this.call("cafe.favorite-menu.open", mutation.target);
+                                return;
                             }
-                        }).observe(ulFavoriteMenu, { attributeFilter: ["style"] });
+                        }
+                    }).observe(ulFavoriteMenu, { attributeFilter: ["style"] });
+                    if (ulFavoriteMenu.style.display !== "none") {
+                        this.call("cafe.favorite-menu.open", ulFavoriteMenu);
                     }
                 }
-                const aManager = divSidePanel.querySelector("#ia-info-data a.id.mlink");
+                const aManager = divSidePanel.querySelector("#cafe-info-data #ia-info-data a.id.mlink");
                 if (aManager) {
                     this.call("cafe.manager-profile", aManager);
+                }
+                const myProfileContainer = divSidePanel.querySelector("#cafe-info-action #ia-action-data");
+                if (myProfileContainer) {
+                    watchSelector(myProfileContainer, ".ia-action-data").then((myProfileDiv) => {
+                        const aMyProfile = myProfileDiv.querySelector("ul > li#editLayer.name.gm-tcol-c > .prfl_info > a");
+                        if (aMyProfile) {
+                            this.call("cafe.my-profile", aMyProfile);
+                        }
+                    });
                 }
                 const aPopular = divSidePanel.querySelector("#cafe-menu #menuLink-7");
                 if (aPopular?.href.includes("popular")) {
                     this.call("cafe.popular-menu", aPopular);
+                }
+                const aMenuList = Array.from(divSidePanel.querySelectorAll("#cafe-menu ul.cafe-menu-list > li > a"));
+                const aMenuListNoTarget = aMenuList.filter(a => a.pathname === "/ArticleList.nhn" && a.target === "");
+                if (aMenuListNoTarget.length > 0) {
+                    this.call("cafe.menu-list.no-target", aMenuListNoTarget);
                 }
                 this.map.delete("cafe.side-panel");
             }
@@ -230,10 +243,16 @@ class Monitor {
         "cafe.manager-profile": {
             parentKeys: ["cafe.side-panel"]
         },
-        "cafe.favorite-menu": {
+        "cafe.my-profile": {
+            parentKeys: ["cafe.side-panel"]
+        },
+        "cafe.favorite-menu.open": {
             parentKeys: ["cafe.side-panel"]
         },
         "cafe.popular-menu": {
+            parentKeys: ["cafe.side-panel"]
+        },
+        "cafe.menu-list.no-target": {
             parentKeys: ["cafe.side-panel"]
         },
         // --- --- --- --- --- --- --- --- App.Article --- --- --- --- --- --- --- ---
@@ -693,4 +712,8 @@ body -> #app -> (내용)
 (list-type-element)
   .inner_list > a.article (제목) > span.head(말머리), TEXT
   .inner_list > a.cmt (댓글수) > "[", em, "]"
+
+[Sidebar-MyInfo]
+body > #cafe-body-skin > #cafe-body > #content-area > #group-area > #cafe-info-action > #cafe-info-data > .box-g > #ia-info-data.ia-info-data > ul > li.gm-tcol-c > a.id.mlink.gm-tcol-c
+body > #cafe-body-skin > #cafe-body > #content-area > #group-area > #cafe-info-action > #member-action-data > .box-g > #ia-action-data -> .ia-action-data > ul > li#editLayer.name.gm-tcol-c > .prfl_info > a
 */
