@@ -44,13 +44,8 @@ class OnFoundCafe {
         const iframe = document.querySelector("#main-area iframe#cafe_main");
         const infoFE = PCURLParserFE.getInfo(this.pathname, this.search);
         if (iframe && infoFE?.type === PCURLParserFE.TYPE_MEMBER) {
-            const href = `/ca-fe/cafes/${infoFE.cafeId}/members/${infoFE.memberCode}`;
-            fetch(href, { method: "HEAD" }).then((res) => {
-                if (res.status === 200) {
-                    this.href = href;
-                    this.target = "cafe_main";
-                }
-            });
+            this.href = `/ca-fe/cafes/${infoFE.cafeId}/members/${infoFE.memberCode}`;
+            this.target = "cafe_main";
         }
     }
 
@@ -63,13 +58,8 @@ class OnFoundCafe {
         const iframe = document.querySelector("#main-area iframe#cafe_main");
         const infoFE = PCURLParserFE.getInfo(this.pathname, this.search);
         if (iframe && infoFE?.type === PCURLParserFE.TYPE_POPULAR) {
-            const href = `/ca-fe/cafes/${infoFE.cafeId}/popular`;
-            fetch(href, { method: "HEAD" }).then((res) => {
-                if (res.status === 200) {
-                    this.href = href;
-                    this.target = "cafe_main";
-                }
-            });
+            this.href = `/ca-fe/cafes/${infoFE.cafeId}/popular`;
+            this.target = "cafe_main";
         }
     }
 
