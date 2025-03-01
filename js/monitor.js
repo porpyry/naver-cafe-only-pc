@@ -232,8 +232,7 @@ class Monitor {
                 if (aPopular?.href.includes("popular")) {
                     this.call("cafe.popular-menu", aPopular);
                 }
-                const aMenuList = Array.from(divSidePanel.querySelectorAll("#cafe-menu ul.cafe-menu-list > li > a"));
-                const aMenuListNoTarget = aMenuList.filter(a => a.pathname === "/ArticleList.nhn" && a.target === "");
+                const aMenuListNoTarget = Array.from(divSidePanel.querySelectorAll('#cafe-menu ul.cafe-menu-list > li > a[href^="/ArticleList.nhn"]:not([target])'));
                 if (aMenuListNoTarget.length > 0) {
                     this.call("cafe.menu-list.no-target", aMenuListNoTarget);
                 }

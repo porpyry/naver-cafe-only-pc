@@ -10,6 +10,7 @@ class Options {
     optimizeCafe = false;
     smoothPrevNext = false;
     backToOriginal = true;
+    keepOriginalCafe = true;
 
     constructor(options) {
         Object.assign(this, options);

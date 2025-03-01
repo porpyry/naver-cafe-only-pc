@@ -2,12 +2,13 @@ class OnFoundCafe {
 
     /** @param {Options} options */
     static getIndex(options) {
+        const optionsKeepOriginalCafe = options.backToOriginal && options.keepOriginalCafe;
         return [
             ["cafe.favorite-menu.open", this.favoriteMenuOpen, options.changeFavoriteOrder],
-            ["cafe.manager-profile", this.sidebarProfile, options.optimizeCafe],
-            ["cafe.my-profile", this.sidebarProfile, options.optimizeCafe],
-            ["cafe.popular-menu", this.popularMenu, options.optimizeCafe],
-            ["cafe.menu-list.no-target", this.menuListNoTarget, options.optimizeCafe]
+            ["cafe.manager-profile", this.sideProfile, optionsKeepOriginalCafe],
+            ["cafe.my-profile", this.sideProfile, optionsKeepOriginalCafe],
+            ["cafe.popular-menu", this.popularMenu, optionsKeepOriginalCafe],
+            ["cafe.menu-list.no-target", this.menuListNoTarget, optionsKeepOriginalCafe]
         ];
     }
 
@@ -36,36 +37,46 @@ class OnFoundCafe {
 
     /** @this {HTMLAnchorElement}
       * @param {Options} options */
-    static sidebarProfile(/*options*/) {
-        // (1) 카페 최적화 (f-e 링크를 기존 링크로 변경)
+    static sideProfile(/*options*/) {
+        // (1) 구버전 카페 유지 (f-e 링크를 기존 링크로 변경)
 
         // (1)
         const iframe = document.querySelector("#main-area iframe#cafe_main");
         const infoFE = PCURLParserFE.getInfo(this.pathname, this.search);
         if (iframe && infoFE?.type === PCURLParserFE.TYPE_MEMBER) {
-            this.href = `/ca-fe/cafes/${infoFE.cafeId}/members/${infoFE.memberCode}`;
-            this.target = "cafe_main";
+            const href = `/ca-fe/cafes/${infoFE.cafeId}/members/${infoFE.memberCode}`;
+            fetch(href, { method: "HEAD" }).then((res) => {
+                if (res.status === 200) {
+                    this.href = href;
+                    this.target = "cafe_main";
+                }
+            });
         }
     }
 
     /** @this {HTMLAnchorElement}
       * @param {Options} options */
     static popularMenu(/*options*/) {
-        // (1) 카페 최적화 (f-e 링크를 기존 링크로 변경)
+        // (1) 구버전 카페 유지 (f-e 링크를 기존 링크로 변경)
 
         // (1)
         const iframe = document.querySelector("#main-area iframe#cafe_main");
         const infoFE = PCURLParserFE.getInfo(this.pathname, this.search);
         if (iframe && infoFE?.type === PCURLParserFE.TYPE_POPULAR) {
-            this.href = `/ca-fe/cafes/${infoFE.cafeId}/popular`;
-            this.target = "cafe_main";
+            const href = `/ca-fe/cafes/${infoFE.cafeId}/popular`;
+            fetch(href, { method: "HEAD" }).then((res) => {
+                if (res.status === 200) {
+                    this.href = href;
+                    this.target = "cafe_main";
+                }
+            });
         }
     }
 
     /** @this {HTMLAnchorElement[]}
       * @param {Options} options */
     static menuListNoTarget(/*options*/) {
-        // (1) 카페 최적화 (f-e 링크를 기존 링크로 변경)
+        // (1) 구버전 카페 유지 (target을 iframe으로 설정)
 
         // (1)
         const iframe = document.querySelector("#main-area iframe#cafe_main");

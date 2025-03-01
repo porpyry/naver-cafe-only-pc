@@ -265,11 +265,11 @@ async function pageNotFound(doc, is404) {
     }
     const a = doc.createElement("a");
     a.href = "#";
-    a.textContent = "[네이버 카페 Only PC] 해당 기능 비활성화하기";
+    a.textContent = "[네이버 카페 Only PC] 비활성화하기";
     a.style.all = "revert";
     a.addEventListener("click", async () => {
         const options = await Options.get();
-        options.newTabOnlyArticle = false;
+        options.enableApp = false;
         await options.save();
         a.textContent = "비활성화 완료되었습니다.";
     });

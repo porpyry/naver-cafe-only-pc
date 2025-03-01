@@ -105,7 +105,7 @@ class OnFoundArticle {
 
         // (1)
         // 기본 클릭 동작인 링크로 이동을 비활성화
-        if (this.pathname === "/ArticleList.nhn") {
+        if (this.search.includes("ArticleList.nhn")) {
             if (this.ownerDocument === document) {
                 createClickShieldBox(this); // 게시글 단독 페이지에서는 전체 링크로 가는 게 더 효율적이다.
             } else {
@@ -122,11 +122,11 @@ class OnFoundArticle {
     static contentBox(options) {
         // (1) 기본 기능 (단독 게시글 페이지에서 탭 제목 수정)
         // (2-1) 카페 최적화 (URL 복사에서 컨트롤 클릭 버그 수정)
-        // (2-2) 카페 최적화 (좌상단 게시판 버튼 href·target 수정)
-        // (2-3) 카페 최적화 (상단 프로필 사진, 하단 프로필 더보기 클릭 -> popState)
-        // (2-4) 카페 최적화가 아니더라도 새로고침 가능하도록 URL 변경
-        // (3) 이전글·다음글 부드럽게 전환 (alzartak과 호환)
-        // (4) 로딩이 오래 걸려서 생성된 경고문 삭제
+        // (2-2) 카페 최적화 (상단 프로필 사진, 하단 프로필 더보기 클릭 -> popState)
+        // (3-1) 이전글·다음글 부드럽게 전환 (alzartak과 호환)
+        // (3-2) 특수 상황에서 새로고침 가능하도록 URL 변경 (no app.changed.document)
+        // (4) 경고문 삭제
+        // (5) 구버전 카페 유지 (좌상단 게시판 버튼 href·target 수정)
 
         // (1)
         if (this.ownerDocument === document) {
@@ -144,17 +144,6 @@ class OnFoundArticle {
             }
 
             // (2-2)
-            const tlBoardLink = this.querySelector(".ArticleTitle a.link_board"); // TopLeft
-            if (tlBoardLink) {
-                if (tlBoardLink.pathname === "/f-e/ArticleList.nhn") {
-                    tlBoardLink.pathname = "/ArticleList.nhn";
-                }
-                if (tlBoardLink.target === "_parent" || tlBoardLink.target === "_top") {
-                    tlBoardLink.target = "_self";
-                }
-            }
-
-            // (2-3)
             const aProfileThumb = this.querySelector(".thumb_area a.thumb");
             const aProfileMore = this.querySelector(".ArticleWriterProfile a.more_area");
             SessionSafeFlags.get().then(({ noSmoothProfile }) => {
@@ -163,19 +152,21 @@ class OnFoundArticle {
                     aProfileMore?.addEventListener("click", clickToPopState);
                 }
             });
-        } else {
-            // (2-4)
-            if (this.ownerDocument !== document) {
-                setTimeout(() => {
-                    const loc = this.ownerDocument.location;
-                    cleanUpUrlForRefresh(loc.pathname, loc.search);
-                }, 1); // 타 확장과 충돌 방지
-            }
         }
 
-        // (3)
         if (options.smoothPrevNext) {
+            // (3-1)
             this.ownerDocument.dispatchEvent(new Event("readystatechange"));
+
+            // (3-2)
+            if (!options.optimizeCafe) {
+                if (this.ownerDocument !== document) {
+                    setTimeout(() => {
+                        const loc = this.ownerDocument.location;
+                        cleanUpUrlForRefresh(loc.pathname, loc.search);
+                    }, 1); // 타 확장과 충돌 방지
+                }
+            }
         }
 
         // (4)
@@ -183,13 +174,24 @@ class OnFoundArticle {
             this.ownerDocument.querySelector(".NCOP_WARN1")?.remove();
             this.ownerDocument.querySelector(".NCOP_WARN2")?.remove();
         }
+
+        // (5)
+        if (options.optimizeCafe || (options.backToOriginal && options.keepOriginalCafe)) {
+            const tlBoardLink = this.querySelector(".ArticleTitle a.link_board"); // TopLeft
+            if (tlBoardLink?.pathname === "/f-e/ArticleList.nhn") {
+                tlBoardLink.pathname = "/ArticleList.nhn";
+                if (tlBoardLink.target === "_parent" || tlBoardLink.target === "_top") {
+                    tlBoardLink.target = "_self";
+                }
+            }
+        }
     }
 
     /** @this {HTMLAnchorElement}
       * @param {Options} options */
     static contentLinkElement(options) {
         // (1) 기본 백그라운드에서 열기 ..(기본 새 탭에서 열기시)
-        // (2-1) 카페 최적화 (카페 링크로 변경) ..(모바일 -> PC 사용시)
+        // (2-1) 카페 최적화 (PC 링크로 변경) ..(모바일 -> PC 사용시)
         // (2-2) 카페 최적화 (게시글 단독 링크로 변경) ..(게시글 부분만 로딩시)
 
         // 기본 클릭 동작인 새 탭에서 열기를 비활성화
@@ -225,7 +227,7 @@ class OnFoundArticle {
       * @param {Options} options */
     static contentOglinkElement(options) {
         // (1) 기본 백그라운드에서 열기 ..(기본 새 탭에서 열기시)
-        // (2-1) 카페 최적화 (카페 링크로 변경) ..(모바일 -> PC 사용시)
+        // (2-1) 카페 최적화 (PC 링크로 변경) ..(모바일 -> PC 사용시)
         // (2-2) 카페 최적화 (게시글 단독 링크로 변경) ..(게시글 부분만 로딩시)
         const aInfo = this.querySelector("a.se-oglink-info"); // not null
         const aThumb = this.querySelector("a.se-oglink-thumbnail");
